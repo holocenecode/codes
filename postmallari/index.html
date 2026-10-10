@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Post-Mallari Guide</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=News+Cycle:wght@400;700&display=swap">
+<script>try{var t=localStorage.getItem('pamana.theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t;}catch(e){}</script>
+<style>
+  /* Layout: a 16:9 woven stage in the Talaan's frame, scaled to the window; under 760px it becomes a scrolling reader. */
+  :root{
+    --page:#f5f7fd; --paper:#ffffff; --bg-2:#f5f7fd;
+    --ink:#001323; --ink-rgb:0,19,35; --gray:#4a4652; --gray-dim:#8d8896;
+    --line:rgba(0,19,35,0.35); --line-soft:rgba(0,19,35,0.14);
+    --indigo:#4d2177; --saffron:#ff9933; --madder:#cc3333; --maroon:#993333;
+    --indigo-tint:#f5f0fa; --saffron-tint:#fff4ea; --madder-tint:#fcefee; --maroon-tint:#f8eded; --gray-tint:#f1f0f3;
+    --weave-bg:#fff4ea; --field:#fbfaf7; --diamond:rgba(153,51,51,0.22);
+    --chip-lift:0%; --tag-ink:#001323; --on-ink:#ffffff;
+    --font:'News Cycle','Arial Narrow',Arial,sans-serif;
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --page:#000000; --paper:#0f0e10; --bg-2:#141216;
+      --ink:#ece6dc; --ink-rgb:236,230,220; --gray:#b8afa4; --gray-dim:#80786f;
+      --line:rgba(236,230,220,0.2); --line-soft:rgba(236,230,220,0.1);
+      --indigo:#a98be0; --saffron:#ffa64d; --madder:#e46a6a; --maroon:#c15a5a;
+      --indigo-tint:#16121d; --saffron-tint:#1c140b; --madder-tint:#1d1011; --maroon-tint:#1a1011; --gray-tint:#18161a;
+      --weave-bg:#1c1315; --field:#141113; --diamond:rgba(90,130,220,0.28);
+      --chip-lift:45%; --tag-ink:#ece6dc; --on-ink:#0f0e10;
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --page:#000000; --paper:#0f0e10; --bg-2:#141216;
+    --ink:#ece6dc; --ink-rgb:236,230,220; --gray:#b8afa4; --gray-dim:#80786f;
+    --line:rgba(236,230,220,0.2); --line-soft:rgba(236,230,220,0.1);
+    --indigo:#a98be0; --saffron:#ffa64d; --madder:#e46a6a; --maroon:#c15a5a;
+    --indigo-tint:#16121d; --saffron-tint:#1c140b; --madder-tint:#1d1011; --maroon-tint:#1a1011; --gray-tint:#18161a;
+    --weave-bg:#1c1315; --field:#141113; --diamond:rgba(90,130,220,0.28);
+    --chip-lift:45%; --tag-ink:#ece6dc; --on-ink:#0f0e10;
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{margin:0; background:var(--page); color:var(--ink); font-family:var(--font); -webkit-font-smoothing:antialiased;}
+  button,select{font-family:var(--font);}
+
+  /* ---------- toolbar ---------- */
+  .bar{display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:12px 16px; justify-content:space-between;}
+  .bar-left,.bar-right{display:flex; align-items:center; gap:10px; flex-wrap:wrap; min-width:0;}
+  .brand{font-weight:700; letter-spacing:0.16em; font-size:14px;}
+  .brand sup{font-size:8px; letter-spacing:0;}
+  .brand span{font-weight:400; letter-spacing:0.04em; color:var(--gray); margin-left:8px;}
+  .btn{background:var(--paper); border:1px solid var(--line); color:var(--ink); font-size:13px; letter-spacing:0.05em; padding:7px 13px; border-radius:3px; cursor:pointer;}
+  .btn:hover{border-color:var(--ink);}
+  .btn:focus-visible,.theme-toggle:focus-visible,select:focus-visible{outline:2px solid var(--indigo); outline-offset:2px;}
+  select.jump{background:var(--paper); border:1px solid var(--line); color:var(--ink); font-size:13px; padding:7px 10px; border-radius:3px; max-width:220px;}
+  .count{font-size:13px; color:var(--gray); font-variant-numeric:tabular-nums; min-width:64px; text-align:center;}
+  .theme-toggle{display:inline-flex; align-items:center; gap:9px; padding:5px 13px 5px 6px; border-radius:999px; border:1px solid var(--line); background:var(--paper); color:var(--ink); font-size:12px; font-weight:700; letter-spacing:0.06em; cursor:pointer;}
+  .theme-toggle:hover{border-color:var(--indigo);}
+  .tt-track{position:relative; flex:none; width:38px; height:20px; border-radius:999px; background:linear-gradient(90deg,#ff9933,#cc3333 55%,#4d2177); transition:background .3s;}
+  .tt-knob{position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fffaf2; box-shadow:0 1px 3px rgba(0,0,0,.35); transition:transform .28s cubic-bezier(.4,0,.2,1);}
+  .tt-knob::after{content:"\2600"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:10px; color:#e8801a;}
+  .is-dark .tt-track{background:linear-gradient(90deg,#120d1c,#2c4fa3);}
+  .is-dark .tt-knob{transform:translateX(18px); background:#ece6dc;}
+  .is-dark .tt-knob::after{content:"\263E"; color:#2c4fa3;}
+
+  /* ---------- stage ---------- */
+  .viewport{position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; padding-inline:16px;}
+  .stage{width:1280px; height:720px; position:relative; flex:none; transform-origin:center center;}
+  .slide{position:absolute; inset:0; background:var(--paper); border:1.5px solid var(--line); border-radius:6px; padding:58px 72px 56px; display:none; flex-direction:column; overflow:hidden;}
+  .slide.on{display:flex;}
+  .slide::before,.slide::after{content:""; position:absolute; width:34px; height:34px; border:2px solid var(--ink); opacity:0.75;}
+  .slide::before{top:-2px; left:-2px; border-right:none; border-bottom:none; border-top-left-radius:6px;}
+  .slide::after{bottom:-2px; right:-2px; border-left:none; border-top:none; border-bottom-right-radius:6px;}
+  .weave{position:absolute; left:34px; right:34px; top:22px; height:6px; background:repeating-linear-gradient(90deg,var(--indigo) 0 20px,transparent 20px 24px,var(--madder) 24px 30px,transparent 30px 34px,var(--saffron) 34px 42px,transparent 42px 46px,var(--maroon) 46px 50px,transparent 50px 54px); opacity:0.85;}
+  .foot{position:absolute; left:72px; right:72px; bottom:20px; display:flex; justify-content:space-between; font-size:12px; letter-spacing:0.12em; text-transform:uppercase; color:var(--gray-dim); font-variant-numeric:tabular-nums;}
+  .content{flex:1; min-height:0; display:flex; flex-direction:column; --fs:1;}
+
+  /* ---------- type ---------- */
+  .eyebrow{font-size:13px; letter-spacing:0.16em; text-transform:uppercase; color:var(--gray); display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  h1,h2,h3{font-weight:700; margin:0; text-wrap:balance;}
+  .h-slide{font-size:44px; letter-spacing:0.02em; line-height:1.05; margin:10px 0 22px;}
+  p{margin:0;}
+  .lede{font-size:24px; line-height:1.45; max-width:62ch;}
+  .body{font-size:18px; line-height:1.55; color:var(--ink); max-width:68ch;}
+
+  /* ---------- tags ---------- */
+  .tag{display:inline-block; font-size:11.5px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; padding:3px 9px; border-radius:2px; border:1px solid; color:var(--tag-ink); line-height:1.3;}
+  .k-now{background:var(--indigo); border-color:var(--indigo); color:var(--on-ink);}
+  .k-stands{background:var(--saffron-tint); border-color:var(--saffron);}
+  .k-mended{background:var(--madder-tint); border-color:var(--madder);}
+  .k-forgotten{background:var(--gray-tint); border-color:var(--gray-dim); border-style:dashed; color:var(--gray);}
+  .k-carries{background:var(--maroon-tint); border-color:var(--maroon); border-style:dashed;}
+  .k-note{background:var(--bg-2); border-color:var(--line);}
+  .k-h{background:var(--saffron-tint); border-color:var(--saffron);}
+  .k-d{background:var(--madder-tint); border-color:var(--madder);}
+  .k-f{background:var(--gray-tint); border-color:var(--gray-dim); border-style:dashed; color:var(--gray);}
+  .k-c{background:var(--maroon-tint); border-color:var(--maroon); border-style:dashed; font-size:10px; padding:2px 6px; vertical-align:2px;}
+  /* ---------- entry rows ---------- */
+  .rows{display:flex; flex-direction:column; gap:calc(20px * var(--fs)); flex:1; min-height:0; margin-top:14px;}
+  .row{display:grid; grid-template-columns:320px 1fr 1fr 1fr; gap:30px; padding-top:calc(16px * var(--fs)); border-top:1.5px solid var(--line);}
+  .who{display:flex; flex-direction:column; gap:8px; min-width:0;}
+  .who h2{font-size:calc(30px * var(--fs)); line-height:1.05;}
+  .who .alias{font-size:14.5px; margin-top:-2px;}
+  .who .nowtxt{font-size:calc(15.5px * var(--fs)); line-height:1.45; color:var(--ink);}
+  .col{display:flex; flex-direction:column; gap:10px; align-items:flex-start; min-width:0;}
+  .col ul{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:calc(7px * var(--fs));}
+  .col li{position:relative; padding-left:16px; font-size:calc(15.5px * var(--fs)); line-height:1.42;}
+  .col li::before{content:""; position:absolute; left:2px; top:0.55em; width:6px; height:6px; transform:rotate(45deg); border:1.2px solid currentColor; opacity:0.6;}
+  .col.c-f li{color:var(--gray);}
+  .col .none{font-size:15px; color:var(--gray-dim);}
+  .row.solo{grid-template-columns:1fr 1fr 1fr; gap:26px 40px; border-top:none; padding-top:0;}
+  .row.solo .who{grid-column:1 / -1; display:grid; grid-template-columns:400px 1fr; gap:6px 48px; align-items:end; padding-bottom:22px; border-bottom:1.5px solid var(--line);}
+  .row.solo .who .idn{display:flex; flex-direction:column; gap:8px;}
+  .row.solo .who h2{font-size:calc(48px * var(--fs));}
+  .row.solo .who .alias{font-size:18px;}
+  .row.solo .who .nowbox{display:flex; flex-direction:column; gap:10px; align-items:flex-start;}
+  .row.solo .who .nowtxt{font-size:calc(21px * var(--fs));}
+  .row.solo .col li{font-size:calc(18px * var(--fs)); line-height:1.45;}
+  .chip{display:inline-block; font-size:11.5px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:3px 10px; border-radius:12px; border:1px solid var(--pc); color:color-mix(in srgb, var(--pc), #ece6dc var(--chip-lift)); background:color-mix(in srgb, var(--pc) 9%, var(--paper));}
+
+  /* ---------- cover / tapestry ---------- */
+  .cover{align-items:center; justify-content:center; text-align:center;}
+  .tapestry{width:700px; max-width:100%;}
+  .fringe{height:12px; margin:0 16px; background:repeating-linear-gradient(90deg,rgba(var(--ink-rgb),0.38) 0 1.2px,transparent 1.2px 9px);}
+  .tw{padding:16px; border:2px solid rgba(var(--ink-rgb),0.45); background-color:var(--weave-bg); background-image:linear-gradient(45deg,transparent 47%,var(--diamond) 47%,var(--diamond) 53%,transparent 53%),linear-gradient(-45deg,transparent 47%,var(--diamond) 47%,var(--diamond) 53%,transparent 53%); background-size:16px 16px;}
+  .tf{padding:26px 24px 22px; background:var(--field); border:1.2px solid rgba(var(--ink-rgb),0.4); outline:1px dashed rgba(var(--ink-rgb),0.2); outline-offset:-8px;}
+  .tf h1{font-size:72px; letter-spacing:0.18em; line-height:1; margin-left:0.18em;}
+  .tf h1 sup{font-size:14px; letter-spacing:0; vertical-align:top; position:relative; top:10px;}
+  .tf .sub{font-size:24px; color:var(--gray); letter-spacing:0.06em; margin-top:10px;}
+  .cover .meta{margin-top:30px; font-size:15px; letter-spacing:0.14em; text-transform:uppercase; color:var(--gray);}
+  .cover .hint{margin-top:10px; font-size:13px; color:var(--gray-dim); letter-spacing:0.04em;}
+
+  /* ---------- rule slide ---------- */
+  .rule-quote{font-size:54px; line-height:1.1; letter-spacing:0.01em; max-width:20ch; margin:14px 0 28px;}
+  .rule-quote em{font-style:normal; color:var(--madder);}
+  .two{display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start;}
+  .two .body{font-size:18px;}
+
+  /* ---------- facts ---------- */
+  .facts{display:grid; grid-template-columns:200px 1fr; border-top:1px solid var(--line);}
+  .facts > div{padding:12px 0; border-bottom:1px solid var(--line-soft); font-size:18px; line-height:1.45; min-width:0;}
+  .facts .lk{font-size:12.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--gray); padding-top:16px;}
+
+  /* ---------- legend ---------- */
+  .legend{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:6px;}
+  .legend .lg{border:1px solid var(--line); border-radius:4px; padding:18px; display:flex; flex-direction:column; gap:12px; background:var(--paper); min-width:0;}
+  .legend .lg .tag{align-self:flex-start;}
+  .legend .lg p{font-size:16px; line-height:1.5;}
+
+  /* ---------- divider ---------- */
+  .divider{justify-content:center;}
+  .divider .tapestry{width:auto; max-width:760px;}
+  .divider .tf{text-align:left; padding:28px 32px 24px;}
+  .divider .tf h1{font-size:56px; letter-spacing:0.06em; margin-left:0;}
+  .divider .tf .sub{font-size:20px; margin-top:8px;}
+  .divider .note{font-size:19px; line-height:1.5; color:var(--gray); max-width:60ch; margin-top:26px;}
+  .roster{display:flex; flex-wrap:wrap; gap:8px 10px; margin-top:22px; max-width:1100px;}
+  .roster button{background:var(--bg-2); border:1px solid var(--line); border-radius:3px; padding:6px 12px; font-size:14px; color:var(--ink); cursor:pointer; letter-spacing:0.02em;}
+  .roster button:hover{border-color:var(--ink);}
+
+  /* ---------- character ---------- */
+  .char{display:grid; grid-template-columns:400px 1fr; gap:52px; flex:1; min-height:0;}
+  .char .left{display:flex; flex-direction:column; gap:14px; min-width:0;}
+  .char h2{font-size:calc(50px * var(--fs)); line-height:1.02; letter-spacing:0.01em;}
+  .alias{font-size:18px; color:var(--gray); letter-spacing:0.04em; margin-top:-6px;}
+  .now{display:flex; flex-direction:column; gap:10px; margin-top:10px; padding-top:18px; border-top:1px solid var(--line);}
+  .now p{font-size:calc(21px * var(--fs)); line-height:1.45;}
+  .right{display:flex; flex-direction:column; gap:calc(18px * var(--fs)); min-width:0; padding-top:4px;}
+  .blk{display:flex; flex-direction:column; gap:8px; align-items:flex-start;}
+  .blk p{font-size:calc(16.5px * var(--fs)); line-height:1.52;}
+  .blk.k-forgotten-b p{color:var(--gray);}
+  .blk.k-carries-b p{color:var(--ink);}
+
+  /* ---------- group ---------- */
+  .group{display:grid; gap:40px; flex:1; min-height:0; margin-top:12px;}
+  .group.n2{grid-template-columns:1fr 1fr;}
+  .group.n3{grid-template-columns:1fr 1fr 1fr; gap:32px;}
+  .gcol{display:flex; flex-direction:column; gap:12px; min-width:0; padding-top:16px; border-top:1.5px solid var(--line);}
+  .gcol h2{font-size:calc(34px * var(--fs)); line-height:1.05;}
+  .gcol .alias{font-size:15px; margin-top:-4px;}
+  .gcol .now p{font-size:calc(17.5px * var(--fs)); line-height:1.45;}
+  .gcol .now{margin-top:4px; padding-top:12px; border-top:1px solid var(--line-soft);}
+  .gcol .blk p{font-size:calc(15px * var(--fs)); line-height:1.5;}
+  .gcol .right{gap:calc(14px * var(--fs));}
+
+  /* ---------- close ---------- */
+  .close{align-items:center; justify-content:center; text-align:center; gap:34px;}
+  .sky{position:relative; width:520px; height:220px;}
+  .moon{position:absolute; left:50%; top:24px; width:96px; height:96px; margin-left:-48px; border-radius:50%; background:radial-gradient(circle at 38% 36%, var(--field), var(--saffron-tint) 60%, var(--saffron) 140%); border:1.5px solid rgba(var(--ink-rgb),0.45); box-shadow:0 0 0 10px rgba(var(--ink-rgb),0.04);}
+  .shard{position:absolute; width:12px; height:12px; border:1px solid rgba(var(--ink-rgb),0.35); transform:rotate(45deg); background:var(--paper);}
+  .horizon{position:absolute; left:0; right:0; bottom:40px; height:6px; background:repeating-linear-gradient(90deg,var(--indigo) 0 20px,transparent 20px 24px,var(--madder) 24px 30px,transparent 30px 34px,var(--saffron) 34px 42px,transparent 42px 46px,var(--maroon) 46px 50px,transparent 50px 54px); opacity:0.85;}
+  .close h2{font-size:52px; letter-spacing:0.02em;}
+  .close p{font-size:16px; color:var(--gray); letter-spacing:0.08em; text-transform:uppercase;}
+
+  /* ---------- reader mode (phones) ---------- */
+  @media (max-width:759px){
+    .viewport{display:block; padding-inline:16px; padding-block:0 32px; overflow:visible;}
+    .stage{width:auto; height:auto; transform:none !important;}
+    .slide{position:relative; display:flex !important; margin-bottom:22px; padding:40px 20px 44px;}
+    .weave{left:20px; right:20px; top:16px;}
+    .foot{left:20px; right:20px; bottom:14px; font-size:10.5px;}
+    .nav-only{display:none !important;}
+    .char,.two,.group.n2,.group.n3,.row,.row.solo,.row.solo .who{grid-template-columns:1fr; gap:16px;}
+    .row.solo .who h2{font-size:34px;} .row.solo .who .nowtxt{font-size:18px;}
+    .legend{grid-template-columns:1fr;}
+    .facts{grid-template-columns:1fr;}
+    .facts .lk{padding-bottom:0; border-bottom:none;}
+    .char h2{font-size:34px;} .now p{font-size:18px;} .blk p{font-size:15.5px;}
+    .h-slide{font-size:32px;} .rule-quote{font-size:34px;} .lede{font-size:19px;}
+    .tf h1{font-size:40px;} .divider .tf h1{font-size:34px;} .tf .sub{font-size:17px;}
+    .sky{width:100%;} .close h2{font-size:32px;}
+    .slide.cover,.slide.divider,.slide.close{min-height:420px;}
+  }
+  @media (prefers-reduced-motion: reduce){ .tt-knob,.tt-track{transition:none;} }
+</style>
+</head>
+<body>
+
+<div class="bar" id="bar">
+  <div class="bar-left">
+    <div class="brand">PAMANA<sup>TM</sup><span>Unlimited · Post-Mallari Guide</span></div>
+  </div>
+  <div class="bar-right">
+    <select class="jump nav-only" id="jump" aria-label="Jump to a slide"></select>
+    <button class="btn nav-only" id="prev" type="button" aria-label="Previous slide">&larr;</button>
+    <span class="count nav-only" id="count">1 / 1</span>
+    <button class="btn nav-only" id="next" type="button" aria-label="Next slide">&rarr;</button>
+    <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" title="Switch between light and dark">
+      <span class="tt-track"><span class="tt-knob"></span></span><span class="tt-text">Gabi · Dark</span>
+    </button>
+  </div>
+</div>
+<div class="viewport" id="viewport"><div class="stage" id="stage"></div></div>
+
+<script>
+const DATA = [{"title": "The First Table", "sub": "", "note": "Everyone at this table who stood in the waking world during Season Two fought the Pah there, and remembers it.", "entries": [{"name": "Mutya De Guzman", "alias": "", "pamana": "Kalag", "now": "Pamana ng Kalag under Sidapa, keeper of the Panabas and the Waters of Mebuyen. In Veronica's kalag she refused the Balete's offer to finish her duty.", "h": ["Manuel surrendered the Pamana ng Kalag to her, while he lived", "Chose the living in the Sigbinan Museum; Rory and Paul Dy died", "Danced with Digong beneath the Blue Moon, crowned with the Likha of Dian Masalanta", "Accepted Sidapa's command: pour the Waters of Mebuyen over Michael Sigbinan"], "d": ["Manuel's death. He lives", "A twin who died in the womb and rose as the Santelmo. Milo lived"], "f": ["Renouncing Sidapa and taking him back", "Catching Lycosidae's dagger in the Gu Jar", "The cave of Luyong Kabig and the crown of sampaguita"]}, {"name": "Milo De Guzman", "alias": "", "pamana": null, "now": "Mutya's twin, with a pale flame mark on his chest. At the Yuson house he split the earth for BJ, and G called him Father.", "h": ["The venom reached one of Yasmin's twins", "Mac's fire went in and burned it out; Milo was born whole", "Grew up with Mutya and both parents", "Brings flowers to Father JJ's grave"], "d": ["A tiyanak twin", "The Santelmo"], "f": ["Emilio Luna, Andoy's brother, and the white pearl of Aman Sinaya. That Milo is lost entirely"]}, {"name": "Digong Luna", "alias": "", "pamana": "Apoy", "now": "Pamana ng Apoy, raised by the Lunas. Son of Mac Sakay and Isabel Silang, still unaware of it. The Balete named fire as the way to burn its seed out.", "h": ["Mac taught him to hold fire in an open palm", "The Boroka showed Mac burying the Likha ng Tala; Reggie found it", "Drew twenty years of sawi from Yasmin in the Basilica", "Saw justice done for the Lunas against Anton Reyes", "Born on Ilya, the island Biringan lost"], "d": ["Mac's death. Mac lives and passed the Pamana in the ordinary way", "The massacre of the Lunas"], "f": ["Training on Pula with Cassandra", "Carrying a drunken Apolaki down the slope", "Burning the karakoas at his own wedding", "Marriage to Tamala by the lake"]}, {"name": "Andoy", "alias": "Andres Alipio", "pamana": "Tubig", "now": "Pamana ng Tubig under Mayari, second in line to Lina as Babaylan of the Kuratong Baleleng. Tia Sabel sent him to Mount Apo; he is researching a Diwata named Mallari.", "h": ["The Busaw in the cemetery wore his father's face", "His mother carries the powers of the Panglays", "Gave Mayari what she asked of him", "Loved Camilla Casimiro", "Named second in line after the Busaw fell"], "d": ["Camilla surviving. She is dead"], "f": ["The eye of Mayari in the Habing Baul", "Flooding Soliman in the typhoon of 2009", "Giving away the Likha ng Bakunawa", "Giving his heart to bring Lina back", "Dying on Pula"]}, {"name": "Jeremy Judaya", "alias": "", "pamana": "Awit", "now": "Pamana ng Awit, worn as a sash, inherited from his living father. He and Sam are together.", "h": ["Rode in Javier's car the day of the accident, beside Sam", "Received the Awit after Manuel gave the Kalag to Mutya", "Helena told him the truth", "Walked beside his father along the river in his kalag", "Waited out Sam's years in Manila; they reunited and are together"], "d": ["Javier's death. Javier lives", "The Pamana ng Kalag. His Pamana is the Awit", "Guiding Javier's soul to the Tree. He guided the memory Javier gave away"], "f": ["Patola taken into a blade", "Pinatola bound into the weave of Iriya", "The false Sam who walked beside him in Biringan"]}, {"name": "Sam Sigbinan Salibo", "alias": "", "pamana": "Sinag", "now": "Pamana ng Sinag, keeper of the Sigbinan Museum. He traced the kintsugi gold to the Sword of Bulawan.", "h": ["Controlled his sigbin in Javier's car accident, and Javier survived", "Sally sent him to study in Manila for years afterward", "Came home, reunited with Jeremy; they are together", "Inherited Leo's light after Bianca Estrella", "Held the dying in the museum so Mutya could choose", "Knows Mutya's command names his grandfather, and stays beside her", "Tries each year to lift Leo's ring"], "d": [], "f": ["Kept home while a false Sam went to Biringan", "Blinding Mallari on Pula and swearing to see him dead"]}, {"name": "Veronica Velez", "alias": "", "pamana": "Lason", "now": "Pamana ng Lason. A balete seed now drinks her poison, and her cracked compass points to the Cage of Inaginid.", "h": ["Sole survivor of the Gu Jar; she carries her siblings within her", "Poisoned the Tanda's herbs", "Uncovered the Children of Ilya with Reggie and James"], "d": ["Vincent Gu Jar. He is Vincent Velez, Corazon's son, who raised her"], "f": ["Eight siblings escaping the Gu Jar", "Dayang of Iriya and wife of Sulayman", "The pilandok's hide in the wedding basket", "Swallowed by the balete on Pula"]}, {"name": "Reggie", "alias": "Regilito Sanchez", "pamana": "Kahoy", "now": "Pamana ng Kahoy, Tamala's twin.", "h": ["Found the Likha ng Tala beneath a general's feet", "Met Damien in the hunt for the Busaw; their paths parted after", "Danced with Maggie Sigbinan and forgot to let go"], "d": ["Tamala lost to the forest. She grew up beside him"], "f": ["Damien as his son, taken behind walls of bamboo", "The antidotes he grew in the Gu Jar", "The water at the balete's roots"]}, {"name": "Tamala Sanchez", "alias": "", "pamana": null, "now": "Reggie's twin. Swims at dawn, hands bare of rings. At the museum fountain, the Balete looked out from behind her eyes.", "h": ["Grew up in the Sanchez house", "Pressed the santan in Reggie's wallet"], "d": ["Walking into the forest as a child"], "f": ["Dayang of Mainit, bound to the kapre", "The wedding to Digong, the eruption, the lake at Paoay"]}, {"name": "Isko", "alias": "Francisco Egan Cariño Estaquio", "pamana": "Buto", "now": "Pamana ng Buto. He pushes Jason's wheelchair up the hospital ramp, slowly.", "h": ["The storm of feathers that put Jason in a wheelchair", "Read the bones for the Amamarang", "Walked into fifty tiktiks for the Mutya ng Kadiliman", "Solved the Boroka case with Jason"], "d": [], "f": ["The graves of Ayuman and Banglae's gate", "Michael heartless in the sigbin jar"]}, {"name": "Mansen Abatayo", "alias": "", "pamana": "Hangin", "now": "Pamana ng Hangin. Agricultural Engineering at SCU, late to Rocks 101 again.", "h": ["Rory stole the Lantaka and died; Mansen let him go at the Tree", "Born on Ilya"], "d": [], "f": ["The coma, Habagat's lightning, the Buhawi", "Freeing the stone Bayani in JJ's kalag", "Holding a volcano still"]}, {"name": "BJ", "alias": "Bienvenido Barunday", "pamana": "Bakal", "now": "Pamana ng Bakal. He holds half a golden sword, carries a balete seed and an old greed, owes the Balete a favor, and walked through a door of roots.", "h": ["Found the sword's hilt in Leo's grave, where Mac buried it", "Took the Lantaka home after the Boroka fell", "Left for Samoki with the Map of Biringan"], "d": ["Benjun. He is Bienvenido, called BJ", "A hilt from Mac's grave. Mac lives"], "f": ["The greed in the Lantaka", "Waking Apolaki in the caves of Pula", "The Velez name"]}, {"name": "Wilson Dy", "alias": "", "pamana": null, "now": "Raised by his uncle, Raul Sigbinan Dy. His watch stopped at a quarter past nine, worn on the wrong arm.", "h": ["Held the Likha of Bakunawa", "Left the Graduation Ball before the crowning"], "d": ["Keeping the Likha. It has left him; where it went is withheld", "Raul as his father. Raul is his uncle"], "f": ["The bracelet, his brother Noah, the sigbin Kara", "Crossing to Ayuman for Mutya"]}, {"name": "James Sarmiento", "alias": "", "pamana": null, "now": "Adopted son of Cassie Sigbinan and Laurie Sarmiento. He carries no Pamana.", "h": ["The Santa Rita Orphanage", "Loved Lisa, who sells flowers in the market", "Uncovered the Children of Ilya with Reggie and Veronica"], "d": ["The Pamana ng Sinag. Sam alone carries Leo's light", "Holding his light on Lisa through the night"], "f": []}]}, {"title": "The Second Table", "sub": "Children of the Kuratong Baleleng", "note": "", "entries": [{"name": "Lina", "alias": "Neil Lina Pastor", "pamana": "Mananambal", "now": "Pamana ng Mananambal. Babaylan of the Kuratong Baleleng and keeper of Balay ni Mayang.", "h": ["The Pamana ng Mananambal came down from her grandmother Isang", "Isang made her promise to keep the house from Isabel", "Inducted as Babaylan after the Busaw fell, Andoy second in line"], "d": [], "f": ["The Cap Theater and the Kurita", "Her death at the wedding on Pula", "Michael Sigbinan's heart in her chest", "Finding Mallari by the waling-waling"]}, {"name": "Bugoy", "alias": "Bartolome Salcedo", "pamana": "Alapogan", "now": "Pamana ng Alapogan, and the one who remembers every timeline. The Pamana ng Bulkan is gone from him.", "h": ["Born on warm stone on Kanlaon", "Received the Pamana ng Alapogan from Corazon when her eyes began to fail", "Watched Lalahon weep in the Yuson house"], "d": [], "f": ["Forgotten by all but him: every Lalahon", "The forest where the Bayani let Mallari rise"]}, {"name": "Yui Bacon Kanno", "alias": "", "pamana": "Tunog", "now": "An idol who sings Ili-ili before every show.", "h": ["Was singing at the feast when the shots came and Father JJ fell"], "d": ["Ayame's death. Ayame lives"], "f": ["The Mandaramo in the corridor", "Opening the door of Ilya with song", "The tikbalang bound to her"]}, {"name": "Agusto Choi", "alias": "", "pamana": null, "now": "A stranger to the Bayani. Lights other people's cigarettes first, and keeps his family close to the Sigbinans.", "h": [], "d": ["Meeting the Bayani", "Bringing Father JJ back to life. The priest stayed dead"], "f": ["Catching the Kurita in Soliman"]}, {"name": "J Pads", "alias": "Jose Padilla Del Rayo", "pamana": null, "now": "A stranger to the Bayani. Keeps a jar of earth from every mountain he has climbed; the Ford still makes him late.", "h": [], "d": ["Meeting the Bayani"], "f": ["Reading the mountains of Ayuman", "Splitting the balete's roots", "The shadow in the cave"]}, {"name": "Mal", "alias": "Maloy Dalomdalom Ikakita", "pamana": null, "now": "A stranger to the Bayani. A sketchbook holds a serpent closing around a moon.", "h": ["Brought from Iloilo to have their dreams read"], "d": ["Meeting the Bayani"], "f": ["Dalikmata", "The memory given to Lalahon", "The night of the Dy compound"]}, {"name": "Marcey Lazi", "alias": "", "pamana": "Mambabarang", "now": "Pamana ng Mambabarang, from her father. Curator of the Sigbinan Museum, favored by Russell Gutierrez, who wears the Balete's face.", "h": ["Gat Lazi lives; the Pamana ng Mambabarang came from a living father"], "d": [], "f": ["*Killing the pilandok, a part of Anagolay. The Balete remembers", "The ring of Nagmalitong Yawa", "The Likha of Saragnayan"]}, {"name": "Riely Jhean Roa", "alias": "", "pamana": "Sayaw", "now": "Alive and still employed. Dances alone in the stairwell.", "h": [], "d": ["His drowning"], "f": ["The fall at the balete's roots", "Mallari taking the Pamana ng Sayaw"]}]}, {"title": "New to the Table", "sub": "", "note": "", "entries": [{"name": "G Yuson", "alias": "", "pamana": "Luwad", "now": "Potter, bearer of the Timaan of Luwad. Her uncle's tindahan melted, and BJ went through the roots before she could reach him.", "h": ["Brought a gold-mended palayok to the Sigbinan Museum and met Sam", "Her story begins after the Epilogue"], "d": [], "f": []}, {"name": "Paulito Yuson", "alias": "called Poypoy", "pamana": "Luwad", "now": "Master potter. His house held the Sigbinans' secrets.", "h": ["The Sigbinans washed his memory long before either season", "The creatures sealed in his pots now walk the town"], "d": [], "f": []}]}, {"title": "The Previous Bayani", "sub": "", "note": "They passed their Pamanas on in the ordinary way. Each keeps a thread of the old power, too weak to face an Aswang alone.", "entries": [{"name": "Manuel De Guzman", "alias": "called Tanda", "pamana": "Kalag", "now": "Alive in the De Guzman house, the venom slowed. The Kalag answers him faintly.", "h": ["Led the hunts against four of the Eight", "Took the Bangkilan's wound", "Refused Sidapa's command", "Surrendered the Pamana ng Kalag to Mutya; Javier followed with the Awit"], "d": ["His death"], "f": ["The telling where he still died of the venom"]}, {"name": "Javier Judaya", "alias": "called Ulan", "pamana": "Awit", "now": "Alive beside Helena. The Awit answers him thinly; his memories rest in the Waters of Mebuyen.", "h": ["The car accident, with Sam and Jeremy in the car", "Survived it because Sam controlled his sigbin", "Gave his memories to the Waters to spare Jeremy", "Passed the Awit to Jeremy, after Manuel gave the Kalag to Mutya"], "d": ["His death in the accident", "The Pamana ng Kalag. His was the Awit"], "f": []}, {"name": "Mac Sakay", "alias": "", "pamana": "Apoy", "now": "Alive, his fire grown small, near the son who knows him only as a teacher.", "h": ["Woke the venom in Manuel; saved Yasmin's twin", "Loved Sabel and gave their son to the Lunas", "Hid the Likha ng Tala; buried the hilt in Leo's grave"], "d": ["His death"], "f": ["The telling where the Bangkilan's poison killed him"]}]}, {"title": "Those Who Walk Beside Them", "sub": "", "note": "", "entries": [{"name": "Isabel Silang", "alias": "Tia Sabel", "pamana": "Dugo", "now": "Pamana ng Dugo. Woke the Bayani with word of the Aswangs, sent Andoy to Mount Apo, and wants Lina's key.", "h": ["Babaylan of the Web", "Loved Mac and gave Digong to the Lunas", "Chose the hunt at the elders' quarrel"], "d": [], "f": ["Made young by the lake of Paoay"]}, {"name": "Corazon Velez", "alias": "the old Alapogan", "pamana": "Alapogan", "now": "Pamana ng Alapogan, now passed to Bugoy. Back on the coast burning shells into lime. She shot Father JJ.", "h": ["Passed the Pamana ng Alapogan to Bugoy when her eyes began to fail", "Spoke for the Diwata at the elders' quarrel", "Lost her grandson Mantodea", "Shot JJ in Santo Rosario, because of the sandugo"], "d": [], "f": ["Teaching Lina the scapula"]}, {"name": "Flan Hiraya Albesa", "alias": "", "pamana": "Habi", "now": "Pamana ng Habi, and a stranger to the Bayani. Still searching for her grandmother's habi.", "h": [], "d": ["Meeting the Bayani"], "f": ["The thread from Pusoy's mouth", "The weave given to Mallari"]}, {"name": "Yasmin De Guzman", "alias": "", "pamana": null, "now": "Sleeps through the night, with a husband and two children.", "h": ["Twenty years of sawi; healed in the Basilica", "Carried home the Amamarang's seedling"], "d": ["Widowhood"], "f": ["Going feral at Balay ni Mayang"]}, {"name": "Michael Sigbinan", "alias": "first child of Ogassi", "pamana": null, "now": "The true Michael, head of his house. He alone knows what the Diwata have lost.", "h": ["Season One stands whole"], "d": [], "f": ["Michael possessed, heartless, or worn by Mallari"]}, {"name": "Raul Sigbinan Dy", "alias": "called Kuwago", "pamana": null, "now": "El Kapitan of the Kuratong Baleleng. Raised his sister's sons.", "h": ["Sat among the thirteen elders as Kuwago"], "d": [], "f": ["The oath to kill his father", "The plan to open Biringan"]}, {"name": "Sally Sigbinan", "alias": "", "pamana": null, "now": "Keeps Sam close and counts the Bayani as weapons.", "h": ["After Javier's car accident, she let Sam study in Manila for years"], "d": [], "f": ["Paying the priest", "Keeping Sam home from Biringan"]}, {"name": "Gat Lazi", "alias": "", "pamana": null, "now": "Alive. His partnership with the Sigbinans gives the Kuratong Baleleng a place in the Santo Rosario restoration.", "h": ["Spoke against the war at the elders' quarrel", "Passed his Pamana to Marcey"], "d": [], "f": []}, {"name": "The Tres Marias", "alias": "Mari, Manette, Maro", "pamana": null, "now": "Returned to their own provinces.", "h": ["Led the Kuratong Baleleng", "Mari keeps Bugoy's birth stone; Maro sets a plate for John Daniel"], "d": [], "f": []}]}, {"title": "The Departed", "sub": "", "note": "", "entries": [{"name": "Father JJ Mallari", "alias": "Jesus Jaime Mallari", "pamana": "~Sandugo", "now": "Dead. Shot by Corazon Velez at the feast of Santo Rosario.", "h": ["Priest of Soliman, who found his mother shot", "Died at his pulpit while Yui sang", "The church is being restored"], "d": ["Rising from death"], "f": ["The golden seed and the chalice", "The boy at the forest's edge with his face"]}, {"name": "John Daniel Undang", "alias": "", "pamana": "~Hangin", "now": "Dead, taken young in a shooting near Sto. Rosario.", "h": [], "d": [], "f": ["His lightning", "The Gu Jar", "Mallari wearing his face"]}, {"name": "Camilla & Cassandra Casimiro", "alias": "", "pamana": "~Lupa", "now": "Both sisters are dead.", "h": ["Camilla was drawn back by the Ibong Adarna's tears", "Cassandra guided the Bayani to the Ibong Adarna"], "d": ["Surviving into this world"], "f": ["Cassandra training Pula", "Camilla taken by the roots of Samoki"]}]}, {"title": "The Powers", "sub": "", "note": "", "entries": [{"name": "The Walong Dakila", "alias": "the Great Aswangs", "pamana": null, "now": "Returned to the Mundong Ibabaw.", "h": ["All eight destroyed: four by the Web, four by this generation"], "d": ["Staying destroyed"], "f": []}, {"name": "Mallari", "alias": "Diwata of the Aswang", "pamana": null, "now": "The reason the Eight returned. His golden heart rests in the balete of Soliman.", "h": ["The Bangkilan that poisoned Manuel is the one that made him a god"], "d": [], "f": ["*The Bayani letting him rise", "Wearing Michael, John Daniel, or the false Sam"]}, {"name": "The Pah", "alias": "", "pamana": null, "now": "Fallen.", "h": ["Appeared in the waking world; the Season One players brought it down"], "d": [], "f": []}, {"name": "The Balete", "alias": "Russell Gutierrez", "pamana": "Balete", "now": "One tree across all centuries. Its seeds grow in Veronica and BJ.", "h": ["Every balete is one balete"], "d": [], "f": ["The trees across the city", "The split between Pula and Samoki"]}, {"name": "Lalahon", "alias": "", "pamana": null, "now": "Lost, and absent from this journey.", "h": [], "d": [], "f": ["Her quests. Only Bugoy kept them"]}, {"name": "Sidapa & Mebuyen", "alias": "", "pamana": null, "now": "Slipping into forgetting.", "h": ["The Tree and its command"], "d": [], "f": []}, {"name": "Mayari & the Bakunawa", "alias": "", "pamana": null, "now": "One moon remains; the serpent waits.", "h": ["Six moons eaten", "A shard of Libulan in Leo's ring"], "d": [], "f": []}]}];
+const ELEMENT = {Mananambal:'#2f7a6a',Mambabarang:'#4f6b2f',Dugo:'#7a2035',Habi:'#b5543a',Sandugo:'#a13a3a',Apoy:'#c0392b',Tubig:'#1f5fa8',Hangin:'#2f8fae',Lupa:'#a3743a',Kalag:'#8a5fb8',Sinag:'#c9a227',Lason:'#7a4fae',Bakal:'#8a8a92',Kahoy:'#5f9e5f',Buto:'#4a4358',Awit:'#d98c3d',Tunog:'#3d8b83',Sayaw:'#c9557a',Alapogan:'#8f8a70',Luwad:'#a0522d',Balete:'#4f6b3a',Kawayan:'#6f9a4a'};
+const CHIP = {Luwad:'Timaan ng Luwad', Balete:'The Balete'};
+const SECTION_TITLE = {"New To The Table":"New to the Table","Those Who Walk Beside Them":"Those Who Walk Beside Them"};
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+const slides = []; // {html, cls, label, section, kind}
+const add = (cls, html, label, section, kind) => slides.push({cls, html, label, section, kind});
+
+/* ---- opening slides ---- */
+add('cover', `
+  <div class="tapestry">
+    <div class="fringe"></div>
+    <div class="tw"><div class="tf"><h1>PAMANA<sup>TM</sup></h1><p class="sub">Unlimited &middot; Post-Mallari Guide</p></div></div>
+    <div class="fringe"></div>
+  </div>
+  <p class="meta">Current through Session Thirty-Nine &middot; The Alapogan</p>
+  <p class="hint nav-only">Arrow keys or the buttons above to turn the page</p>`, 'Cover', 'Opening', 'cover');
+
+add('', `
+  <div class="eyebrow">The general rule</div>
+  <p class="rule-quote">Follow the path of <em>least resistance.</em></p>
+  <div class="two">
+    <p class="body">Season One still happened. Because Mallari ascended, the Great Aswangs, though physically destroyed, have since returned to the Mundong Ibabaw.</p>
+    <p class="body">Manuel survived the poison. Mac and Javier survived their curses. All three passed their Pamanas to the Bayani in the ordinary way and now live as previous Bayani, with a diminished hold on their Pamana, too weak to face an Aswang alone.</p>
+  </div>`, 'The general rule', 'Opening', 'text');
+
+add('', `
+  <div class="eyebrow">What changed, and what stands</div>
+  <h2 class="h-slide">The world on the morning after</h2>
+  <div class="facts">
+    <div class="lk">At the Epilogue</div><div>The Bayani woke to learn from Tia Sabel that the Great Aswangs had returned. She sent Andoy to Mount Apo, and he has since been researching a Diwata named Mallari.</div>
+    <div class="lk">The dead</div><div>Father JJ Mallari is dead. John Daniel is dead. James carries no Pamana; the Sinag is Sam's alone.</div>
+    <div class="lk">Strangers</div><div>Mal, Agusto, J Pads and Flan remain strangers to the Bayani. Flan carries the Pamana ng Habi and still searches for her grandmother's habi.</div>
+    <div class="lk">The accident</div><div>Javier's car accident happened with Sam and Jeremy inside. Sam controlled his sigbin and Javier survived. Sally then sent Sam to study in Manila for years; he came home to Jeremy, and they are together.</div>
+    <div class="lk">Paths apart</div><div>Reggie met Damien during the hunt for the Busaw, and after the Busaw fell their paths stayed apart.</div>
+    <div class="lk">Still standing</div><div>Season One happened. Mahal Kita, Hindi Na happened. The relationships of Season One stand.</div>
+  </div>`, 'What changed', 'Opening', 'text');
+
+add('', `
+  <div class="eyebrow">The Kuratong Baleleng and Season Two</div>
+  <h2 class="h-slide">Lost to time, except the church</h2>
+  <div class="two">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <p class="body">The whole of Season Two was lost to time, except what happened in the waking world, in the church of Santo Rosario. JJ Mallari was still shot, by Corazon Velez, because of the sandugo between the Kuratong Baleleng and the Children of the Web.</p>
+      <p class="body">During Season Two, the Season One players did what they could against the Pah when it appeared in the waking world, outside Biringan. The Pah fell. Then came the Epilogue, and the Aswangs came back.</p>
+    </div>
+    <div class="facts" style="grid-template-columns:170px 1fr">
+      <div class="lk">Babaylan</div><div>Lina, inducted after the Busaw's defeat. Andoy is second in line.</div>
+      <div class="lk">El Kapitan</div><div>Raul Sigbinan Dy, in political dealings, above all with the government.</div>
+      <div class="lk">Tres Marias</div><div>Returned to their own provinces.</div>
+      <div class="lk">Santo Rosario</div><div>Gat Lazi's partnerships with the Sigbinan family give the Kuratong Baleleng a presence in the restoration.</div>
+    </div>
+  </div>`, 'Kuratong Baleleng', 'Opening', 'text');
+
+add('', `
+  <div class="eyebrow">How to read each entry</div>
+  <h2 class="h-slide">How each entry reads</h2>
+  <div class="legend">
+    <div class="lg"><span class="tag k-now">Now</span><p>Who they are today, in a line or two.</p></div>
+    <div class="lg"><span class="tag k-h">What happened</span><p>Season One as it stands, and anything from Season Two that happened in the waking world.</p></div>
+    <div class="lg"><span class="tag k-d">Did not happen</span><p>Old accounts that have been set aside. These happened only on the page.</p></div>
+    <div class="lg"><span class="tag k-f">Forgotten</span><p>What happened in Biringan during Season Two. Real, and lost to time. The Balete keeps it and Bugoy remembers it.</p></div>
+  </div>
+  <p class="body" style="margin-top:22px;color:var(--gray)">A forgotten deed marked <span class="tag k-c">Carries forward</span> still weighs on the world, even though no one remembers it.</p>`, 'How to read', 'Opening', 'text');
+
+/* ---- entries ---- */
+const len = e => e.now.length + ['h','d','f'].reduce((a,k)=>a+e[k].join('').length,0);
+const chip = e => { if(!e.pamana) return ''; const held=e.pamana.startsWith('~'); const k=e.pamana.replace('~',''); return `<span class="chip" style="--pc:${ELEMENT[k]}">${held?'Held ':''}${esc(CHIP[k] || ('Pamana ng ' + k))}</span>`; };
+const COLS = [['h','What happened'],['d','Did not happen'],['f','Forgotten']];
+const li = x => x.startsWith('*') ? `<li>${esc(x.slice(1))} <span class="tag k-c">Carries forward</span></li>` : `<li>${esc(x)}</li>`;
+const cols = e => COLS.map(([k,l])=>`<div class="col c-${k}"><span class="tag k-${k}">${l}</span>${e[k].length?`<ul>${e[k].map(li).join('')}</ul>`:'<span class="none">&mdash;</span>'}</div>`).join('');
+const rowHtml = (e, solo) => solo
+  ? `<div class="row solo"><div class="who"><div class="idn"><div>${chip(e)}</div><h2>${esc(e.name)}</h2>${e.alias?`<div class="alias">${esc(e.alias)}</div>`:''}</div><div class="nowbox"><span class="tag k-now">Now</span><p class="nowtxt">${esc(e.now)}</p></div></div>${cols(e)}</div>`
+  : `<div class="row"><div class="who"><div>${chip(e)}</div><h2>${esc(e.name)}</h2>${e.alias?`<div class="alias">${esc(e.alias)}</div>`:''}<p class="nowtxt">${esc(e.now)}</p></div>${cols(e)}</div>`;
+
+DATA.forEach(sec => {
+  const title = sec.title;
+  const divIndex = slides.length;
+  const rosterIdx = [];
+  add('divider', '', title, title, 'divider');
+  const groups = [];
+  for (let i=0; i<sec.entries.length; ){
+    const e = sec.entries[i];
+    if (len(e) > 380){ groups.push([e]); i++; continue; }
+    const g=[e]; let sum=len(e); let j=i+1;
+    while (j<sec.entries.length && g.length<3 && len(sec.entries[j])<=380 && sum+len(sec.entries[j])<=760){ g.push(sec.entries[j]); sum+=len(sec.entries[j]); j++; }
+    groups.push(g); i=j;
+  }
+  groups.forEach(g => {
+    const at = slides.length;
+    g.forEach(e => rosterIdx.push([e.name, at]));
+    add('', `<div class="eyebrow">${esc(title)}</div><div class="rows">${g.map(e=>rowHtml(e, g.length===1)).join('')}</div>`, g.map(e=>e.name).join(' · '), title, g.length===1?'char':'group');
+  });
+  slides[divIndex].html = `
+    <div class="tapestry">
+      <div class="fringe"></div>
+      <div class="tw"><div class="tf"><div class="eyebrow">Section</div><h1>${esc(title)}</h1>${sec.sub?`<p class="sub">${esc(sec.sub)}</p>`:''}</div></div>
+      <div class="fringe"></div>
+    </div>
+    ${sec.note?`<p class="note">${esc(sec.note)}</p>`:''}
+    <div class="roster">${rosterIdx.map(([n,i])=>`<button type="button" data-go="${i}">${esc(n)}</button>`).join('')}</div>`;
+});
+
+add('close', `
+  <div class="sky" aria-hidden="true">
+    <div class="moon"></div>
+    <div class="shard" style="left:60px;top:40px"></div><div class="shard" style="left:130px;top:96px;width:9px;height:9px"></div>
+    <div class="shard" style="left:200px;top:30px;width:7px;height:7px"></div><div class="shard" style="right:190px;top:60px;width:10px;height:10px"></div>
+    <div class="shard" style="right:120px;top:22px;width:8px;height:8px"></div><div class="shard" style="right:56px;top:104px"></div>
+    <div class="horizon"></div>
+  </div>
+  <h2>Above the city, one moon.</h2>
+  <p>Six went down the serpent's throat &middot; Mayari remains</p>`, 'Above the city, one moon', 'Closing', 'close');
+
+/* ---- render ---- */
+const stage = document.getElementById('stage');
+const N = slides.length;
+stage.innerHTML = slides.map((s,i)=>`<section class="slide ${s.cls}" id="s${i+1}" aria-label="${esc(s.label)}" aria-roledescription="slide"><div class="weave"></div><div class="content ${s.cls}" style="${['cover','divider','close'].includes(s.cls)?'justify-content:center;align-items:'+(s.cls==='divider'?'flex-start':'center'):''}">${s.html}</div><div class="foot"><span>Pamana Unlimited · ${esc(s.section)}</span><span>${i+1} / ${N}</span></div></section>`).join('');
+const els = [...stage.querySelectorAll('.slide')];
+
+const jump = document.getElementById('jump');
+let lastSec='';
+jump.innerHTML = slides.map((s,i)=>{
+  let out='';
+  if (s.section!==lastSec){ if(lastSec) out+='</optgroup>'; out+=`<optgroup label="${esc(s.section)}">`; lastSec=s.section; }
+  return out+`<option value="${i}">${i+1}. ${esc(s.label)}</option>`;
+}).join('')+'</optgroup>';
+
+let cur = 0;
+const mq = window.matchMedia('(max-width: 759px)');
+function fitText(el){
+  const c = el.querySelector('.content');
+  let fs = 1; c.style.setProperty('--fs', fs);
+  while ((c.scrollHeight > c.clientHeight + 1) && fs > 0.72){ fs -= 0.03; c.style.setProperty('--fs', fs.toFixed(2)); }
+}
+function show(i, push){
+  cur = Math.max(0, Math.min(N-1, i));
+  els.forEach((el,k)=>el.classList.toggle('on', k===cur));
+  document.getElementById('count').textContent = `${cur+1} / ${N}`;
+  jump.value = String(cur);
+  if (!mq.matches) fitText(els[cur]);
+  if (push !== false){ try{ history.replaceState(null,'','#'+(cur+1)); }catch(e){} }
+}
+function scale(){
+  const vp = document.getElementById('viewport');
+  if (mq.matches){ vp.style.height='auto'; stage.style.transform='none'; return; }
+  const barH = document.getElementById('bar').offsetHeight;
+  const h = window.innerHeight - barH - 16, w = vp.clientWidth - 32;
+  vp.style.height = h + 'px';
+  const k = Math.min(w/1280, h/720);
+  stage.style.transform = `scale(${k})`;
+}
+document.getElementById('prev').onclick = ()=>show(cur-1);
+document.getElementById('next').onclick = ()=>show(cur+1);
+jump.onchange = ()=>show(+jump.value);
+stage.addEventListener('click', e=>{ const b=e.target.closest('[data-go]'); if(b){ if(mq.matches){ els[+b.dataset.go].scrollIntoView({behavior:'smooth'}); } else show(+b.dataset.go); }});
+document.addEventListener('keydown', e=>{
+  if (mq.matches || e.target.tagName==='SELECT') return;
+  if (['ArrowRight','PageDown',' '].includes(e.key)){ e.preventDefault(); show(cur+1); }
+  else if (['ArrowLeft','PageUp'].includes(e.key)){ e.preventDefault(); show(cur-1); }
+  else if (e.key==='Home'){ show(0); } else if (e.key==='End'){ show(N-1); }
+});
+let tx=null;
+stage.addEventListener('touchstart', e=>{ tx=e.touches[0].clientX; }, {passive:true});
+stage.addEventListener('touchend', e=>{ if(tx===null||mq.matches) return; const dx=e.changedTouches[0].clientX-tx; if(Math.abs(dx)>50) show(cur+(dx<0?1:-1)); tx=null; });
+
+/* ---- theme, same key as the Talaan ---- */
+const sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+const isDark = ()=>{ const t=document.documentElement.dataset.theme; return t ? t==='dark' : sysDark.matches; };
+function paintToggle(){
+  const d=isDark(), b=document.getElementById('themeToggle');
+  b.classList.toggle('is-dark', d); b.setAttribute('aria-pressed', d?'true':'false');
+  b.querySelector('.tt-text').textContent = d ? 'Araw · Light' : 'Gabi · Dark';
+}
+document.getElementById('themeToggle').onclick = ()=>{
+  const t = isDark() ? 'light' : 'dark';
+  document.documentElement.dataset.theme = t;
+  try{ localStorage.setItem('pamana.theme', t); }catch(e){}
+  paintToggle();
+};
+sysDark.addEventListener && sysDark.addEventListener('change', paintToggle);
+paintToggle();
+
+window.addEventListener('resize', ()=>{ scale(); show(cur,false); });
+mq.addEventListener && mq.addEventListener('change', ()=>{ scale(); show(cur,false); });
+const start = parseInt((location.hash||'').slice(1),10);
+scale(); show(isNaN(start)?0:start-1, false);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ scale(); show(cur,false); });
+</script>
+
+</body>
+</html>
