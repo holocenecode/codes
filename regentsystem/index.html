@@ -2378,7 +2378,10 @@ function xoLean(st){
   const avg = a => { const v = a.filter(k => k in st).map(k => st[k]); return v.length ? v.reduce((x, y) => x + y, 0) / v.length : null; };
   const c = avg(["INT", "WIS", "CHA"]), g = avg(["STR", "DEX", "CON"]);
   if (c == null && g == null) return null;
-  return {ap:(c || 0) >= (g || 0) ? "C" : "G", top:Object.keys(st).sort((a, b) => st[b] - st[a])};
+  const top = Object.keys(st).sort((a, b) => st[b] - st[a] || STAT6.indexOf(b) - STAT6.indexOf(a));
+  const lead = st[top[0]], tied = top.filter(k => st[k] === lead), ch = tied.filter(k => ["INT", "WIS", "CHA"].includes(k)).length;
+  const ap = ch * 2 > tied.length ? "C" : ch * 2 < tied.length ? "G" : ((c || 0) >= (g || 0) ? "C" : "G");
+  return {ap, top};
 }
 function xoSuggest(){
   const ln = xoLean(xoStats(XO().stats)); if (!ln) return null;
@@ -2401,26 +2404,29 @@ function xoFeatsFrom(t){
 }
 /* readers */
 function fromFields(F){
-  const g = (...ks) => { for (const k of ks){ const v = F[k]; if (v != null && String(v).trim() && String(v).trim() !== "Off") return String(v).trim(); } return ""; };
+  const ok = v => v != null && String(v).trim() && !/^(off|on|yes|no|true|false|--?|0)$/i.test(String(v).trim());
+  const exact = (...ks) => { for (const k of ks){ const v = F[k]; if (ok(v)) return String(v).trim(); } return ""; };
+  const g = (...ks) => exact(...ks) || (() => { for (const k of ks){ if (k.length < 5) continue; const hit = Object.keys(F).filter(f => f.includes(k) && !/mod$|bonus$|save|temp|current|dice/.test(f) && ok(F[f])).sort((a, b) => a.length - b.length)[0]; if (hit) return String(F[hit]).trim(); } return ""; })();
+  const joinAll = re => Object.keys(F).filter(k => re.test(k) && ok(F[k])).sort((a, b) => a.localeCompare(b, undefined, {numeric:true})).map(k => String(F[k]).trim()).join("\n");
   const stats = STAT6.map(s => { const v = g(s.toLowerCase(), s.toLowerCase() + "score", STAT_LONG[s], STAT_LONG[s] + "score"); return /^\d{1,3}$/.test(v) ? s + " " + v : ""; }).filter(Boolean).join(" · ");
   const cls = g("classlevel", "classandlevel", "classlevel1", "class", "classes", "classname", "occupation", "playbook", "archetype", "clan", "role", "profession"), race = g("race", "species", "ancestry", "racespecies", "speciesrace", "lineage");
   const bgd = g("background"), lvl = g("level");
   const concept = [race, cls + (lvl && !/\d/.test(cls) ? " " + lvl : "")].filter(x => x.trim()).join(" ") + (bgd ? " (" + bgd + ")" : "");
   const many = re => xoNames(Object.keys(F).filter(k => re.test(k)).sort((a, b) => a.localeCompare(b, undefined, {numeric:true})).map(k => String(F[k]).split(/\n/)[0]));
   const eq = g("equipment", "inventory", "magicitems", "attunedmagicitems", "gear", "possessions");
-  const spells = g("spells", "spellsknown", "spelllist", "preparedspells") || many(/^(spellname|spell|cantrip)\d+$/).join(", ");
+  const spells = exact("spells", "spellsknown", "spelllist", "preparedspells") || many(/^(spellname|spells?|cantrips?)\d+$/).join(", ");
   const items = xoNames(many(/^(wpnname|weaponname|weapon)\d*$/).concat(eq.split(/[,\n;]/))).slice(0, 10).join(", ");
   return {
     spells, items,
     name:g("charactername", "name", "charactername2", "investigatorname", "investigator", "character"),
     concept:concept.trim(), stats,
     hp:g("hpmax", "maxhp", "hitpointmaximum", "hitpointsmax", "maxhitpoints", "hitpoints", "hp", "hpcurrent", "currenthp").replace(/^(\d+).*$/, "$1"),
-    ac:g("ac", "armorclass", "armourclass", "ac1", "armor", "armour").replace(/^(\d+).*$/, "$1"),
+    ac:g("ac", "armorclass", "armourclass", "ac1").replace(/^(\d+).*$/, "$1"),
     traits:g("personalitytraits", "personality", "traits", "trait", "personalitytrait"),
     want:[g("ideals", "ideal", "goals", "goal", "motivation", "drive"), g("bonds", "bond", "ties")].filter(Boolean).join(" "),
     secret:g("flaws", "flaw", "weakness", "weaknesses", "phobias", "maniasphobias"),
-    feats:g("feats", "feat", "featslist", "featnames", "generalfeats", "originfeat") || xoFeatsFrom(g("featuresandtraits", "feattraits", "featurestraits", "features", "featuresfeats", "additionalfeaturestraits")),
-    features:g("featuresandtraits", "feattraits", "featurestraits", "features", "featuresfeats", "specialabilities", "abilities", "talents"),
+    feats:exact("feats", "feat", "featslist", "featnames", "generalfeats", "originfeat") || xoFeatsFrom(joinAll(/^(features?(and)?traits?|feattraits|additionalfeatures|features)\d*$/)),
+    features:joinAll(/^(features?(and)?traits?|feattraits|additionalfeatures|features|classfeatures|specialabilities|talents)\d*$/).replace(/=+\s*FEATS?\s*=+[\s\S]*?(?=\n\s*=+\s*[A-Z]|$)/i, ""),
     story:g("backstory", "characterbackstory", "biography", "bio", "history", "description", "personaldescription")
   };
 }
@@ -2522,17 +2528,27 @@ async function xoRead(f){
   } catch(e){ partial = true; }
   const x = Object.assign(XO_BLANK(), got || {}, {file:f.name});
   C().xo = x;
-  if (!C().name && x.name){ C().name = x.name; $("fName").value = x.name; }
-  xoTab = "hand"; save(); renderXO(); renderMine();
-  const found = XO_KEYS.filter(k => k !== "sys" && x[k]).length;
-  read("Crossover", x.sys ? esc(x.sys) : "Character Sheet",
-    partial || !found
-      ? "The sheet gave up little readable text; it may be a scanned image. Fill the crossover fields by hand, and the page will weave them in the same way."
-      : `The page read ${found} part${found > 1 ? "s" : ""} of the sheet. Check the fields, adjust anything it misread, and the one-page sheet will carry the crossing.`);
+  xoTab = "hand"; save();
+  const found = XO_KEYS.filter(k => k !== "sys" && x[k]);
+  if (partial || !found.length){
+    renderXO(); renderMine();
+    return read("Crossover", x.sys ? esc(x.sys) : "Character Sheet", "The sheet gave up little readable text; it may be a scanned image. Fill the crossover fields by hand, then press Fill My REGENT Sheet.");
+  }
+  const done = xoAutofill(); renderXO(); renderMine();
+  const lab = {sys:"system", name:"name", concept:"class", hp:"HP", ac:"AC", stats:"ability scores", feats:"feats", spells:"spells", items:"weapons and items", traits:"personality", want:"ideals and bonds", secret:"flaws", features:"features", story:"backstory"};
+  const miss = ["hp", "ac", "stats", "feats"].filter(k => !x[k]).map(k => lab[k]);
+  read("Crossover", "Sheet Read",
+    `From ${esc(f.name)} the page read the ${list(found.map(k => lab[k]))}.` +
+    (done.length ? ` Your REGENT sheet now carries a ${list(done)} drawn from that character.` : "") +
+    (miss.length ? ` Add the ${list(miss)} by hand below, since the file left ${miss.length > 1 ? "them" : "it"} out.` : "") +
+    " Every field stays yours to edit, and the one-page sheet writes itself from them.");
 }
 
 /* weaving */
 function xoFeatureList(t){
+  const bullets = [];
+  String(t || "").replace(/^\s*[*\u2022]\s*([^\u2022\n:]+?)\s*(?:\u2022|:|$)/gm, (m, n) => { bullets.push(n); });
+  if (bullets.length) return xoNames(bullets).slice(0, 3);
   const items = String(t || "").split(/\n|•|;|\s\*\s|,(?=\s*[A-Z])/).map(x => x.replace(/^[\s\-*–—\d.]+/, "").split(/[:.(]/)[0].trim()).filter(x => x && x.length < 40);
   return [...new Set(items)].slice(0, 3);
 }
@@ -2626,11 +2642,70 @@ function xoPrint(){
 function xoBackground(){
   const x = XO(), c = C(), ck = courtByKey(c.court), parts = [];
   if (ck) parts.push(BG[S.mode].court[ck.key]);
+  const pr = prodByName(c.product);
+  if (pr && pr.bg) parts.push(pr.bg.replace(/\{H\}/g, c.house || "of your blood").replace("House of your blood", "Your House"));
   if (x.concept) parts.push(`In another tale you walked as ${art(x.concept)}, and the habits of that road came with you.`);
   if (x.want) parts.push(endp("You want what your ideals ask of you: " + clip(x.want, 170)));
   if (x.secret) parts.push(endp("You keep one flaw close: " + clip(x.secret, 130)));
   if (x.story) parts.push(endp(clip(x.story, 240)));
   return parts.join(" ");
+}
+
+/* =====================================================================
+   AUTO-FILL: read the other sheet and write the REGENT side of it
+   ===================================================================== */
+const XO_CLASS = [[/bard/i, "charm"], [/rogue|assassin|thief/i, "mask"], [/wizard|artificer|investigat|inquisitive/i, "eye"], [/cleric|healer/i, "mend"],
+  [/paladin/i, "ward"], [/fighter|samurai|swashbuckl/i, "blade"], [/barbarian/i, "heavy"], [/ranger|hunter/i, "bow"], [/druid/i, "wild"],
+  [/warlock|necromancer|hexblade/i, "grave"], [/sorcerer/i, "blast"], [/monk/i, "ward"]];
+const XO_TAG_MOTIF = {"Honest answers":["charm", "eye"], "Advantage on Charm":["charm"], "Shed Scandal":["mend"], "Extra Renown":["ward", "heavy"],
+  "Unseen action":["mask"], "Cross a Level":["charm"], "Swift movement":["bow", "mask"], "Overhear a talk":["eye", "mask"], "Unshaken":["ward", "heavy"],
+  "Shared Renown":["mend", "charm"], "Ask the Host":["eye"], "Sharper Rumor":["charm", "grave"], "Free private talks":["charm"], "Unsettle a rival":["grave", "blast"],
+  "Bar a talk":["ward", "wild"], "Catch a lie":["eye"], "Reroll a check":["ward", "blade"], "Binding promise":["grave", "charm"]};
+function xoMotifs(){
+  const x = XO(), sc = {};
+  const pool = xoNames([x.spells, x.feats, x.items, xoFeatureList(x.features).join(",")].join(",").split(/[,\n;]/));
+  XO_MOTIFS.forEach(([k, re]) => { sc[k] = pool.filter(n => re.test(n)).length; });
+  XO_CLASS.forEach(([re, k]) => { if (re.test(x.concept || "")) sc[k] = (sc[k] || 0) + 3; });
+  return {sc, pool};
+}
+function xoPickProduct(){
+  const {sc, pool} = xoMotifs(), list0 = PRODUCTS[S.mode], blob = pool.join(" ").toLowerCase();
+  let best = null, bs = -1;
+  list0.forEach((p, i) => {
+    const stem = p.n.toLowerCase().replace(/s$/, "").split(" ")[0];
+    let v = (XO_TAG_MOTIF[p.tag] || []).reduce((a, m, j) => a + (sc[m] || 0) * (j ? 1 : 1.5), 0);
+    if (stem.length > 3 && blob.includes(stem)) v += 6;
+    v -= i * .01;
+    if (v > bs){ bs = v; best = p; }
+  });
+  return bs > 0 ? best : null;
+}
+function xoPickHouse(){
+  const x = XO();
+  const text = [x.concept, x.want, x.story, x.traits, x.features, x.items].join(" \n ");
+  const m = text.match(/\bHouse\s+(d'|d’)?([A-Z][A-Za-z'’-]{2,})/);
+  if (m) return m[2];
+  const nm = String(x.name || "").trim();
+  const mark = nm.match(/\bd['’]([A-Z][A-Za-z-]{2,})/);
+  if (mark) return mark[1];
+  const w = nm.replace(/\s+(of|the|from)\b.*$/i, "").split(/\s+/);
+  return w.length > 1 && /^[A-Z]/.test(w[w.length - 1]) ? w[w.length - 1].replace(/[^A-Za-z'’-]/g, "") : "";
+}
+function xoAutofill(){
+  const c = C(), x = XO(), done = [];
+  const had = !!(c.court || c.moon || c.rise || c.house || c.product || c.background);
+  if (had && !confirm("This sheet already has REGENT details. Replace them with ones drawn from the uploaded character?")) return [];
+  if (x.name && (!c.name || had)){ c.name = x.name; done.push("name"); }
+  const sg = xoSuggest();
+  if (sg){ c.court = sg.sun; c.moon = sg.moon; c.rise = sg.rise; c.riseAp = sg.ap; done.push("signs", "Passive"); }
+  const h = xoPickHouse();
+  if (h){ c.house = h; done.push("House"); }
+  const pr = xoPickProduct();
+  if (pr){ c.product = pr.n; done.push("product"); }
+  const bg = xoBackground();
+  if (bg){ c.background = bg; done.push("Background"); }
+  save(); refreshAll();
+  return done;
 }
 
 /* the card */
@@ -2677,10 +2752,14 @@ function renderXOLive(){
   const w = xoWeave();
   box.innerHTML = sug + `<div class="xo-sec">How it reads on the one-page sheet</div>
     <div class="xo-prev">${w.length ? `<p>${w.map(esc).join(" ")}</p>` : `<p>Fill a field above, and the crossing takes shape here.</p>`}${xoReading() ? `<p><b style="color:var(--a)">Read for the story.</b> ${esc(xoReading())}</p>` : ""}<p class="rule"><b>Crossover rule.</b> ${esc(xoRule())}</p></div>
-    <div class="bg-tools" style="margin-top:10px"><button type="button" class="btn sm ghost" id="xoWeave">Weave into Background</button><span class="bg-hint">Writes your Background from your ${esc(sl.sun[0])} and this sheet</span></div>`;
+    <div class="bg-tools" style="margin-top:10px"><button type="button" class="btn sm" id="xoFill">Fill My REGENT Sheet</button><button type="button" class="btn sm ghost" id="xoWeave">Weave into Background</button><span class="bg-hint">Writes your Background from your ${esc(sl.sun[0])} and this sheet</span></div>`;
   if (sg) $("xoTake").addEventListener("click", () => {
     const c = C(); c.court = sg.sun; c.moon = sg.moon; c.rise = sg.rise; c.riseAp = sg.ap; save(); refreshAll();
     read("Crossover", "Signs Taken", `Your ${esc(sl.sun[0])} is now ${esc(cName(courtByKey(sg.sun)))}, your ${esc(sl.moon[0])} ${esc(cName(courtByKey(sg.moon)))}, and your ${esc(sl.rise[0])} ${esc(cName(courtByKey(sg.rise)))} with its ${BEAR[sg.ap]} Passive. They follow the strongest scores on the other sheet: ${sg.lean.top.slice(0, 3).join(", ")}.`, "", toneC(sg.sun));
+  });
+  $("xoFill").addEventListener("click", () => {
+    const done = xoAutofill(); if (!done.length) return; renderXO(); renderMine();
+    read("Crossover", "Sheet Filled", `Your REGENT sheet now carries a ${list(done)} drawn from the other character. Every field stays yours to edit.`);
   });
   $("xoWeave").addEventListener("click", () => {
     if (C().background && !confirm("Replace your current Background with one woven from this sheet?")) return;
