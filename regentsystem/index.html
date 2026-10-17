@@ -759,16 +759,6 @@ footer{margin-top:28px; text-align:center; font-size:11.5px; color:var(--dim); l
     <main>
       <!-- ================= CHARACTER SHEET ================= -->
       <section class="panel on" id="p-sheet">
-        <div class="card" id="xoCard">
-          <h3><span data-i="crossover" style="cursor:pointer">Crossover</span><span class="h3-right"><small id="xoSmall">Any system, one Court</small><button type="button" class="reset-btn" id="xoClear" hidden>Clear</button></span></h3>
-          <div class="xo-drop" id="xoDrop">
-            <span class="xo-hint"><b>Bring a character from another game.</b> Upload its sheet: a D&amp;D 5E PDF, a D&amp;D Beyond or Foundry export, Pathbuilder, Call of Cthulhu, or plain text. The page reads it here in your browser and fills your whole REGENT sheet from it, ready to print.<br><span class="xo-file" id="xoFileName"></span></span>
-            <button type="button" class="btn sm" id="xoUp">Upload a Sheet</button>
-            <input type="file" id="xoFile" accept=".pdf,.json,.txt,.md,.text,application/pdf,application/json,text/plain" hidden>
-          </div>
-          <div id="xoBody"></div>
-        </div>
-
         <div class="card">
           <h3><span>Identity</span></h3>
           <div class="id-top">
@@ -828,6 +818,16 @@ footer{margin-top:28px; text-align:center; font-size:11.5px; color:var(--dim); l
         <div class="card">
           <h3><span>Skills</span></h3>
           <div id="sheetSkills"></div>
+        </div>
+
+        <div class="card" id="xoCard">
+          <h3><span data-i="crossover" style="cursor:pointer">Crossover</span><span class="h3-right"><small id="xoSmall">Any system, one Court</small><button type="button" class="reset-btn" id="xoClear" hidden>Clear</button></span></h3>
+          <div class="xo-drop" id="xoDrop">
+            <span class="xo-hint"><b>Bring a character from another game.</b> Upload its sheet: a D&amp;D 5E PDF, a D&amp;D Beyond or Foundry export, Pathbuilder, Call of Cthulhu, or plain text. The page reads it here in your browser and fills your whole REGENT sheet from it, ready to print.<br><span class="xo-file" id="xoFileName"></span></span>
+            <button type="button" class="btn sm" id="xoUp">Upload a Sheet</button>
+            <input type="file" id="xoFile" accept=".pdf,.json,.txt,.md,.text,application/pdf,application/json,text/plain" hidden>
+          </div>
+          <div id="xoBody"></div>
         </div>
 
         <div class="actions">
@@ -2392,7 +2392,7 @@ function xoSuggest(){
 }
 
 /* feats: a D&D Beyond PDF keeps them under "=== FEATS ===" inside Features & Traits */
-const XO_NOT_FEAT = /^(hit points|proficienc|ability score improvement|core .*traits|subclass|equipment|spellcasting$)/i;
+const XO_NOT_FEAT = /^(hit points|proficienc|core .*traits|subclass|equipment|spellcasting$|unarmed strike|creature type$|size$|speed$|languages$|age$)|ability score improvements?$/i;
 const xoNames = a => [...new Set(a.map(n => String(n || "").trim()).filter(n => n && n.length < 48 && !XO_NOT_FEAT.test(n)))];
 function xoFeatsFrom(t){
   const sec = String(t || "").match(/=+\s*FEATS?\s*=+([\s\S]*?)(?:\n\s*=+\s*[A-Z]|$)/i);
@@ -2414,19 +2414,21 @@ function fromFields(F){
   const many = re => xoNames(Object.keys(F).filter(k => re.test(k)).sort((a, b) => a.localeCompare(b, undefined, {numeric:true})).map(k => String(F[k]).split(/\n/)[0]));
   const eq = g("equipment", "inventory", "magicitems", "attunedmagicitems", "gear", "possessions");
   const spells = exact("spells", "spellsknown", "spelllist", "preparedspells") || many(/^(spellname|spells?|cantrips?)\d+$/).join(", ");
-  const items = xoNames(many(/^(wpnname|weaponname|weapon)\d*$/).concat(eq.split(/[,\n;]/))).slice(0, 10).join(", ");
+  const gear = many(/^(eqname|equipmentname|itemname|inventory)\d*$/).concat(eq.split(/[,\n;]/)).concat(many(/^(attuned|magicitem|attunedmagicitem)s?\d*$/));
+  const special = gear.filter(n => { XO_ITEM_RE.lastIndex = 0; return XO_ITEM_RE.test(n) || /\+\d/.test(n); });
+  const items = xoNames(special.concat(many(/^(wpnname|weaponname|weapon)\d*$/))).slice(0, 8).join(", ");
   return {
     spells, items,
     name:g("charactername", "name", "charactername2", "investigatorname", "investigator", "character"),
     concept:concept.trim(), stats,
     hp:g("hpmax", "maxhp", "hitpointmaximum", "hitpointmax", "hitpointsmax", "maxhitpoints", "maximumhitpoints", "hitpoints", "hp", "hpcurrent", "currenthp").replace(/^(\d+).*$/, "$1"),
     ac:g("ac", "armorclass", "armourclass", "ac1").replace(/^(\d+).*$/, "$1"),
-    traits:g("personalitytraits", "personality", "traits", "trait", "personalitytrait"),
-    want:[g("ideals", "ideal", "goals", "goal", "motivation", "drive"), g("bonds", "bond", "ties")].filter(Boolean).join(" "),
+    traits:g("personalitytraits", "personalitytrait", "personality") || exact("traits", "trait"),
+    want:[g("ideals", "ideal", "goals", "motivation") || exact("goal", "drive"), g("bonds", "bond") || exact("ties")].filter(Boolean).join(" "),
     secret:g("flaws", "flaw", "weakness", "weaknesses", "phobias", "maniasphobias"),
     feats:exact("feats", "feat", "featslist", "featnames", "generalfeats", "originfeat") || xoFeatsFrom(joinAll(/^(features?(and)?traits?|feattraits|additionalfeatures|features)\d*$/)),
     features:joinAll(/^(features?(and)?traits?|feattraits|additionalfeatures|features|classfeatures|specialabilities|talents)\d*$/).replace(/=+\s*FEATS?\s*=+[\s\S]*?(?=\n\s*=+\s*[A-Z]|$)/i, ""),
-    story:g("backstory", "characterbackstory", "biography", "bio", "history", "description", "personaldescription")
+    story:g("characterbackstory", "backstory", "biography") || exact("bio", "description", "personaldescription")
   };
 }
 function detectSys(F, text){
@@ -2487,9 +2489,10 @@ function textRead(text, fileName){
   /* boxes of prose: take what lies between a heading and the next label */
   const box = re => {
     const i = L.findIndex(l => re.test(l)); if (i < 0) return "";
-    const after = []; for (let j = i + 1; j < L.length && !isLab(L[j]); j++) after.push(L[j]);
+    const prose = l => /[a-z]/.test(l) && !/^[+-]?\d/.test(l) && (l.match(/[A-Z]/g) || []).length < l.length * .5;
+    const after = []; for (let j = i + 1; j < L.length && !isLab(L[j]) && prose(L[j]); j++) after.push(L[j]);
     if (after.length) return after.join(" ");
-    const before = []; for (let j = i - 1; j >= 0 && !isLab(L[j]); j--) before.unshift(L[j]);
+    const before = []; for (let j = i - 1; j >= 0 && !isLab(L[j]) && prose(L[j]); j--) before.unshift(L[j]);
     return before.join(" ");
   };
   ["personalitytraits:^personality traits$", "ideals:^ideals$", "bonds:^bonds$", "flaws:^flaws$", "backstory:^(character )?backstory$"].forEach(d => { const [k, r] = d.split(":"); if (!F[k]) F[k] = box(new RegExp(r, "i")); });
@@ -2518,7 +2521,8 @@ function xoScan(t){
 function fromText(text, F0, fileName){
   const fieldPart = fromFields(Object.assign({}, F0 || {}));
   const all = String(text || "") + "\n" + Object.values(F0 || {}).join("\n");
-  const textPart = fromFields(textRead(text, fileName));
+  const rich = Object.keys(F0 || {}).length >= 12;
+  const textPart = rich ? {} : fromFields(textRead(text, fileName));
   const scan = xoScan(all);
   const out = {};
   XO_KEYS.forEach(k => { out[k] = fieldPart[k] || textPart[k] || ""; });
@@ -2595,9 +2599,15 @@ async function xoRead(f){
       const lib = await loadPdfjs();
       const doc = await lib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise;
       const F = {};
-      try { const fo = await doc.getFieldObjects(); if (fo) for (const k in fo){ const v = fo[k].map(o => o.value).find(v => typeof v === "string" && v.trim() && v !== "Off"); if (v) F[nk(k)] = v; } } catch(e){}
+      const put = (k, v) => { if (typeof v === "number") v = String(v); if (typeof v !== "string" || !v.trim() || v === "Off") return; k = nk(k); if (!(k in F)) F[k] = v; };
+      try { const fo = await doc.getFieldObjects(); if (fo) for (const k in fo) put(k, fo[k].map(o => o.value).find(v => typeof v === "string" && v.trim() && v !== "Off")); } catch(e){}
+      /* D&D Beyond writes its values into widgets on each page, with no form dictionary, so read every page's widgets too */
       let text = "";
-      for (let i = 1; i <= Math.min(doc.numPages, 5); i++){ const tc = await (await doc.getPage(i)).getTextContent(); text += tc.items.map(t => t.str + (t.hasEOL ? "\n" : " ")).join("") + "\n"; }
+      for (let i = 1; i <= Math.min(doc.numPages, 12); i++){
+        const pg = await doc.getPage(i);
+        try { (await pg.getAnnotations()).forEach(a => { if (a.fieldName) put(a.fieldName, a.fieldValue); }); } catch(e){}
+        if (i <= 6){ const tc = await pg.getTextContent(); text += tc.items.map(t => t.str + (t.hasEOL ? "\n" : " ")).join("") + "\n"; }
+      }
       got = fromText(text, F, f.name);
       if (!Object.keys(F).length && text.replace(/\s/g, "").length < 40) partial = true;
     } else got = fromText(await f.text(), {}, f.name);
@@ -2636,29 +2646,30 @@ const XO_VOICE = {
   magic:{place:"the Arcanum", folk:"the twelve schools", prize:"the Archchancellor's chair"},
   modern:{place:"the boardroom", folk:"the family", prize:"the founder's chair"}
 };
+const vb = (one, w) => one ? (w.endsWith("y") ? w.slice(0, -1) + "ies" : w + "s") : w;
 const XO_MOTIFS = [
   ["charm", /charm|suggestion|enthrall|friends|command|actor|enchant|compulsion|dominate|fey touched|inspiration|tongues|calm emotions|zone of truth|glibness|persua/i,
-    (n, v) => `${n} let them win ${v.folk} with a word, and in ${v.place} a word can crown`],
+    (n, v, one) => `${n} ${vb(one, "let")} them win ${v.folk} with a word, and in ${v.place} a word can crown`],
   ["mask", /illusion|disguise|invisib|mirror image|silent image|blur|seeming|alter self|nondetection|misty step|shadow|skulker|stealth|cloak/i,
-    (n, v) => `${n} suit a court where every face is a mask and the best liar keeps the longest secret`],
+    (n, v, one) => `${n} ${vb(one, "suit")} a court where every face is a mask and the best liar keeps the longest secret`],
   ["eye", /detect|identify|divin|augury|comprehend|clairvoy|see invisib|alert|observant|guidance|locate|scrying|insight|investigat|eyes of|sentinel|gem of seeing/i,
-    (n, v) => `${n} make them the one who notices, and at an Affair built on a hidden crime that eye outranks any blade`],
+    (n, v, one) => `${n} ${vb(one, "make")} them the one who notices, and at an Affair built on a hidden crime that eye outranks any blade`],
   ["blast", /fire|flame|burn|scorch|lightning|thunder|eldritch blast|magic missile|smite|fireball|frost|shatter|spell sniper|war caster|elemental adept/i,
-    (n, v) => `${n} promise spectacle, and ${v.place} remembers fire longer than wit`],
+    (n, v, one) => `${n} ${vb(one, "promise")} spectacle, and ${v.place} remembers fire longer than wit`],
   ["heavy", /great weapon|maul|greataxe|greatsword|halberd|glaive|polearm|warhammer|battleaxe|heavy armor|charger|crusher/i,
-    (n, v) => `${n} bring open force into rooms that prize restraint, so each swing earns awe and Scandal together`],
+    (n, v, one) => `${n} ${vb(one, "bring")} open force into rooms that prize restraint, so each swing earns awe and Scandal together`],
   ["blade", /rapier|dagger|sword|scimitar|dueling|dual wielder|fencing|whip|slasher|piercer/i,
-    (n, v) => `${n} belong to the duel at dawn and the insult answered in steel`],
+    (n, v, one) => `${n} ${vb(one, "belong")} to the duel at dawn and the insult answered in steel`],
   ["bow", /bow|crossbow|sharpshooter|sling|dart|hunter's mark|javelin|ranged/i,
-    (n, v) => `${n} suit a patient hunter who strikes from the gallery`],
+    (n, v, one) => `${n} ${vb(one, "suit")} a patient hunter who strikes from the gallery`],
   ["mend", /cure|heal|aid|revivify|spare the dying|restoration|prayer|bless|goodberry|chef|life/i,
-    (n, v) => `${n} make them the one ${v.folk} turn to when a rival falls, and gratitude becomes leverage`],
+    (n, v, one) => `${n} ${vb(one, "make")} them the one ${v.folk} turn to when a rival falls, and gratitude becomes leverage`],
   ["grave", /necro|death|inflict|chill touch|toll the dead|animate|vampiric|blight|speak with dead|bane|hex|curse|fear/i,
-    (n, v) => `${n} carry the scent of the grave into ${v.place}, a dark repute that frightens rivals into bargains`],
+    (n, v, one) => `${n} ${vb(one, "carry")} the scent of the grave into ${v.place}, a dark repute that frightens rivals into bargains`],
   ["wild", /druid|entangle|thorn|plant|speak with animals|beast|barkskin|moonbeam|wild|grove|faerie fire|fey step|thaumaturgy|druidcraft/i,
-    (n, v) => `${n} root them in the old wild magic beneath ${v.place}`],
+    (n, v, one) => `${n} ${vb(one, "root")} them in the old wild magic beneath ${v.place}`],
   ["ward", /shield|ward|sanctuary|protection|counterspell|dispel|tough|resilient|armor|mage armor|absorb elements|lucky/i,
-    (n, v) => `${n} mark a guardian, the Court others stand behind when rumours turn to knives`]
+    (n, v, one) => `${n} ${vb(one, "mark")} a guardian, the Court others stand behind when rumours turn to knives`]
 ];
 function xoReading(){
   const x = XO(), v = XO_VOICE[S.mode] || XO_VOICE.monarch;
@@ -2666,8 +2677,8 @@ function xoReading(){
   if (!pool.length) return "";
   const hits = XO_MOTIFS.map(([k, re, say]) => ({k, say, names:pool.filter(n => re.test(n))})).filter(h => h.names.length).sort((a, b) => b.names.length - a.names.length);
   const used = new Set(), picks = [];
-  for (const h of hits){ const nm = h.names.filter(n => !used.has(n)).slice(0, 2); if (!nm.length) continue; nm.forEach(n => used.add(n)); picks.push(h.say(list(nm), v)); if (picks.length === 2) break; }
-  if (!picks.length) return `${list(pool.slice(0, 2))} come along as keepsakes from another road, each one a story ${v.folk} will want to hear.`;
+  for (const h of hits){ const nm = h.names.filter(n => !used.has(n)).slice(0, 2); if (!nm.length) continue; nm.forEach(n => used.add(n)); picks.push(h.say(list(nm.map(n => new RegExp("^(?:" + XO_WEAPONS + ")$", "i").test(n) ? "their " + n.toLowerCase() : n)), v, nm.length === 1)); if (picks.length === 2) break; }
+  if (!picks.length) return `${list(pool.slice(0, 2))} ${pool.length > 1 ? "come" : "comes"} along as keepsakes from another road, each one a story ${v.folk} will want to hear.`;
   const t = picks.join("; ") + ".";
   return t.charAt(0).toUpperCase() + t.slice(1) + (picks.length === 1 ? ` Every piece of it bends toward ${v.prize}.` : "");
 }
