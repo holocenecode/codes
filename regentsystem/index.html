@@ -669,18 +669,20 @@ footer{margin-top:28px; text-align:center; font-size:11.5px; color:var(--dim); l
 #printSummary .ps-card .ps-locked{color:#8d8896;}
 #printSummary.xo-on{font-size:9.4pt;}
 #printSummary.xo-on .ps-story p{margin-bottom:.45em;}
-#printSummary .ps-xo{display:grid; grid-template-columns:46mm 1fr; gap:5mm; break-inside:avoid; padding:7px 10px; border-radius:3px;
+#printSummary .ps-xo{break-inside:avoid; padding:7px 10px 6px; border-radius:3px;
   border:.6pt solid color-mix(in srgb, var(--pc2, var(--pc)) 35%, #fff); background:color-mix(in srgb, var(--pc2, var(--pc)) 4%, #fff);}
-#printSummary .ps-vit{display:flex; gap:5px; margin:5px 0 0;}
-#printSummary .ps-vit span{font-size:10.5pt; font-weight:700; padding:1px 9px; border-radius:3px; background:var(--pc2, var(--pc)); color:#fff; line-height:1.4;}
-#printSummary .ps-vit b{font-size:7pt; letter-spacing:.14em; font-weight:700; margin-right:4px; opacity:.88;}
-#printSummary .ps-xo-sys{font-size:7.5pt; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:#6b6470;}
+#printSummary .ps-xo-id{display:flex; align-items:baseline; flex-wrap:wrap; gap:2px 9px; margin-bottom:4px;}
 #printSummary .ps-xo-nm{font-weight:700; font-size:12pt; line-height:1.2; color:var(--pc2, var(--pc));}
-#printSummary .ps-xo-cn{font-size:8.5pt; color:#4a4652; margin:1px 0 5px;}
-#printSummary .ps-xo-st{display:flex; flex-wrap:wrap; gap:3px;}
-#printSummary .ps-xo-st span{font-size:7.5pt; padding:0 5px; border-radius:2px; border:.5pt solid color-mix(in srgb, var(--pc) 35%, #fff); background:#fff; color:#4a4652;}
-#printSummary .ps-xo-st span b{color:var(--pc);}
-#printSummary .ps-xo-tx p{margin:0 0 .35em; font-size:9pt; line-height:1.42; text-align:justify; hyphens:auto;}
+#printSummary .ps-xo-cn{font-size:9pt; color:#4a4652;}
+#printSummary .ps-xo-rows{display:grid; grid-template-columns:17mm 1fr; gap:2px 8px; align-items:baseline; margin:0 0 6px; padding:5px 0 6px;
+  border-top:.5pt solid color-mix(in srgb, var(--pc) 30%, #fff); border-bottom:.5pt solid color-mix(in srgb, var(--pc) 30%, #fff);}
+#printSummary .ps-xo-k{font-size:7pt; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:#6b6470;}
+#printSummary .ps-xo-v{font-size:9.5pt; line-height:1.4; color:#2a2530;}
+#printSummary .ps-xo-v b{color:var(--pc2, var(--pc)); font-size:10pt;}
+#printSummary .ps-xo-v small{font-size:8pt; color:#6b6470;}
+#printSummary .ps-xo-v i{font-style:normal; color:#b3adb8; margin:0 2px;}
+#printSummary .ps-xo-blank{display:inline-block; height:.9em; vertical-align:baseline; border-bottom:.6pt solid #b3adb8;}
+#printSummary .ps-xo-tx p{margin:0 0 .35em; font-size:.95em; line-height:1.42; text-align:justify; hyphens:auto;}
 #printSummary .ps-xo-tx .rule{color:#4a4652;}
 #printSummary .ps-foot{margin-top:10px; padding-top:5px; border-top:1px solid #ddd6dd; display:flex; justify-content:space-between; color:#8d8896;}
 @media print{
@@ -1526,7 +1528,7 @@ const INFO = () => {
     product:["Identity","Main Product","Each House chooses one main product. It gives your Court one effect in play, and it shapes your Background and playstyle."],
     bearing:["Dice Tray","Bearing","The Bearing is the die that prevailed in the seating roll, Charm or Grit, and it holds for the whole "+A+". Favourites roll with it. Provocateurs roll against it."],
     desire:["Dice Tray","Desire","You choose your Desire in secret, in the dice tray. A Favourite seeks Renown, rolls with the "+A+"'s Bearing, and wins alongside the room. A Provocateur seeks Scandal for others, rolls against the Bearing, and wins alone by staying hidden."],
-    crossover:["Character Sheet","Crossover","REGENT sits on top of any game. Upload a character sheet from D&D 5E or another system, and the page reads its name, concept, scores, ideals, bonds, and flaws. The scores lean your Court toward Charm or Grit and suggest three signs. Ideals and bonds become the want you carry into the "+A+", a flaw becomes your secret, and the whole crossing prints on the one-page sheet. The file itself stays in this browser."],
+    crossover:["Character Sheet","Crossover","REGENT sits on top of any game. Upload a character sheet from D&D 5E or another system, and the page reads its name, concept, HP, AC, ability scores, feats, ideals, bonds, and flaws. The scores lean your Court toward Charm or Grit and suggest three signs. Ideals and bonds become the want you carry into the "+A+", a flaw becomes your secret, and the whole crossing prints on the one-page sheet. The file itself stays in this browser."],
     background:["Identity","Background","Write your history, your want, and your secret here in one box. Suggest offers three drafts drawn from your Court and House, and Random writes one for you."],
     rep:["Standing","Reputation",STAND().rep],
     renown:["Standing","Renown",STAND().renown],
@@ -2343,8 +2345,8 @@ $("result").addEventListener("click", e => {
    woven into the Court. PDF form fields and text through pdf.js,
    JSON exports from D&D Beyond, Foundry, and Pathbuilder, or plain text.
    ===================================================================== */
-const XO_KEYS = ["sys", "name", "concept", "hp", "ac", "stats", "traits", "want", "secret", "features", "story"];
-const XO_BLANK = () => ({sys:"", name:"", concept:"", hp:"", ac:"", stats:"", traits:"", want:"", secret:"", features:"", story:"", file:""});
+const XO_KEYS = ["sys", "name", "concept", "hp", "ac", "stats", "feats", "traits", "want", "secret", "features", "story"];
+const XO_BLANK = () => ({sys:"", name:"", concept:"", hp:"", ac:"", stats:"", feats:"", traits:"", want:"", secret:"", features:"", story:"", file:""});
 const XO = () => { if (!C().xo) C().xo = XO_BLANK(); return C().xo; };
 const xoHas = () => { const x = C().xo; return !!x && XO_KEYS.some(k => String(x[k] || "").trim()); };
 const nk = k => String(k).toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -2387,6 +2389,16 @@ function xoSuggest(){
   return {sun, moon, rise, ap:ln.ap, lean:ln};
 }
 
+/* feats: a D&D Beyond PDF keeps them under "=== FEATS ===" inside Features & Traits */
+const XO_NOT_FEAT = /^(hit points|proficienc|ability score improvement|core .*traits|subclass|equipment|spellcasting$)/i;
+const xoNames = a => [...new Set(a.map(n => String(n || "").trim()).filter(n => n && n.length < 48 && !XO_NOT_FEAT.test(n)))];
+function xoFeatsFrom(t){
+  const sec = String(t || "").match(/=+\s*FEATS?\s*=+([\s\S]*?)(?:\n\s*=+\s*[A-Z]|$)/i);
+  if (!sec) return "";
+  const names = [];
+  sec[1].replace(/^\s*[*\u2022\-]\s*([^\u2022\n:]+?)\s*(?:\u2022|:|$)/gm, (m, n) => { names.push(n); });
+  return xoNames(names).join(", ");
+}
 /* readers */
 function fromFields(F){
   const g = (...ks) => { for (const k of ks){ const v = F[k]; if (v != null && String(v).trim() && String(v).trim() !== "Off") return String(v).trim(); } return ""; };
@@ -2402,7 +2414,8 @@ function fromFields(F){
     traits:g("personalitytraits", "personality", "traits", "trait", "personalitytrait"),
     want:[g("ideals", "ideal", "goals", "goal", "motivation", "drive"), g("bonds", "bond", "ties")].filter(Boolean).join(" "),
     secret:g("flaws", "flaw", "weakness", "weaknesses", "phobias", "maniasphobias"),
-    features:g("featuresandtraits", "feattraits", "featurestraits", "features", "featuresfeats", "feats", "specialabilities", "abilities", "talents"),
+    feats:g("feats", "feat", "featslist", "featnames", "generalfeats", "originfeat") || xoFeatsFrom(g("featuresandtraits", "feattraits", "featurestraits", "features", "featuresfeats", "additionalfeaturestraits")),
+    features:g("featuresandtraits", "feattraits", "featurestraits", "features", "featuresfeats", "specialabilities", "abilities", "talents"),
     story:g("backstory", "characterbackstory", "biography", "bio", "history", "description", "personaldescription")
   };
 }
@@ -2437,7 +2450,9 @@ function fromJSON(o){
     return {sys:"D&D 5E", name:o.name || "", stats:st, hp:hpB ? String(hpB) : "", ac:"",
       concept:[(o.race && (o.race.fullName || o.race.baseName)) || "", (o.classes || []).map(c => ((c.definition && c.definition.name) || "") + " " + (c.level || "")).join(" / ")].filter(Boolean).join(" ") + (o.background && o.background.definition ? " (" + o.background.definition.name + ")" : ""),
       traits:tr.personalityTraits || "", want:[tr.ideals, tr.bonds].filter(Boolean).join(" "), secret:tr.flaws || "",
-      features:(o.feats || []).map(f => f.definition && f.definition.name).filter(Boolean).join(", "), story:(o.notes && o.notes.backstory) || ""};
+      feats:xoNames((o.feats || []).map(f => f.definition && f.definition.name)).join(", "),
+      features:xoNames((o.classes || []).flatMap(c => (c.classFeatures || []).filter(f => f.definition && (f.definition.requiredLevel || 0) <= (c.level || 20)).map(f => f.definition.name))).slice(0, 8).join(", "),
+      story:(o.notes && o.notes.backstory) || ""};
   }
   if (o && o.system && o.system.abilities){
     const sy = o.system, d = sy.details || {};
@@ -2449,14 +2464,15 @@ function fromJSON(o){
     const at = sy.attributes || {}, hpF = at.hp && (at.hp.max || at.hp.value), acF = at.ac && (at.ac.value || at.ac.flat);
     return {sys:"D&D 5E", name:o.name || "", stats:st, hp:hpF ? String(hpF) : "", ac:acF ? String(acF) : "", concept:[race, cls].filter(Boolean).join(" ") + (bgd ? " (" + bgd + ")" : ""),
       traits:d.trait || "", want:[d.ideal, d.bond].filter(Boolean).join(" "), secret:d.flaw || "",
-      features:items.filter(i => i.type === "feat").slice(0, 6).map(i => i.name).join(", "), story:stripHTML(d.biography && (d.biography.value || d.biography))};
+      feats:xoNames(items.filter(i => i.type === "feat" && i.system && i.system.type && i.system.type.value === "feat").map(i => i.name)).join(", "),
+      features:xoNames(items.filter(i => i.type === "feat" && !(i.system && i.system.type && i.system.type.value === "feat")).map(i => i.name)).slice(0, 8).join(", "), story:stripHTML(d.biography && (d.biography.value || d.biography))};
   }
   if (o && o.build){
     const b = o.build, ab = b.abilities || {};
     const pa = b.attributes || {}, hpP = (pa.ancestryhp || 0) + (pa.classhp || 0) + (pa.bonushp || 0);
     return {sys:"Pathfinder 2E", name:b.name || "", hp:hpP ? String(hpP) : "", ac:b.acTotal && b.acTotal.acTotal ? String(b.acTotal.acTotal) : "", stats:STAT6.map(s => ab[s.toLowerCase()] ? s + " " + ab[s.toLowerCase()] : "").filter(Boolean).join(" · "),
       concept:[b.ancestry, b.class, b.level].filter(Boolean).join(" ") + (b.background ? " (" + b.background + ")" : ""),
-      features:(b.feats || []).slice(0, 6).map(f => Array.isArray(f) ? f[0] : f).join(", "), traits:"", want:"", secret:"", story:""};
+      feats:xoNames((b.feats || []).map(f => Array.isArray(f) ? f[0] : f)).join(", "), features:"", traits:"", want:"", secret:"", story:""};
   }
   const F = {};
   (function walk(x, d){ if (d > 6 || x == null) return; if (Array.isArray(x)) return x.forEach(y => walk(y, d + 1));
@@ -2531,15 +2547,27 @@ function xoWeave(){
   return out;
 }
 const xoRule = () => `Once per ${M().affair}, when a Bearing Check matches a proficiency or feature on the ${XO().sys || "other"} sheet, roll with Advantage. The Host rules on the match.`;
+const xoMod = v => { const m = Math.floor((v - 10) / 2); return (m < 0 ? "\u2212" : "+") + Math.abs(m); };
 function xoPrint(){
   if (!xoHas()) return "";
-  const x = XO(), st = xoStats(x.stats), keys = Object.keys(st);
-  const vit = (x.hp || x.ac) ? `<div class="ps-vit">${x.hp ? `<span><b>HP</b>${esc(x.hp)}</span>` : ""}${x.ac ? `<span><b>AC</b>${esc(x.ac)}</span>` : ""}</div>` : "";
-  const chips = keys.length ? keys.map(k => `<span><b>${k}</b> ${st[k]}</span>`).join("") : (x.stats ? `<span>${esc(clip(x.stats, 90))}</span>` : "");
+  const x = XO(), st = xoStats(x.stats), keys = STAT6.filter(k => k in st);
+  const d20 = !/cthulhu|vampire|blades/i.test(x.sys || "") && keys.every(k => st[k] <= 30);
+  const blank = w => `<span class="ps-xo-blank" style="width:${w}mm"></span>`;
+  const vit = `HP <b>${x.hp ? esc(x.hp) : ""}</b>${x.hp ? "" : blank(12)} <i>\u00b7</i> AC <b>${x.ac ? esc(x.ac) : ""}</b>${x.ac ? "" : blank(12)}`;
+  const sc = keys.length ? keys.map(k => `${k} <b>${st[k]}</b>${d20 ? ` <small>(${xoMod(st[k])})</small>` : ""}`).join(" <i>\u00b7</i> ")
+    : (x.stats ? esc(clip(x.stats, 110)) : STAT6.map(k => `${k} ${blank(8)}`).join(" "));
+  const ft = x.feats ? esc(clip(x.feats, 170)) : blank(90);
+  const w = xoWeave().slice(1);
   return `<div class="ps-head">Crossover · ${esc(x.sys || "Another Game")}</div>
-    <div class="ps-xo"><div><div class="ps-xo-sys">${esc(x.sys || "Another Game")}</div><div class="ps-xo-nm">${esc(x.name || C().name || "Unnamed")}</div>
-    ${x.concept ? `<div class="ps-xo-cn">${esc(x.concept)}</div>` : ""}${vit}<div class="ps-xo-st">${chips}</div></div>
-    <div class="ps-xo-tx"><p>${xoWeave().map(esc).join(" ")}</p><p class="rule"><b>Crossover rule.</b> ${esc(xoRule())}</p></div></div>`;
+    <div class="ps-xo">
+      <div class="ps-xo-id"><span class="ps-xo-nm">${esc(x.name || C().name || "Unnamed")}</span>${x.concept ? `<span class="ps-xo-cn">${esc(x.concept)}</span>` : ""}</div>
+      <div class="ps-xo-rows">
+        <span class="ps-xo-k">Vitals</span><span class="ps-xo-v">${vit}</span>
+        <span class="ps-xo-k">Abilities</span><span class="ps-xo-v">${sc}</span>
+        <span class="ps-xo-k">Feats</span><span class="ps-xo-v">${ft}</span>
+      </div>
+      <div class="ps-xo-tx">${w.length ? `<p>${w.map(esc).join(" ")}</p>` : ""}<p class="rule"><b>Crossover rule.</b> ${esc(xoRule())}</p></div>
+    </div>`;
 }
 function xoBackground(){
   const x = XO(), c = C(), ck = courtByKey(c.court), parts = [];
@@ -2576,7 +2604,8 @@ function renderXO(){
     <div class="grid2">${fi("sys", "System", "D&D 5E, Pathfinder, Call of Cthulhu")}${fi("name", "Name There", "The name on that sheet")}</div>
     ${fi("concept", "Concept", "Half-Elf Bard 5 (Entertainer)")}
     <div class="grid2">${fi("hp", "HP", "38", "Printed on the one-page sheet for the Host")}${fi("ac", "AC", "15", "Printed on the one-page sheet for the Host")}</div>
-    ${fi("stats", "Scores", "STR 10 · DEX 14 · CON 12 · INT 13 · WIS 11 · CHA 17", "Sets your lean toward Charm or Grit")}
+    ${fi("stats", "Ability Scores", "STR 10 · DEX 14 · CON 12 · INT 13 · WIS 11 · CHA 17", "Sets your lean toward Charm or Grit")}
+    ${fi("feats", "Feats", "Alert, War Caster, Tough", "Printed on the one-page sheet for the Host")}
     <div class="grid2">${ta("want", "Ideals and Bonds", "What they believe, and whom they serve", "Becomes your want")}${ta("secret", "Flaws", "What could undo them", "Becomes your secret")}</div>
     <div class="grid2">${ta("traits", "Personality", "How they carry themselves")}${ta("features", "Features", "Abilities worth remembering at court", "Feeds the Crossover rule")}</div>
     ${ta("story", "Backstory", "Where they come from", "Woven into your Background")}
@@ -2663,8 +2692,6 @@ function buildPrintSummary(){
   }
   if (court && pr) paras.push(playLines().slice(0, 3).join(" "));
   const meta = [`Level <b>${lv + 1}</b>`, `Bonus <b>+${lv + 1}</b>`, `Reputation <b>${c.rep}</b>`, `Renown <b>${c.renown}</b>`, `Scandal <b>${c.scandal}</b>`].map(x => `<span>${x}</span>`).join("<span>·</span>");
-  const xv = c.xo || {};
-  const pvit = (xv.hp || xv.ac) ? `<div class="ps-vit">${xv.hp ? `<span><b>HP</b>${esc(xv.hp)}</span>` : ""}${xv.ac ? `<span><b>AC</b>${esc(xv.ac)}</span>` : ""}</div>` : "";
   const today = new Date().toLocaleDateString("en-PH", {year:"numeric", month:"long", day:"numeric"});
   const sub = [court ? esc(courtLabel(court)) : "", c.house ? `<span class="hl2">House ${esc(c.house)}</span>` : "", esc(md.levels[lv])].filter(Boolean).map((x, i) => i === 0 ? `<span>${x}</span>` : x).join(" · ");
   el.innerHTML = `
@@ -2674,7 +2701,6 @@ function buildPrintSummary(){
         <div class="ps-eyebrow">REGENT™ · ${STORY[S.mode]}</div>
         <h1>${c.name ? esc(c.name) : "Your Court"}</h1>
         <div class="ps-sub">${sub}</div>
-        ${pvit}
         <div class="ps-meta">${meta}</div>
       </div>
       <div class="ps-photo${c.photo ? "" : " empty"}"><div class="in">${c.photo ? `<img src="${c.photo}" alt="">` : "<span>Portrait</span>"}</div></div>
@@ -2683,6 +2709,19 @@ function buildPrintSummary(){
     ${(ch || gr) ? `<div class="ps-head">Skills</div><div class="ps-skills">${psSkill(ch, "Charm", lv, "var(--pc)")}${psSkill(gr, "Grit", lv, "var(--pc2)")}</div>` : ""}
     ${xoPrint()}
     <div class="ps-foot"><span>${c.player ? "Played by " + esc(c.player) : "REGENT™ Character Sheet"}</span><span>${STORY[S.mode]} · ${today}</span></div>`;
+  fitOnePage(el);
+}
+/* one page, always: measure the sheet off-screen, then ease the type down until it fits A4 */
+function fitOnePage(el){
+  const PAGE = 269 * 96 / 25.4 - 4;
+  el.style.zoom = ""; el.style.fontSize = "";
+  const keep = el.getAttribute("style") || "";
+  el.style.cssText += ";display:block;position:absolute;left:-10000px;top:0;visibility:hidden;";
+  let pt = xoHas() ? 9.4 : 10;
+  while (el.scrollHeight > PAGE && pt > 7.8){ pt -= .2; el.style.fontSize = pt + "pt"; }
+  const z = el.scrollHeight > PAGE ? Math.max(.7, PAGE / el.scrollHeight) : 1;
+  const size = el.style.fontSize;
+  el.setAttribute("style", keep); el.style.fontSize = size; el.style.zoom = z < 1 ? z : "";
 }
 window.addEventListener("beforeprint", buildPrintSummary);
 
