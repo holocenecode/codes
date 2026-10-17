@@ -2056,6 +2056,7 @@
   /* ================= STATUS: TOUCH TO READ ================= */
   .status-info{ background:none; border:none; padding:0; cursor:pointer; font:inherit; }
   .status-info::after{ content:" \25BE"; font-size:9px; opacity:0.7; }
+  .status-block.linked .status-info::after{ content:none !important; }
   .status-info[aria-expanded="true"]::after{ content:" \25B4"; }
   .status-block.info-open{ box-shadow:0 0 0 2px color-mix(in srgb, var(--sc) 45%, transparent); }
   .status-desc{ --sc:#4d2177; margin-top:10px; padding:9px 12px; border-radius:4px; font-size:12.5px; line-height:1.55; text-align:justify;
