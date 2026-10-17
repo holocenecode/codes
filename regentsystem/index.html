@@ -625,6 +625,11 @@ footer{margin-top:28px; text-align:center; font-size:11.5px; color:var(--dim); l
 .xo-chip{padding:3px 10px; border-radius:999px; font-size:12px; font-weight:700; background:var(--card); border:1px solid var(--line); color:var(--ink);}
 .xo-chip b{color:var(--a); margin-right:3px;}
 .xo-acts{display:flex; gap:6px; flex-wrap:wrap; margin-left:auto;}
+.xo-rows{display:grid; gap:4px; margin-bottom:12px;}
+.xo-row{display:grid; grid-template-columns:120px 1fr; gap:10px; font-size:13px; line-height:1.45; padding:5px 0; border-bottom:1px solid var(--line);}
+.xo-row > span:first-child{font-size:10.5px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--soft); padding-top:2px;}
+.xo-miss{color:var(--dim); font-size:12px;}
+@media (max-width:520px){ .xo-row{grid-template-columns:1fr; gap:2px;} }
 .xo-prev{border-left:3px solid var(--a); padding:10px 13px 4px; background:color-mix(in srgb, var(--tint) 60%, transparent); border-radius:0 9px 9px 0;}
 .xo-prev p{font-size:13px; margin:0 0 8px; text-align:justify; hyphens:auto;}
 .xo-prev .rule{font-size:12px; color:var(--soft); text-align:justify;}
@@ -754,6 +759,16 @@ footer{margin-top:28px; text-align:center; font-size:11.5px; color:var(--dim); l
     <main>
       <!-- ================= CHARACTER SHEET ================= -->
       <section class="panel on" id="p-sheet">
+        <div class="card" id="xoCard">
+          <h3><span data-i="crossover" style="cursor:pointer">Crossover</span><span class="h3-right"><small id="xoSmall">Any system, one Court</small><button type="button" class="reset-btn" id="xoClear" hidden>Clear</button></span></h3>
+          <div class="xo-drop" id="xoDrop">
+            <span class="xo-hint"><b>Bring a character from another game.</b> Upload its sheet: a D&amp;D 5E PDF, a D&amp;D Beyond or Foundry export, Pathbuilder, Call of Cthulhu, or plain text. The page reads it here in your browser and fills your whole REGENT sheet from it, ready to print.<br><span class="xo-file" id="xoFileName"></span></span>
+            <button type="button" class="btn sm" id="xoUp">Upload a Sheet</button>
+            <input type="file" id="xoFile" accept=".pdf,.json,.txt,.md,.text,application/pdf,application/json,text/plain" hidden>
+          </div>
+          <div id="xoBody"></div>
+        </div>
+
         <div class="card">
           <h3><span>Identity</span></h3>
           <div class="id-top">
@@ -813,22 +828,6 @@ footer{margin-top:28px; text-align:center; font-size:11.5px; color:var(--dim); l
         <div class="card">
           <h3><span>Skills</span></h3>
           <div id="sheetSkills"></div>
-        </div>
-
-        <div class="card" id="xoCard">
-          <h3><span data-i="crossover" style="cursor:pointer">Crossover</span><span class="h3-right"><small id="xoSmall">Any system, one Court</small><button type="button" class="reset-btn" id="xoClear" hidden>Clear</button></span></h3>
-          <div class="xo-tabs">
-            <button type="button" class="xo-tog" id="xoTogUp" aria-expanded="false"><span class="gl">&#8682;&#xFE0E;</span>Upload a Sheet<span class="xo-car"></span></button>
-            <button type="button" class="xo-tog" id="xoTogHand" aria-expanded="false"><span class="gl">&#9998;&#xFE0E;</span>Fill by Hand<span class="xo-car"></span></button>
-          </div>
-          <div class="xo-fold" id="xoPaneUp"><div class="xo-fin">
-            <div class="xo-drop" id="xoDrop">
-              <span class="xo-hint"><b>Bring a character from another game.</b> Upload its sheet as a PDF, JSON, or text file: a D&amp;D 5E sheet, a D&amp;D Beyond or Foundry export, Pathbuilder, Call of Cthulhu, and more. The page reads it here in your browser, then weaves it into your Court and the one-page sheet.<br><span class="xo-file" id="xoFileName"></span></span>
-              <button type="button" class="btn sm" id="xoUp">Choose a File</button>
-              <input type="file" id="xoFile" accept=".pdf,.json,.txt,.md,.text,application/pdf,application/json,text/plain" hidden>
-            </div>
-          </div></div>
-          <div class="xo-fold" id="xoPaneHand"><div class="xo-fin"><div id="xoBody"></div></div></div>
         </div>
 
         <div class="actions">
@@ -2399,7 +2398,7 @@ function xoFeatsFrom(t){
   const sec = String(t || "").match(/=+\s*FEATS?\s*=+([\s\S]*?)(?:\n\s*=+\s*[A-Z]|$)/i);
   if (!sec) return "";
   const names = [];
-  sec[1].replace(/^\s*[*\u2022\-]\s*([^\u2022\n:]+?)\s*(?:\u2022|:|$)/gm, (m, n) => { names.push(n); });
+  sec[1].replace(/^\s*[*\u2022\u00b7\-]\s*([^\u2022\u00b7|\n:]+?)\s*(?:\u2022|\u00b7|\||:|$)/gm, (m, n) => { names.push(n); });
   return xoNames(names).join(", ");
 }
 /* readers */
@@ -2420,7 +2419,7 @@ function fromFields(F){
     spells, items,
     name:g("charactername", "name", "charactername2", "investigatorname", "investigator", "character"),
     concept:concept.trim(), stats,
-    hp:g("hpmax", "maxhp", "hitpointmaximum", "hitpointsmax", "maxhitpoints", "hitpoints", "hp", "hpcurrent", "currenthp").replace(/^(\d+).*$/, "$1"),
+    hp:g("hpmax", "maxhp", "hitpointmaximum", "hitpointmax", "hitpointsmax", "maxhitpoints", "maximumhitpoints", "hitpoints", "hp", "hpcurrent", "currenthp").replace(/^(\d+).*$/, "$1"),
     ac:g("ac", "armorclass", "armourclass", "ac1").replace(/^(\d+).*$/, "$1"),
     traits:g("personalitytraits", "personality", "traits", "trait", "personalitytrait"),
     want:[g("ideals", "ideal", "goals", "goal", "motivation", "drive"), g("bonds", "bond", "ties")].filter(Boolean).join(" "),
@@ -2440,16 +2439,93 @@ function detectSys(F, text){
   if (Object.keys(F).some(k => STAT6.includes(k.toUpperCase()))) return "D&D 5E";
   return "";
 }
-function fromText(text, F0){
-  const F = Object.assign({}, F0 || {});
-  String(text).replace(/^[ \t]*([A-Za-z][A-Za-z &\/']{1,30}?)[ \t]*[:：][ \t]*(.+)$/gm, (m, k, v) => { const kk = nk(k); if (!F[kk]) F[kk] = v.trim(); });
-  String(text).replace(/\b(STR|DEX|CON|INT|WIS|CHA|STRENGTH|DEXTERITY|CONSTITUTION|INTELLIGENCE|WISDOM|CHARISMA|SIZ|APP|POW|EDU|AGILITY|STAMINA|PRESENCE|WITS|MANIPULATION|COMPOSURE|APPEARANCE)\b[^\d+\-−\n]{0,8}(?:[+\-−]\d{1,2}\s+)?(\d{1,2})\b/gi, (m, k, v) => {
-    const s = (STAT_ALIAS[k.toUpperCase()] || k.toUpperCase()).toLowerCase(); if (!F[s] || !/^\d+$/.test(F[s])) F[s] = v;
-  });
-  const tx = String(text);
-  if (!F.hp && !F.hpmax){ const m = tx.match(/\b(?:max(?:imum)?\s+HP|hit\s+points?|HP)\b[^\d\n]{0,12}(\d{1,3})\b/i); if (m) F.hp = m[1]; }
-  if (!F.ac && !F.armorclass){ const m = tx.match(/\b(?:AC|armou?r\s+class)\b[^\d\n]{0,8}(\d{1,2})\b/i); if (m) F.ac = m[1]; }
-  return Object.assign(fromFields(F), {sys:detectSys(F, text)});
+/* what a D&D sheet is made of, known by name, so a flattened PDF reads in any layout */
+const XO_CLASSES = ["Artificer","Barbarian","Bard","Blood Hunter","Cleric","Druid","Fighter","Monk","Paladin","Ranger","Rogue","Sorcerer","Warlock","Wizard"];
+const XO_SPECIES = ["Aasimar","Bugbear","Centaur","Changeling","Dragonborn","Dwarf","Elf","Half-Elf","Half-Orc","Halfling","Hill Dwarf","Mountain Dwarf","High Elf","Wood Elf","Drow","Eladrin","Firbolg","Genasi","Gith","Gnome","Goblin","Goliath","Harengon","Hobgoblin","Human","Kalashtar","Kenku","Kobold","Leonin","Lizardfolk","Orc","Owlin","Satyr","Shifter","Tabaxi","Tiefling","Tortle","Triton","Warforged","Yuan-ti","Fairy","Khoravar","Variant Human"];
+const XO_BACKGROUNDS = ["Acolyte","Artisan","Charlatan","Criminal","Entertainer","Farmer","Folk Hero","Guard","Guide","Guild Artisan","Hermit","Merchant","Noble","Outlander","Sage","Sailor","Scribe","Soldier","Urchin","Wayfarer","Inquisitive","House Agent","Haunted One","Courtier","Faction Agent","Knight","Pirate","Spy","Gladiator","Investigator"];
+const XO_FEATS = "Actor|Alert|Athlete|Charger|Chef|Crossbow Expert|Crusher|Defensive Duelist|Dual Wielder|Durable|Dungeon Delver|Elemental Adept|Fey Touched|Fighting Initiate|Grappler|Great Weapon Master|Healer|Heavily Armored|Heavy Armor Master|Inspiring Leader|Keen Mind|Lightly Armored|Linguist|Lucky|Mage Slayer|Magic Initiate|Martial Adept|Medium Armor Master|Metamagic Adept|Mobile|Moderately Armored|Mounted Combatant|Musician|Observant|Piercer|Poisoner|Polearm Master|Resilient|Ritual Caster|Savage Attacker|Sentinel|Shadow Touched|Sharpshooter|Shield Master|Skill Expert|Skilled|Skulker|Slasher|Speedy|Spell Sniper|Tavern Brawler|Telekinetic|Telepathic|Tough|War Caster|Weapon Master|Aberrant Dragonmark|Mark of [A-Z][a-z]+|Crafter|Eldritch Adept|Gift of the [A-Z][a-z]+ Dragon|Boon of [A-Z][a-z]+(?: [A-Z][a-z]+)*|Ability Score Improvement";
+const XO_SPELLS = "Acid Splash|Blade Ward|Booming Blade|Chill Touch|Dancing Lights|Druidcraft|Eldritch Blast|Fire Bolt|Friends|Green-Flame Blade|Guidance|Light|Mage Hand|Mending|Message|Mind Sliver|Minor Illusion|Poison Spray|Prestidigitation|Produce Flame|Ray of Frost|Resistance|Sacred Flame|Shillelagh|Shocking Grasp|Spare the Dying|Thaumaturgy|Thorn Whip|Toll the Dead|True Strike|Vicious Mockery|Word of Radiance|Starry Wisp|Sorcerous Burst|Elementalism|"
+ + "Absorb Elements|Alarm|Animal Friendship|Armor of Agathys|Arms of Hadar|Bane|Bless|Burning Hands|Charm Person|Chromatic Orb|Color Spray|Command|Comprehend Languages|Create or Destroy Water|Cure Wounds|Detect Evil and Good|Detect Magic|Detect Poison and Disease|Disguise Self|Dissonant Whispers|Divine Favor|Entangle|Expeditious Retreat|Faerie Fire|False Life|Feather Fall|Find Familiar|Fog Cloud|Goodberry|Grease|Guiding Bolt|Hail of Thorns|Healing Word|Hellish Rebuke|Heroism|Hex|Hunter's Mark|Ice Knife|Identify|Illusory Script|Inflict Wounds|Jump|Longstrider|Mage Armor|Magic Missile|Protection from Evil and Good|Purify Food and Drink|Ray of Sickness|Sanctuary|Searing Smite|Shield|Shield of Faith|Silent Image|Sleep|Speak with Animals|Tasha's Hideous Laughter|Hideous Laughter|Thunderwave|Thunderous Smite|Unseen Servant|Witch Bolt|Wrathful Smite|Divine Smite|Ensnaring Strike|"
+ + "Aid|Alter Self|Arcane Lock|Augury|Barkskin|Blindness/Deafness|Blur|Branding Smite|Calm Emotions|Cloud of Daggers|Crown of Madness|Darkness|Darkvision|Detect Thoughts|Enhance Ability|Enlarge/Reduce|Enthrall|Find Steed|Flame Blade|Flaming Sphere|Gentle Repose|Heat Metal|Hold Person|Invisibility|Knock|Lesser Restoration|Levitate|Locate Object|Magic Mouth|Magic Weapon|Mirror Image|Misty Step|Moonbeam|Pass without Trace|Phantasmal Force|Prayer of Healing|Protection from Poison|Ray of Enfeeblement|Rope Trick|Scorching Ray|See Invisibility|Shatter|Shadow Blade|Silence|Spider Climb|Spiritual Weapon|Suggestion|Web|Zone of Truth|Mind Spike|Healing Spirit|Dragon's Breath|"
+ + "Animate Dead|Beacon of Hope|Bestow Curse|Blink|Call Lightning|Clairvoyance|Conjure Animals|Counterspell|Daylight|Dispel Magic|Fear|Fireball|Fly|Gaseous Form|Glyph of Warding|Haste|Hunger of Hadar|Hypnotic Pattern|Lightning Bolt|Magic Circle|Major Image|Mass Healing Word|Nondetection|Plant Growth|Protection from Energy|Remove Curse|Revivify|Sending|Sleet Storm|Slow|Speak with Dead|Spirit Guardians|Stinking Cloud|Tongues|Vampiric Touch|Water Breathing|Water Walk|Wind Wall|Spirit Shroud|Summon Fey|Summon Undead|Summon Shadowspawn|Thunder Step|Tidal Wave|Intellect Fortress|Leomund's Tiny Hut|Tiny Hut|"
+ + "Banishment|Blight|Compulsion|Confusion|Death Ward|Dimension Door|Divination|Dominate Beast|Fabricate|Fire Shield|Freedom of Movement|Greater Invisibility|Guardian of Faith|Ice Storm|Polymorph|Phantasmal Killer|Stoneskin|Wall of Fire|Charm Monster|Shadow of Moil|Summon Aberration|Summon Greater Demon|"
+ + "Animate Objects|Cloudkill|Cone of Cold|Dominate Person|Dream|Geas|Greater Restoration|Hold Monster|Legend Lore|Mass Cure Wounds|Mislead|Modify Memory|Raise Dead|Scrying|Seeming|Synaptic Static|Telekinesis|Teleportation Circle|Wall of Force|Wall of Stone|Steel Wind Strike|Hallow|Commune|Contact Other Plane";
+const XO_WEAPONS = "Club|Dagger|Greatclub|Handaxe|Javelin|Light Hammer|Mace|Quarterstaff|Sickle|Spear|Light Crossbow|Dart|Shortbow|Sling|Battleaxe|Flail|Glaive|Greataxe|Greatsword|Halberd|Lance|Longsword|Maul|Morningstar|Pike|Rapier|Scimitar|Shortsword|Trident|War Pick|Warhammer|Whip|Blowgun|Hand Crossbow|Heavy Crossbow|Longbow|Net|Unarmed Strike";
+const XO_ITEM_RE = /\b(?:(?:Wand|Staff|Rod|Ring|Cloak|Boots|Bracers|Gloves|Amulet|Necklace|Periapt|Cap|Hat|Circlet|Belt|Potion|Pearl|Stone|Robe|Mantle|Helm|Eyes|Goggles|Brooch|Figurine|Horn|Instrument|Lantern|Medallion|Pipes|Sword|Shield|Armor|Bow|Dagger|Ioun Stone) of (?:the )?[A-Z][A-Za-z' -]{2,30}|Bag of Holding|Immovable Rod|Sending Stones|Decanter of Endless Water|Alchemy Jug|Driftglobe|Hat of Disguise|Cloak of Elvenkind|Moon-Touched Sword|(?:[A-Z][a-z]+ ){0,2}[A-Z][a-z]+,? \+[123])\b/g;
+const xoFind = (re, t) => xoNames((String(t).match(re) || []).map(m => m.replace(/\s+/g, " ").trim()));
+const xoWordRe = alt => new RegExp("\\b(?:" + alt + ")\\b", "gi");
+const titleCase = t => t.replace(/\b[a-z]/g, c => c.toUpperCase()).replace(/\b(Of|The|And|From|With)\b/g, w => w.toLowerCase()).replace(/^[a-z]/, c => c.toUpperCase());
+/* a reader for sheets with no form fields: label and value may sit on either side of each other */
+function textRead(text, fileName){
+  const tx = String(text || "").replace(/\r/g, "").replace(/[−–]/g, "-");
+  const L = tx.split(/\n/).map(l => l.replace(/\s+/g, " ").trim()).filter(Boolean);
+  const F = {};
+  /* explicit "Label: value" lines */
+  tx.replace(/^[ \t]*([A-Za-z][A-Za-z &\/']{1,30}?)[ \t]*[:：][ \t]*(.+)$/gm, (m, k, v) => { const kk = nk(k); if (!F[kk]) F[kk] = v.trim(); });
+  /* ability scores: label, optional modifier, score, in either order */
+  const AB = "STR|DEX|CON|INT|WIS|CHA|STRENGTH|DEXTERITY|CONSTITUTION|INTELLIGENCE|WISDOM|CHARISMA|SIZ|APP|POW|EDU";
+  const setAb = (k, v) => { const s0 = (STAT_ALIAS[k.toUpperCase()] || k.toUpperCase()).toLowerCase(); v = +v; if (v >= 1 && v <= 30 && !F[s0]) F[s0] = String(v); };
+  tx.replace(new RegExp("\\b(" + AB + ")\\b[\\s:=]*(?:\\(?[+-]\\d{1,2}\\)?\\s+)?(\\d{1,2})\\b(?!\\s*(?:ft|feet|%|/))", "gi"), (m, k, v) => setAb(k, v));
+  tx.replace(new RegExp("(?:^|\\n)\\s*(\\d{1,2})\\s*(?:\\(?[+-]\\d{1,2}\\)?\\s*)?\\n?\\s*(" + AB + ")\\b", "gi"), (m, v, k) => setAb(k, v));
+  /* which side do values sit on? count numbers beside the numeric labels */
+  const isLab = l => /^(character name|player name|class\s*(&|and)?\s*level|level|race|species|background|alignment|armou?r class|initiative|speed|hit point maximum|max(imum)? hp|current hit points|hit dice|proficiency bonus|experience points|inspiration|(personality traits|ideals|bonds|flaws|features (&|and) traits|feats|equipment|spells|cantrips|attacks|weapon attacks.*|proficiencies.*|backstory|character backstory|allies.*|treasure|appearance))$/i.test(l);
+  let above = 0, below = 0;
+  L.forEach((l, i) => { if (/^(armou?r class|initiative|speed|proficiency bonus|hit point maximum|max(imum)? hp)$/i.test(l)){ if (/^[+-]?\d/.test(L[i - 1] || "")) above++; if (/^[+-]?\d/.test(L[i + 1] || "")) below++; } });
+  const pick = (re, num) => {
+    const i = L.findIndex(l => re.test(l)); if (i < 0) return "";
+    const ok = c => c && !isLab(c) && (!num || /^\d{1,3}\b/.test(c));
+    const a = L[i - 1], b = L[i + 1], first = above >= below ? [a, b] : [b, a];
+    const v = first.find(ok); return v ? (num ? v.match(/^\d{1,3}/)[0] : v) : "";
+  };
+  F.charactername = F.charactername || pick(/^character name$/i);
+  F.classlevel = F.classlevel || pick(/^class\s*(&|and)?\s*level$/i);
+  F.race = F.race || pick(/^(race|species)$/i);
+  F.background = F.background || pick(/^background$/i);
+  if (!F.ac){ const m = tx.match(/\b(?:AC|armou?r class)\b[\s:]*(\d{1,2})\b/i); F.ac = m ? m[1] : pick(/^armou?r class$/i, 1); }
+  if (!F.hpmax){ const m = tx.match(/\b(?:hit point maximum|max(?:imum)?\.?\s*(?:hp|hit points)|hp\s*max(?:imum)?)\b[\s:]*(\d{1,3})\b/i); F.hpmax = m ? m[1] : pick(/^(hit point maximum|max(imum)? hp|hp max)$/i, 1); }
+  if (!F.hpmax){ const m = tx.match(/\b(?:HP|hit points)\b[\s:]*(\d{1,3})\b/i); if (m) F.hpmax = m[1]; }
+  /* boxes of prose: take what lies between a heading and the next label */
+  const box = re => {
+    const i = L.findIndex(l => re.test(l)); if (i < 0) return "";
+    const after = []; for (let j = i + 1; j < L.length && !isLab(L[j]); j++) after.push(L[j]);
+    if (after.length) return after.join(" ");
+    const before = []; for (let j = i - 1; j >= 0 && !isLab(L[j]); j--) before.unshift(L[j]);
+    return before.join(" ");
+  };
+  ["personalitytraits:^personality traits$", "ideals:^ideals$", "bonds:^bonds$", "flaws:^flaws$", "backstory:^(character )?backstory$"].forEach(d => { const [k, r] = d.split(":"); if (!F[k]) F[k] = box(new RegExp(r, "i")); });
+  /* the class, the species, the background, known by name */
+  if (!F.classlevel){ const m = tx.match(new RegExp("\\b(" + XO_CLASSES.join("|") + ")\\b\\s*(\\d{1,2})?", "i")); if (m) F.classlevel = titleCase(m[1].toLowerCase()) + (m[2] ? " " + m[2] : ""); }
+  if (!F.race){ const m = tx.match(new RegExp("\\b(" + XO_SPECIES.map(x => x.replace("-", "\\-")).join("|") + ")\\b")); if (m) F.race = m[1]; }
+  if (!F.background){ const m = tx.match(new RegExp("\\b(" + XO_BACKGROUNDS.join("|") + ")\\b")); if (m) F.background = m[1]; }
+  /* the name: beside its label, else the file's own name, else the first proper name on the page */
+  if (!F.charactername && fileName){
+    const fn = String(fileName).replace(/\.[a-z0-9]+$/i, "").replace(/[_-]?\d{4,}$/, "").replace(/[_]+/g, " ").replace(/\b(character|sheet|charsheet|dnd|d&d|5e|export|final|v\d+)\b/gi, "").replace(/\s+/g, " ").trim();
+    if (/[A-Za-z]{2,}/.test(fn) && fn.length < 40) F.charactername = fn;
+  }
+  if (!F.charactername){ const c = L.find(l => /^[A-Z][a-z'’]+(?: (?:d['’])?[A-Z][a-z'’-]+){0,3}$/.test(l) && !isLab(l) && !XO_CLASSES.includes(l) && !XO_SPECIES.includes(l)); if (c) F.charactername = c; }
+  return F;
+}
+/* scan any text for things a sheet holds, whatever the layout */
+function xoScan(t){
+  const tx = String(t || "");
+  const feats = xoFeatsFrom(tx) || xoFind(xoWordRe(XO_FEATS), tx).map(titleCase).filter(n => !/^ability score improvement$/i.test(n)).join(", ");
+  const spells = xoFind(xoWordRe(XO_SPELLS), tx).map(titleCase).join(", ");
+  const weapons = xoFind(xoWordRe(XO_WEAPONS), tx).map(titleCase);
+  const magic = xoFind(XO_ITEM_RE, tx);
+  const items = xoNames(magic.concat(weapons.filter(w => !magic.some(m => m.toLowerCase().includes(w.toLowerCase()))))).slice(0, 8).join(", ");
+  return {feats, spells, items};
+}
+function fromText(text, F0, fileName){
+  const fieldPart = fromFields(Object.assign({}, F0 || {}));
+  const all = String(text || "") + "\n" + Object.values(F0 || {}).join("\n");
+  const textPart = fromFields(textRead(text, fileName));
+  const scan = xoScan(all);
+  const out = {};
+  XO_KEYS.forEach(k => { out[k] = fieldPart[k] || textPart[k] || ""; });
+  ["feats", "spells", "items"].forEach(k => { if (!out[k]) out[k] = scan[k]; });
+  out.sys = detectSys(F0 || {}, all) || (out.stats ? "D&D 5E" : "");
+  if (/\b(2024|PHB-2024|species)\b/i.test(all) && out.sys === "D&D 5E") out.sys = "D&D 5E (2024)";
+  return out;
 }
 const stripHTML = h => { const d = document.createElement("div"); d.innerHTML = String(h || ""); return (d.textContent || "").trim(); };
 function fromJSON(o){
@@ -2522,17 +2598,17 @@ async function xoRead(f){
       try { const fo = await doc.getFieldObjects(); if (fo) for (const k in fo){ const v = fo[k].map(o => o.value).find(v => typeof v === "string" && v.trim() && v !== "Off"); if (v) F[nk(k)] = v; } } catch(e){}
       let text = "";
       for (let i = 1; i <= Math.min(doc.numPages, 5); i++){ const tc = await (await doc.getPage(i)).getTextContent(); text += tc.items.map(t => t.str + (t.hasEOL ? "\n" : " ")).join("") + "\n"; }
-      got = fromText(text, F);
+      got = fromText(text, F, f.name);
       if (!Object.keys(F).length && text.replace(/\s/g, "").length < 40) partial = true;
-    } else got = fromText(await f.text(), {});
+    } else got = fromText(await f.text(), {}, f.name);
   } catch(e){ partial = true; }
   const x = Object.assign(XO_BLANK(), got || {}, {file:f.name});
   C().xo = x;
-  xoTab = "hand"; save();
+  save();
   const found = XO_KEYS.filter(k => k !== "sys" && x[k]);
   if (partial || !found.length){
     renderXO(); renderMine();
-    return read("Crossover", x.sys ? esc(x.sys) : "Character Sheet", "The sheet gave up little readable text; it may be a scanned image. Fill the crossover fields by hand, then press Fill My REGENT Sheet.");
+    return read("Crossover", x.sys ? esc(x.sys) : "Character Sheet", "The sheet gave up little readable text; it may be a scanned image. Export it again from D&amp;D Beyond or your character builder as a PDF or JSON, and upload that file.");
   }
   const done = xoAutofill(); renderXO(); renderMine();
   const lab = {sys:"system", name:"name", concept:"class", hp:"HP", ac:"AC", stats:"ability scores", feats:"feats", spells:"spells", items:"weapons and items", traits:"personality", want:"ideals and bonds", secret:"flaws", features:"features", story:"backstory"};
@@ -2540,14 +2616,14 @@ async function xoRead(f){
   read("Crossover", "Sheet Read",
     `From ${esc(f.name)} the page read the ${list(found.map(k => lab[k]))}.` +
     (done.length ? ` Your REGENT sheet now carries a ${list(done)} drawn from that character.` : "") +
-    (miss.length ? ` Add the ${list(miss)} by hand below, since the file left ${miss.length > 1 ? "them" : "it"} out.` : "") +
-    " Every field stays yours to edit, and the one-page sheet writes itself from them.");
+    (miss.length ? ` The file left out the ${list(miss)}, so the one-page sheet leaves a line to write ${miss.length > 1 ? "them" : "it"} in.` : "") +
+    " Press Print One-Page Sheet when you are ready.");
 }
 
 /* weaving */
 function xoFeatureList(t){
   const bullets = [];
-  String(t || "").replace(/^\s*[*\u2022]\s*([^\u2022\n:]+?)\s*(?:\u2022|:|$)/gm, (m, n) => { bullets.push(n); });
+  String(t || "").replace(/^\s*[*\u2022\u00b7]\s*([^\u2022\u00b7|\n:]+?)\s*(?:\u2022|\u00b7|\||:|$)/gm, (m, n) => { bullets.push(n); });
   if (bullets.length) return xoNames(bullets).slice(0, 3);
   const items = String(t || "").split(/\n|•|;|\s\*\s|,(?=\s*[A-Z])/).map(x => x.replace(/^[\s\-*–—\d.]+/, "").split(/[:.(]/)[0].trim()).filter(x => x && x.length < 40);
   return [...new Set(items)].slice(0, 3);
@@ -2691,14 +2767,16 @@ function xoPickHouse(){
   const w = nm.replace(/\s+(of|the|from)\b.*$/i, "").split(/\s+/);
   return w.length > 1 && /^[A-Z]/.test(w[w.length - 1]) ? w[w.length - 1].replace(/[^A-Za-z'’-]/g, "") : "";
 }
+/* a House name when the sheet offers none: drawn from the story's own soil */
+const XO_HOUSE_WORDS = {monarch:["Ashby","Wrenfield","Marlowe","Hollis","Carrow","Vane"], empire:["Jin","Lan","Shou","Mei","Feng","Qiao"], fae:["Briar","Thistle","Moth","Hollow","Rowan","Bramble"],
+  magic:["Vellum","Quill","Lumen","Sable","Orrery","Cinder"], modern:["Sterling","Hale","Mercer","Crane","Vance","Rook"]};
+function xoInventHouse(){ const w = XO_HOUSE_WORDS[S.mode] || XO_HOUSE_WORDS.monarch, n = String(XO().name || "x"); let h = 0; for (const ch of n) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return w[h % w.length]; }
 function xoAutofill(){
   const c = C(), x = XO(), done = [];
-  const had = !!(c.court || c.moon || c.rise || c.house || c.product || c.background);
-  if (had && !confirm("This sheet already has REGENT details. Replace them with ones drawn from the uploaded character?")) return [];
-  if (x.name && (!c.name || had)){ c.name = x.name; done.push("name"); }
+  if (x.name){ c.name = x.name; done.push("name"); }
   const sg = xoSuggest();
   if (sg){ c.court = sg.sun; c.moon = sg.moon; c.rise = sg.rise; c.riseAp = sg.ap; done.push("signs", "Passive"); }
-  const h = xoPickHouse();
+  const h = xoPickHouse() || xoInventHouse();
   if (h){ c.house = h; done.push("House"); }
   const pr = xoPickProduct();
   if (pr){ c.product = pr.n; done.push("product"); }
@@ -2708,71 +2786,28 @@ function xoAutofill(){
   return done;
 }
 
-/* the card */
-let xoTab = null;
-function xoSetTab(t){
-  xoTab = t;
-  $("xoTogUp").setAttribute("aria-expanded", t === "up");
-  $("xoTogHand").setAttribute("aria-expanded", t === "hand");
-  $("xoPaneUp").classList.toggle("open", t === "up");
-  $("xoPaneHand").classList.toggle("open", t === "hand");
-}
+/* the card: what the page read, at a glance */
 function renderXO(){
-  const has = xoHas() || (C().xo && C().xo.open);
+  const has = xoHas(), x = C().xo || {};
   $("xoClear").hidden = !has;
-  $("xoFileName").textContent = C().xo && C().xo.file ? "Read from " + C().xo.file : "";
-  $("xoUp").textContent = C().xo && C().xo.file ? "Replace the File" : "Choose a File";
-  $("xoSmall").textContent = has && XO().sys ? XO().sys + " → REGENT" : "Any system, one Court";
-  if (xoTab === null) xoTab = has ? "hand" : "";
-  xoSetTab(xoTab);
+  $("xoFileName").textContent = x.file ? "Read from " + x.file : "";
+  $("xoUp").textContent = has ? "Upload Another Sheet" : "Upload a Sheet";
+  $("xoSmall").textContent = has && x.sys ? x.sys + " → REGENT" : "Any system, one Court";
   const b = $("xoBody");
-  const x = XO(), A = M().affair;
-  const fi = (k, lab, ph, map) => `<div class="field"><label for="xo_${k}">${lab}${map ? `<span class="xo-map">${map}</span>` : ""}</label><input id="xo_${k}" data-x="${k}" value="${esc(x[k] || "")}" placeholder="${ph}"></div>`;
-  const ta = (k, lab, ph, map) => `<div class="field"><label for="xo_${k}">${lab}${map ? `<span class="xo-map">${map}</span>` : ""}</label><textarea id="xo_${k}" data-x="${k}" placeholder="${ph}">${esc(x[k] || "")}</textarea></div>`;
-  b.innerHTML = `<div class="xo-sec">From the other sheet</div>
-    <div class="grid2">${fi("sys", "System", "D&D 5E, Pathfinder, Call of Cthulhu")}${fi("name", "Name There", "The name on that sheet")}</div>
-    ${fi("concept", "Concept", "Half-Elf Bard 5 (Entertainer)")}
-    <div class="grid2">${fi("hp", "HP", "38", "Printed on the one-page sheet for the Host")}${fi("ac", "AC", "15", "Printed on the one-page sheet for the Host")}</div>
-    ${fi("stats", "Ability Scores", "STR 10 · DEX 14 · CON 12 · INT 13 · WIS 11 · CHA 17", "Sets your lean toward Charm or Grit")}
-    ${fi("feats", "Feats", "Alert, War Caster, Tough", "Printed on the one-page sheet for the Host")}
-    <div class="grid2">${ta("spells", "Spells", "Charm Person, Misty Step, Hypnotic Pattern", "Feeds the story reading")}${ta("items", "Weapons and Items", "Rapier +1, Cloak of Elvenkind", "Feeds the story reading")}</div>
-    <div class="grid2">${ta("want", "Ideals and Bonds", "What they believe, and whom they serve", "Becomes your want")}${ta("secret", "Flaws", "What could undo them", "Becomes your secret")}</div>
-    <div class="grid2">${ta("traits", "Personality", "How they carry themselves")}${ta("features", "Features", "Abilities worth remembering at court", "Feeds the Crossover rule")}</div>
-    ${ta("story", "Backstory", "Where they come from", "Woven into your Background")}
-    <div id="xoLive"></div>`;
-  b.querySelectorAll("[data-x]").forEach(el => el.addEventListener("input", () => { XO()[el.dataset.x] = el.value; save(); renderXOLive(); renderMine(); }));
-  renderXOLive();
-}
-function renderXOLive(){
-  const box = $("xoLive"); if (!box) return;
-  const sg = xoSuggest(), sl = SLOT[S.mode];
-  const chip = (slot, k) => { const x = courtByKey(k); return `<span class="xo-chip"><b>${SLOT_GL[slot]}</b>${x.mono ? "" : x.glyph + " "}${esc(x.name)}</span>`; };
-  const sug = sg ? `<div class="xo-sug"><span class="lb">Suggested signs</span>${chip("sun", sg.sun)}${chip("moon", sg.moon)}${chip("rise", sg.rise)}<span class="xo-chip"><b>${SLOT_GL.rise}</b>${BEAR[sg.ap]} Passive</span>
-      <span class="xo-acts"><button type="button" class="btn sm" id="xoTake">Take These Signs</button></span></div>` : "";
-  const w = xoWeave();
-  box.innerHTML = sug + `<div class="xo-sec">How it reads on the one-page sheet</div>
-    <div class="xo-prev">${w.length ? `<p>${w.map(esc).join(" ")}</p>` : `<p>Fill a field above, and the crossing takes shape here.</p>`}${xoReading() ? `<p><b style="color:var(--a)">Read for the story.</b> ${esc(xoReading())}</p>` : ""}<p class="rule"><b>Crossover rule.</b> ${esc(xoRule())}</p></div>
-    <div class="bg-tools" style="margin-top:10px"><button type="button" class="btn sm" id="xoFill">Fill My REGENT Sheet</button><button type="button" class="btn sm ghost" id="xoWeave">Weave into Background</button><span class="bg-hint">Writes your Background from your ${esc(sl.sun[0])} and this sheet</span></div>`;
-  if (sg) $("xoTake").addEventListener("click", () => {
-    const c = C(); c.court = sg.sun; c.moon = sg.moon; c.rise = sg.rise; c.riseAp = sg.ap; save(); refreshAll();
-    read("Crossover", "Signs Taken", `Your ${esc(sl.sun[0])} is now ${esc(cName(courtByKey(sg.sun)))}, your ${esc(sl.moon[0])} ${esc(cName(courtByKey(sg.moon)))}, and your ${esc(sl.rise[0])} ${esc(cName(courtByKey(sg.rise)))} with its ${BEAR[sg.ap]} Passive. They follow the strongest scores on the other sheet: ${sg.lean.top.slice(0, 3).join(", ")}.`, "", toneC(sg.sun));
-  });
-  $("xoFill").addEventListener("click", () => {
-    const done = xoAutofill(); if (!done.length) return; renderXO(); renderMine();
-    read("Crossover", "Sheet Filled", `Your REGENT sheet now carries a ${list(done)} drawn from the other character. Every field stays yours to edit.`);
-  });
-  $("xoWeave").addEventListener("click", () => {
-    if (C().background && !confirm("Replace your current Background with one woven from this sheet?")) return;
-    setBackground(xoBackground());
-  });
+  if (!has){ b.innerHTML = ""; return; }
+  const row = (lab, v) => `<div class="xo-row"><span>${lab}</span><span>${v ? esc(v) : '<em class="xo-miss">Left out of the file; the printed sheet leaves a line for it</em>'}</span></div>`;
+  const w = xoWeave(), rd = xoReading();
+  b.innerHTML = `<div class="xo-sec" style="margin-top:14px">What the page read</div>
+    <div class="xo-rows">${row("Name", x.name)}${row("Class", x.concept)}${row("HP and AC", [x.hp && "HP " + x.hp, x.ac && "AC " + x.ac].filter(Boolean).join(" · "))}${row("Abilities", x.stats)}${row("Feats", x.feats)}
+    ${x.spells ? row("Spells", clip(x.spells, 160)) : ""}${x.items ? row("Weapons and Items", x.items) : ""}</div>
+    <div class="xo-sec">How it reads on the one-page sheet</div>
+    <div class="xo-prev">${w.length ? `<p>${w.map(esc).join(" ")}</p>` : ""}${rd ? `<p><b style="color:var(--a)">Read for the story.</b> ${esc(rd)}</p>` : ""}<p class="rule"><b>Crossover rule.</b> ${esc(xoRule())}</p></div>`;
 }
 $("xoUp").addEventListener("click", () => $("xoFile").click());
 $("xoFile").addEventListener("change", e => { const f = e.target.files && e.target.files[0]; e.target.value = ""; xoRead(f); });
-$("xoTogUp").addEventListener("click", () => xoSetTab(xoTab === "up" ? "" : "up"));
-$("xoTogHand").addEventListener("click", () => { XO().open = true; save(); xoSetTab(xoTab === "hand" ? "" : "hand"); renderXOLive(); });
 $("xoClear").addEventListener("click", () => {
   if (!confirm("Clear the crossover from this sheet?")) return;
-  C().xo = null; xoTab = ""; save(); renderXO(); renderMine();
+  C().xo = null; save(); renderXO(); renderMine();
   read("Crossover", "Cleared", "The other sheet is set aside. Your Court stands on REGENT alone.");
 });
 ["dragenter", "dragover"].forEach(ev => $("xoDrop").addEventListener(ev, e => { e.preventDefault(); $("xoDrop").classList.add("over"); }));
