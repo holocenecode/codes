@@ -2345,8 +2345,8 @@ $("result").addEventListener("click", e => {
    woven into the Court. PDF form fields and text through pdf.js,
    JSON exports from D&D Beyond, Foundry, and Pathbuilder, or plain text.
    ===================================================================== */
-const XO_KEYS = ["sys", "name", "concept", "hp", "ac", "stats", "feats", "traits", "want", "secret", "features", "story"];
-const XO_BLANK = () => ({sys:"", name:"", concept:"", hp:"", ac:"", stats:"", feats:"", traits:"", want:"", secret:"", features:"", story:"", file:""});
+const XO_KEYS = ["sys", "name", "concept", "hp", "ac", "stats", "feats", "spells", "items", "traits", "want", "secret", "features", "story"];
+const XO_BLANK = () => ({sys:"", name:"", concept:"", hp:"", ac:"", stats:"", feats:"", spells:"", items:"", traits:"", want:"", secret:"", features:"", story:"", file:""});
 const XO = () => { if (!C().xo) C().xo = XO_BLANK(); return C().xo; };
 const xoHas = () => { const x = C().xo; return !!x && XO_KEYS.some(k => String(x[k] || "").trim()); };
 const nk = k => String(k).toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -2406,7 +2406,12 @@ function fromFields(F){
   const cls = g("classlevel", "classandlevel", "classlevel1", "class", "classes", "classname", "occupation", "playbook", "archetype", "clan", "role", "profession"), race = g("race", "species", "ancestry", "racespecies", "speciesrace", "lineage");
   const bgd = g("background"), lvl = g("level");
   const concept = [race, cls + (lvl && !/\d/.test(cls) ? " " + lvl : "")].filter(x => x.trim()).join(" ") + (bgd ? " (" + bgd + ")" : "");
+  const many = re => xoNames(Object.keys(F).filter(k => re.test(k)).sort((a, b) => a.localeCompare(b, undefined, {numeric:true})).map(k => String(F[k]).split(/\n/)[0]));
+  const eq = g("equipment", "inventory", "magicitems", "attunedmagicitems", "gear", "possessions");
+  const spells = g("spells", "spellsknown", "spelllist", "preparedspells") || many(/^(spellname|spell|cantrip)\d+$/).join(", ");
+  const items = xoNames(many(/^(wpnname|weaponname|weapon)\d*$/).concat(eq.split(/[,\n;]/))).slice(0, 10).join(", ");
   return {
+    spells, items,
     name:g("charactername", "name", "charactername2", "investigatorname", "investigator", "character"),
     concept:concept.trim(), stats,
     hp:g("hpmax", "maxhp", "hitpointmaximum", "hitpointsmax", "maxhitpoints", "hitpoints", "hp", "hpcurrent", "currenthp").replace(/^(\d+).*$/, "$1"),
@@ -2451,6 +2456,8 @@ function fromJSON(o){
       concept:[(o.race && (o.race.fullName || o.race.baseName)) || "", (o.classes || []).map(c => ((c.definition && c.definition.name) || "") + " " + (c.level || "")).join(" / ")].filter(Boolean).join(" ") + (o.background && o.background.definition ? " (" + o.background.definition.name + ")" : ""),
       traits:tr.personalityTraits || "", want:[tr.ideals, tr.bonds].filter(Boolean).join(" "), secret:tr.flaws || "",
       feats:xoNames((o.feats || []).map(f => f.definition && f.definition.name)).join(", "),
+      spells:xoNames((o.classSpells || []).flatMap(c => c.spells || []).concat(...Object.values(o.spells || {}).filter(Array.isArray)).map(x => x && x.definition && x.definition.name)).join(", "),
+      items:xoNames((o.inventory || []).filter(i => i.definition && (i.definition.magic || i.definition.filterType === "Weapon")).map(i => i.definition.name)).join(", "),
       features:xoNames((o.classes || []).flatMap(c => (c.classFeatures || []).filter(f => f.definition && (f.definition.requiredLevel || 0) <= (c.level || 20)).map(f => f.definition.name))).slice(0, 8).join(", "),
       story:(o.notes && o.notes.backstory) || ""};
   }
@@ -2464,6 +2471,8 @@ function fromJSON(o){
     const at = sy.attributes || {}, hpF = at.hp && (at.hp.max || at.hp.value), acF = at.ac && (at.ac.value || at.ac.flat);
     return {sys:"D&D 5E", name:o.name || "", stats:st, hp:hpF ? String(hpF) : "", ac:acF ? String(acF) : "", concept:[race, cls].filter(Boolean).join(" ") + (bgd ? " (" + bgd + ")" : ""),
       traits:d.trait || "", want:[d.ideal, d.bond].filter(Boolean).join(" "), secret:d.flaw || "",
+      spells:xoNames(items.filter(i => i.type === "spell").map(i => i.name)).join(", "),
+      items:xoNames(items.filter(i => i.type === "weapon" || (i.type === "equipment" && i.system && i.system.rarity && !/^(common|mundane)?$/i.test(i.system.rarity))).map(i => i.name)).join(", "),
       feats:xoNames(items.filter(i => i.type === "feat" && i.system && i.system.type && i.system.type.value === "feat").map(i => i.name)).join(", "),
       features:xoNames(items.filter(i => i.type === "feat" && !(i.system && i.system.type && i.system.type.value === "feat")).map(i => i.name)).slice(0, 8).join(", "), story:stripHTML(d.biography && (d.biography.value || d.biography))};
   }
@@ -2472,7 +2481,9 @@ function fromJSON(o){
     const pa = b.attributes || {}, hpP = (pa.ancestryhp || 0) + (pa.classhp || 0) + (pa.bonushp || 0);
     return {sys:"Pathfinder 2E", name:b.name || "", hp:hpP ? String(hpP) : "", ac:b.acTotal && b.acTotal.acTotal ? String(b.acTotal.acTotal) : "", stats:STAT6.map(s => ab[s.toLowerCase()] ? s + " " + ab[s.toLowerCase()] : "").filter(Boolean).join(" · "),
       concept:[b.ancestry, b.class, b.level].filter(Boolean).join(" ") + (b.background ? " (" + b.background + ")" : ""),
-      feats:xoNames((b.feats || []).map(f => Array.isArray(f) ? f[0] : f)).join(", "), features:"", traits:"", want:"", secret:"", story:""};
+      feats:xoNames((b.feats || []).map(f => Array.isArray(f) ? f[0] : f)).join(", "), features:"",
+      spells:xoNames((b.spellCasters || []).flatMap(c => (c.spells || []).flatMap(l => l.list || []))).join(", "),
+      items:xoNames((b.weapons || []).map(w => w.display || w.name).concat((b.armor || []).map(a => a.display || a.name))).join(", "), traits:"", want:"", secret:"", story:""};
   }
   const F = {};
   (function walk(x, d){ if (d > 6 || x == null) return; if (Array.isArray(x)) return x.forEach(y => walk(y, d + 1));
@@ -2525,6 +2536,49 @@ function xoFeatureList(t){
   const items = String(t || "").split(/\n|•|;|\s\*\s|,(?=\s*[A-Z])/).map(x => x.replace(/^[\s\-*–—\d.]+/, "").split(/[:.(]/)[0].trim()).filter(x => x && x.length < 40);
   return [...new Set(items)].slice(0, 3);
 }
+/* the story reading: what their spells, feats, weapons, and items say inside this story */
+const XO_VOICE = {
+  monarch:{place:"the ballroom", folk:"the peers", prize:"the Crown"},
+  empire:{place:"the Jade Court", folk:"the ministers", prize:"the Mandate"},
+  fae:{place:"the hollow hill", folk:"the Fair Folk", prize:"the Antler Crown"},
+  magic:{place:"the Arcanum", folk:"the twelve schools", prize:"the Archchancellor's chair"},
+  modern:{place:"the boardroom", folk:"the family", prize:"the founder's chair"}
+};
+const XO_MOTIFS = [
+  ["charm", /charm|suggestion|enthrall|friends|command|actor|enchant|compulsion|dominate|fey touched|inspiration|tongues|calm emotions|zone of truth|glibness|persua/i,
+    (n, v) => `${n} let them win ${v.folk} with a word, and in ${v.place} a word can crown`],
+  ["mask", /illusion|disguise|invisib|mirror image|silent image|blur|seeming|alter self|nondetection|misty step|shadow|skulker|stealth|cloak/i,
+    (n, v) => `${n} suit a court where every face is a mask and the best liar keeps the longest secret`],
+  ["eye", /detect|identify|divin|augury|comprehend|clairvoy|see invisib|alert|observant|guidance|locate|scrying|insight|investigat|eyes of|sentinel|gem of seeing/i,
+    (n, v) => `${n} make them the one who notices, and at an Affair built on a hidden crime that eye outranks any blade`],
+  ["blast", /fire|flame|burn|scorch|lightning|thunder|eldritch blast|magic missile|smite|fireball|frost|shatter|spell sniper|war caster|elemental adept/i,
+    (n, v) => `${n} promise spectacle, and ${v.place} remembers fire longer than wit`],
+  ["heavy", /great weapon|maul|greataxe|greatsword|halberd|glaive|polearm|warhammer|battleaxe|heavy armor|charger|crusher/i,
+    (n, v) => `${n} bring open force into rooms that prize restraint, so each swing earns awe and Scandal together`],
+  ["blade", /rapier|dagger|sword|scimitar|dueling|dual wielder|fencing|whip|slasher|piercer/i,
+    (n, v) => `${n} belong to the duel at dawn and the insult answered in steel`],
+  ["bow", /bow|crossbow|sharpshooter|sling|dart|hunter's mark|javelin|ranged/i,
+    (n, v) => `${n} suit a patient hunter who strikes from the gallery`],
+  ["mend", /cure|heal|aid|revivify|spare the dying|restoration|prayer|bless|goodberry|chef|life/i,
+    (n, v) => `${n} make them the one ${v.folk} turn to when a rival falls, and gratitude becomes leverage`],
+  ["grave", /necro|death|inflict|chill touch|toll the dead|animate|vampiric|blight|speak with dead|bane|hex|curse|fear/i,
+    (n, v) => `${n} carry the scent of the grave into ${v.place}, a dark repute that frightens rivals into bargains`],
+  ["wild", /druid|entangle|thorn|plant|speak with animals|beast|barkskin|moonbeam|wild|grove|faerie fire|fey step|thaumaturgy|druidcraft/i,
+    (n, v) => `${n} root them in the old wild magic beneath ${v.place}`],
+  ["ward", /shield|ward|sanctuary|protection|counterspell|dispel|tough|resilient|armor|mage armor|absorb elements|lucky/i,
+    (n, v) => `${n} mark a guardian, the Court others stand behind when rumours turn to knives`]
+];
+function xoReading(){
+  const x = XO(), v = XO_VOICE[S.mode] || XO_VOICE.monarch;
+  const pool = xoNames([x.spells, x.feats, x.items].join(",").split(/[,\n;]/));
+  if (!pool.length) return "";
+  const hits = XO_MOTIFS.map(([k, re, say]) => ({k, say, names:pool.filter(n => re.test(n))})).filter(h => h.names.length).sort((a, b) => b.names.length - a.names.length);
+  const used = new Set(), picks = [];
+  for (const h of hits){ const nm = h.names.filter(n => !used.has(n)).slice(0, 2); if (!nm.length) continue; nm.forEach(n => used.add(n)); picks.push(h.say(list(nm), v)); if (picks.length === 2) break; }
+  if (!picks.length) return `${list(pool.slice(0, 2))} come along as keepsakes from another road, each one a story ${v.folk} will want to hear.`;
+  const t = picks.join("; ") + ".";
+  return t.charAt(0).toUpperCase() + t.slice(1) + (picks.length === 1 ? ` Every piece of it bends toward ${v.prize}.` : "");
+}
 function xoWeave(){
   if (!xoHas()) return [];
   const x = XO(), c = C(), A = M().affair;
@@ -2557,7 +2611,7 @@ function xoPrint(){
   const sc = keys.length ? keys.map(k => `${k} <b>${st[k]}</b>${d20 ? ` <small>(${xoMod(st[k])})</small>` : ""}`).join(" <i>\u00b7</i> ")
     : (x.stats ? esc(clip(x.stats, 110)) : STAT6.map(k => `${k} ${blank(8)}`).join(" "));
   const ft = x.feats ? esc(clip(x.feats, 170)) : blank(90);
-  const w = xoWeave().slice(1);
+  const w = xoWeave().slice(1).filter(t => !(xoReading() && /^In company they show it plainly/.test(t)));
   return `<div class="ps-head">Crossover · ${esc(x.sys || "Another Game")}</div>
     <div class="ps-xo">
       <div class="ps-xo-id"><span class="ps-xo-nm">${esc(x.name || C().name || "Unnamed")}</span>${x.concept ? `<span class="ps-xo-cn">${esc(x.concept)}</span>` : ""}</div>
@@ -2566,7 +2620,7 @@ function xoPrint(){
         <span class="ps-xo-k">Abilities</span><span class="ps-xo-v">${sc}</span>
         <span class="ps-xo-k">Feats</span><span class="ps-xo-v">${ft}</span>
       </div>
-      <div class="ps-xo-tx">${w.length ? `<p>${w.map(esc).join(" ")}</p>` : ""}<p class="rule"><b>Crossover rule.</b> ${esc(xoRule())}</p></div>
+      <div class="ps-xo-tx">${w.length ? `<p>${w.map(esc).join(" ")}</p>` : ""}${xoReading() ? `<p class="read4"><b>Read for the story.</b> ${esc(xoReading())}</p>` : ""}<p class="rule"><b>Crossover rule.</b> ${esc(xoRule())}</p></div>
     </div>`;
 }
 function xoBackground(){
@@ -2606,6 +2660,7 @@ function renderXO(){
     <div class="grid2">${fi("hp", "HP", "38", "Printed on the one-page sheet for the Host")}${fi("ac", "AC", "15", "Printed on the one-page sheet for the Host")}</div>
     ${fi("stats", "Ability Scores", "STR 10 · DEX 14 · CON 12 · INT 13 · WIS 11 · CHA 17", "Sets your lean toward Charm or Grit")}
     ${fi("feats", "Feats", "Alert, War Caster, Tough", "Printed on the one-page sheet for the Host")}
+    <div class="grid2">${ta("spells", "Spells", "Charm Person, Misty Step, Hypnotic Pattern", "Feeds the story reading")}${ta("items", "Weapons and Items", "Rapier +1, Cloak of Elvenkind", "Feeds the story reading")}</div>
     <div class="grid2">${ta("want", "Ideals and Bonds", "What they believe, and whom they serve", "Becomes your want")}${ta("secret", "Flaws", "What could undo them", "Becomes your secret")}</div>
     <div class="grid2">${ta("traits", "Personality", "How they carry themselves")}${ta("features", "Features", "Abilities worth remembering at court", "Feeds the Crossover rule")}</div>
     ${ta("story", "Backstory", "Where they come from", "Woven into your Background")}
@@ -2621,7 +2676,7 @@ function renderXOLive(){
       <span class="xo-acts"><button type="button" class="btn sm" id="xoTake">Take These Signs</button></span></div>` : "";
   const w = xoWeave();
   box.innerHTML = sug + `<div class="xo-sec">How it reads on the one-page sheet</div>
-    <div class="xo-prev">${w.length ? `<p>${w.map(esc).join(" ")}</p>` : `<p>Fill a field above, and the crossing takes shape here.</p>`}<p class="rule"><b>Crossover rule.</b> ${esc(xoRule())}</p></div>
+    <div class="xo-prev">${w.length ? `<p>${w.map(esc).join(" ")}</p>` : `<p>Fill a field above, and the crossing takes shape here.</p>`}${xoReading() ? `<p><b style="color:var(--a)">Read for the story.</b> ${esc(xoReading())}</p>` : ""}<p class="rule"><b>Crossover rule.</b> ${esc(xoRule())}</p></div>
     <div class="bg-tools" style="margin-top:10px"><button type="button" class="btn sm ghost" id="xoWeave">Weave into Background</button><span class="bg-hint">Writes your Background from your ${esc(sl.sun[0])} and this sheet</span></div>`;
   if (sg) $("xoTake").addEventListener("click", () => {
     const c = C(); c.court = sg.sun; c.moon = sg.moon; c.rise = sg.rise; c.riseAp = sg.ap; save(); refreshAll();
