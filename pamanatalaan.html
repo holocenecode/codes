@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pamana&trade; Talaan</title>
+<title>PAMANA&trade; &middot; Talaan ng Bayani</title>
 <script>try{document.documentElement.dataset.theme=localStorage.getItem('pamana.theme')||'light'}catch(e){document.documentElement.dataset.theme='light'}</script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=News+Cycle:wght@400;700&display=swap');
@@ -2036,6 +2036,19 @@
     @media (max-width:400px){ .status-grid{ grid-template-columns:repeat(2, minmax(0,1fr)) !important; } }
   #identitySection .grow-field .hint{ margin-top:5px; }
 
+  /* ================= STATUS: FOUR BY TWO, LINKED ================= */
+  .status-grid{ grid-template-columns:repeat(4, minmax(0, 1fr)) !important; gap:8px 10px !important; }
+  .status-block{ position:relative; }
+  .status-block .status-label{ letter-spacing:0.05em !important; white-space:nowrap; }
+  .status-step{ text-align:center; line-height:1.3; }
+  .status-block.linked::after{
+    content:"\2192"; position:absolute; right:-10px; top:50%; transform:translateY(-50%); z-index:2;
+    width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:10px; font-weight:700; line-height:1; color:#ffffff; background:var(--sc);
+    box-shadow:0 0 0 2px var(--paper);
+  }
+  @media (max-width:520px){ .status-grid{ grid-template-columns:repeat(2, minmax(0,1fr)) !important; } }
+
   /* ================= WEAVE PICKER ================= */
   .weave-picker{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:0 0 10px; }
   .weave-pick-label{ font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--gray); margin-right:4px; }
@@ -2339,6 +2352,69 @@
     body > *:not(#printSummary){ display:none !important; }
     #printSummary{ display:block !important; }
   }
+
+  /* ================= DROPDOWN ARROWS: SAME INSET EVERYWHERE ================= */
+  select, #characterForm select, #characterForm .field select, #characterForm .ability-cell select, #characterForm .slot-pick select, .field select, .slot-pick select, .basics-try select, .basics-die-row select{
+    -webkit-appearance:none !important; -moz-appearance:none !important; appearance:none !important;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23001323' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+    background-repeat:no-repeat !important;
+    background-position:right 14px center !important;
+    background-size:12px 8px !important;
+    padding-right:38px !important;
+    text-overflow:ellipsis; white-space:nowrap; overflow:hidden;
+    line-height:1.3;
+  }
+  html[data-theme="dark"] select, html[data-theme="dark"] #characterForm select, html[data-theme="dark"] #characterForm .field select,
+  html[data-theme="dark"] #characterForm .ability-cell select, html[data-theme="dark"] #characterForm .slot-pick select,
+  html[data-theme="dark"] .field select, html[data-theme="dark"] .slot-pick select,
+  html[data-theme="dark"] .basics-try select, html[data-theme="dark"] .basics-die-row select{
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23e6e1ee' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+  }
+  select::-ms-expand{ display:none; }
+
+  /* ================= PORTRAIT ================= */
+  .id-top{ display:flex; gap:18px; align-items:flex-start; margin-bottom:4px; }
+  .id-top .id-fields{ flex:1 1 auto; min-width:0; }
+  .id-top .id-fields{ height:128px; display:flex; flex-direction:column; justify-content:space-between; }
+  .id-top .field-row{ flex-direction:column; gap:0; height:100%; justify-content:space-between; }
+  .id-top .field-row .field{ flex:0 0 auto; min-width:0; margin-bottom:0; }
+  .photo-box{ width:140px; flex:none; display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .photo-circle{
+    position:relative; width:128px; height:128px; padding:0; border-radius:50%; overflow:hidden;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    color:var(--sheet-pc); background:color-mix(in srgb, var(--sheet-pc) 7%, var(--paper));
+    border:2px solid var(--sheet-pc);
+    box-shadow:0 0 0 3px var(--paper), 0 0 0 4.5px color-mix(in srgb, var(--sheet-pc) 35%, var(--paper));
+    transition:box-shadow .2s;
+  }
+  .photo-circle:hover{ box-shadow:0 0 0 3px var(--paper), 0 0 0 5px var(--sheet-pc); }
+  .photo-circle:focus-visible{ outline:none; box-shadow:0 0 0 3px var(--paper), 0 0 0 6px var(--sheet-pc); }
+  .photo-circle canvas{ width:100%; height:100%; display:block; touch-action:none; cursor:grab; }
+  .photo-circle canvas:active{ cursor:grabbing; }
+  .photo-circle.has-photo{ cursor:grab; }
+  .photo-ph{ display:flex; flex-direction:column; align-items:center; gap:4px; font-size:11.5px; letter-spacing:0.05em; pointer-events:none; }
+  .photo-ph[hidden], .photo-circle canvas[hidden]{ display:none !important; }
+  .photo-tools{ width:100%; display:flex; flex-direction:column; gap:6px; }
+  .photo-tools[hidden]{ display:none; }
+  .photo-tools input[type=range]{ width:100%; accent-color:var(--sheet-pc); margin:0; }
+  .photo-btns{ display:flex; gap:6px; justify-content:center; }
+  .photo-btns button{
+    background:var(--paper); color:var(--white); border:1px solid var(--field-edge, var(--line)); border-radius:3px;
+    font-size:11.5px; padding:3px 9px; cursor:pointer;
+  }
+  .photo-btns button:hover{ border-color:var(--sheet-pc); color:var(--sheet-pc); }
+  .photo-msg{ font-size:11px; line-height:1.35; color:var(--gray-dim); text-align:center; min-height:1em; }
+  @media (max-width:560px){
+    .id-top{ flex-direction:column; align-items:center; }
+    .id-top .id-fields{ width:100%; height:auto; }
+    .id-top .field-row{ gap:12px; }
+  }
+  .save-status{ text-align:center; font-size:12px; font-style:italic; color:var(--gray-dim); margin:10px 0 0; }
+
+  #printSummary .ps-head{ display:block; }
+  #printSummary .ps-head.has-photo{ display:flex; align-items:center; gap:5mm; }
+  #printSummary .ps-photo{ width:20mm; height:20mm; flex:none; border-radius:50%; object-fit:cover; border:0.6mm solid var(--ps-pc); }
+  @media print{ .save-status, .photo-tools, .photo-msg{ display:none !important; } }
 </style>
 <body>
 <div class="frame">
@@ -2400,14 +2476,36 @@
       <div class="sheet-grid">
         <div class="sheet-section" id="identitySection">
           <h3>Pagkakakilanlan &middot; Identity</h3>
-          <div class="field-row">
-            <div class="field">
-              <label for="sheetName">Bayani's Name</label>
-              <input type="text" id="sheetName" placeholder="Character name">
+          <div class="id-top">
+            <div class="photo-box">
+              <button type="button" class="photo-circle" id="photoPick" aria-label="Upload a portrait of your Bayani">
+                <canvas id="photoCanvas" width="256" height="256" hidden></canvas>
+                <span class="photo-ph" id="photoPh">
+                  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.6-2.4h6.8L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.6"/></svg>
+                  <span>Add portrait</span>
+                </span>
+              </button>
+              <input type="file" id="photoInput" accept="image/*" hidden>
+              <div class="photo-tools" id="photoTools" hidden>
+                <input type="range" id="photoZoom" min="1" max="4" step="0.01" value="1" aria-label="Zoom portrait">
+                <div class="photo-btns">
+                  <button type="button" id="photoChange">Change</button>
+                  <button type="button" id="photoRemove">Remove</button>
+                </div>
+              </div>
+              <div class="photo-msg" id="photoMsg" role="status" aria-live="polite"></div>
             </div>
-            <div class="field">
-              <label for="sheetPlayer">Player's Name</label>
-              <input type="text" id="sheetPlayer" placeholder="Player name">
+            <div class="id-fields">
+              <div class="field-row">
+                <div class="field">
+                  <label for="sheetName">Bayani's Name</label>
+                  <input type="text" id="sheetName" placeholder="Character name">
+                </div>
+                <div class="field">
+                  <label for="sheetPlayer">Player's Name</label>
+                  <input type="text" id="sheetPlayer" placeholder="Player name">
+                </div>
+              </div>
             </div>
           </div>
           <div class="field grow-field">
@@ -2422,6 +2520,15 @@
           <div class="mythos-note" id="sheetMythos" hidden></div>
           <h4 class="sheet-sub">Kalagayan &middot; Status</h4>
           <div class="status-grid">
+            <div class="status-block linked" style="--sc:#5f8f45;">
+              <button type="button" class="status-label status-info" data-info="likha" aria-expanded="false">Likha</button>
+              <div class="stepper">
+                <button type="button" class="step-btn minus" data-target="sheetLikha" data-dir="-1" aria-label="Remove a planted Likha">&minus;</button>
+                <input type="number" id="sheetLikha" class="step-val" min="0" step="1" value="0">
+                <button type="button" class="step-btn plus" data-target="sheetLikha" data-dir="1" aria-label="Plant a Likha">+</button>
+              </div>
+              <span class="status-step">&plusmn;1 &middot; +1 Antas</span>
+            </div>
             <div class="status-block" style="--sc:#b5651d;">
               <button type="button" class="status-label status-info" data-info="antas" aria-expanded="false">Antas</button>
               <div class="stepper">
@@ -2438,7 +2545,7 @@
                 <input type="number" id="sheetDiwa" class="step-val" min="0" step="5" value="15">
                 <button type="button" class="step-btn plus" data-target="sheetDiwa" data-dir="1" aria-label="Raise Diwa">+</button>
               </div>
-              <span class="status-step">&plusmn;5 &middot; +5/Antas</span>
+              <span class="status-step">&plusmn;5</span>
             </div>
             <div class="status-block" style="--sc:#6b2a7a;">
               <button type="button" class="status-label status-info" data-info="sawi" aria-expanded="false">Sawi</button>
@@ -2449,6 +2556,15 @@
               </div>
               <span class="status-step">&plusmn;D2</span>
             </div>
+            <div class="status-block linked" style="--sc:#b5543a;">
+              <button type="button" class="status-label status-info" data-info="habi" aria-expanded="false">Habi</button>
+              <div class="stepper">
+                <button type="button" class="step-btn minus" data-target="sheetHabi" data-dir="-1" aria-label="Remove a Habi">&minus;</button>
+                <input type="number" id="sheetHabi" class="step-val" min="0" step="1" value="0">
+                <button type="button" class="step-btn plus" data-target="sheetHabi" data-dir="1" aria-label="Add a Habi">+</button>
+              </div>
+              <span class="status-step">&plusmn;1 &middot; +2 Ginhawa</span>
+            </div>
             <div class="status-block" style="--sc:#2b6cb0;">
               <button type="button" class="status-label status-info" data-info="ginhawa" aria-expanded="false">Ginhawa</button>
               <div class="stepper">
@@ -2456,7 +2572,7 @@
                 <input type="number" id="sheetGinhawa" class="step-val" min="0" step="2" value="15">
                 <button type="button" class="step-btn plus" data-target="sheetGinhawa" data-dir="1" aria-label="Raise Ginhawa">+</button>
               </div>
-              <span class="status-step">&plusmn;2 &middot; +2/Antas</span>
+              <span class="status-step">&plusmn;2</span>
             </div>
             <div class="status-block" style="--sc:#a67c00;">
               <button type="button" class="status-label status-info" data-info="ginto" aria-expanded="false">Ginto</button>
@@ -2519,7 +2635,6 @@
 
         <div class="sheet-section full">
           <h3>Katangian &middot; Ability Scores</h3>
-          <p class="hint" style="margin-bottom:12px;">At Antas 1, place a D10, D8, D6, and D4, one die each. After that, spend your Ability Pool by stepping scores up through the tiers; every step costs D2 from the pool. To make a check, roll 1D20 and add the matching ability die.</p>
           <div class="pool-bar" id="poolBar">
             <div class="pool-main">
               <span class="pool-label">Ability Pool</span>
@@ -2571,8 +2686,12 @@
 
       <div class="sheet-actions">
         <button type="button" id="printSheetBtn">Print / Save as PDF</button>
+        <button type="button" class="secondary" id="saveSheetBtn">Save Talaan File</button>
+        <button type="button" class="secondary" id="loadSheetBtn">Load Previous Talaan</button>
         <button type="button" class="secondary" id="resetSheetBtn">Reset the Talaan</button>
+        <input type="file" id="loadSheetInput" accept=".json,application/json" hidden>
       </div>
+      <p class="save-status" id="saveStatus" role="status" aria-live="polite">Your Talaan saves itself in this browser as you write.</p>
     </form>
   </div>
   </section>
@@ -5620,21 +5739,21 @@ const GUIDE_DATA = {
   tadhana:{ band:'Bayani', title:'Tadhana', text:'The shape your Bayani becomes, set by your Pamana and the ability you build around. It is the mechanical fate on your Character Sheet; your Guhit at Tadhana is the story you write beside it.',
     optsLabel:'Choose your Ability Focus',
     opts:() => ABILITIES.map(ab => [ab.label, gPamanaKey() ? tadhanaFor(gPamanaKey(), ab.key) : 'Choose a Pamana first', () => gFocus(ab.key)]) },
-  diwa:{ band:'Kalagayan', title:'Diwa', text:'Life force, and the well your Pamana draws from. Acting through your Pamana spends it; rest returns it. It is 15 at Antas 1 and rises by 5 with each Antas.',
+  diwa:{ band:'Kalagayan', title:'Diwa', text:'Life force, and the well your Pamana draws from. Acting through your Pamana spends it; rest returns it. It starts at 15 and moves by 5. It does not depend on your Antas.',
     optsLabel:'Recommended', opts:[['Start at 15','The standard starting Diwa.', () => gSet('sheetDiwa','15')]] },
-  ginhawa:{ band:'Kalagayan', title:'Ginhawa', text:'Breath and poise: how hard your Bayani is to hit, built from awareness and steadiness under pressure. It is 15 at Antas 1 and rises by 2 with each Antas.',
-    optsLabel:'Recommended', opts:[['Start at 15','The standard Ginhawa at Antas 1.', () => gSet('sheetGinhawa','15')]] },
+  ginhawa:{ band:'Kalagayan', title:'Ginhawa', text:'Breath and poise: how hard your Bayani is to hit, built from awareness and steadiness under pressure. It starts at 15 and moves by 2. It does not depend on your Antas.',
+    optsLabel:'Recommended', opts:[['Start at 15','The standard starting Ginhawa.', () => gSet('sheetGinhawa','15')]] },
   sawi:{ band:'Kalagayan', title:'Sawi', text:'Grief made physical. It is counted as a die, rising from 0 to 1D2, 1D4, and up, and it draws the Kadiliman the way a wound draws infection.',
     optsLabel:'Recommended', opts:[['Start at 0','Every Bayani begins unburdened.', () => gSet('sheetSawi','0')]] },
   ginto:{ band:'Kalagayan', title:'Ginto', text:'Coin and goods, earned and spent through play at your table. It moves by 1.',
     optsLabel:'Recommended', opts:[['Start at 0','Ask your Tagapagsalaysay for any starting purse.', () => gSet('sheetGinto','0')]] },
-  antas:{ band:'Likha', title:'Antas \u00b7 Level', text:'Your Bayani begins at Antas 1. Each Likha planted with proper supplication, beating a DC your Tagapagsalaysay sets, raises Antas by 1. Each new Antas adds D2 to your Ability Pool, 5 to Diwa, and 2 to Ginhawa; the sheet adds them for you. Spend the pool by stepping any ability up one tier.',
+  antas:{ band:'Likha', title:'Antas \u00b7 Level', text:'Your Bayani begins at Antas 1. Each Likha planted with proper supplication, beating a DC your Tagapagsalaysay sets, raises Antas by 1. Each new Antas adds D2 to your Ability Pool. Diwa, Ginhawa, and Batok do not depend on Antas. Spend the pool by stepping any ability up one tier.',
     optsLabel:'Recommended', opts:[
       ['Start at Antas 1','Every Bayani begins here.', () => { gSet('sheetAntas','1'); onAntasChanged(); }],
-      ['Raise Antas by 1','After a Likha is planted and accepted.', () => { const el = document.getElementById('sheetAntas'); el.value = (parseInt(el.value, 10) || 1) + 1; onAntasChanged(); gNote('Antas raised: +D2 pool, +5 Diwa, +2 Ginhawa. Step one score up.'); }]
+      ['Raise Antas by 1','After a Likha is planted and accepted.', () => { const el = document.getElementById('sheetLikha'); el.value = (parseInt(el.value, 10) || 0) + 1; onLikhaChanged(); gNote('Antas raised: +D2 pool. Step one score up.'); }]
     ]},
-  kalagayan:{ band:'Bayani', title:'Kalagayan', text:'Your condition in four counts: Diwa, Ginhawa, Sawi, and Ginto. Your Antas sits beside them under Status. Touch each branch to learn it.',
-    optsLabel:'Recommended', opts:[['Set all starting values','Antas 1, Diwa 15, Ginhawa 15, Sawi 0, Ginto 0, Batok 0.', () => { ['sheetAntas','sheetDiwa','sheetGinhawa','sheetSawi','sheetGinto','sheetBatok'].forEach((id, i) => document.getElementById(id).value = ['1','15','15','0','0','0'][i]); prevAntas = 1; refreshPool(); gNote('Starting values set on your Character Sheet.'); }]] },
+  kalagayan:{ band:'Bayani', title:'Kalagayan', text:'Your condition in four counts: Diwa, Ginhawa, Sawi, and Ginto. Likha feeds your Antas, and Habi feeds your Ginhawa. Your Antas sits beside them under Status. Touch each branch to learn it.',
+    optsLabel:'Recommended', opts:[['Set all starting values','Antas 1, Likha 0, Diwa 15, Ginhawa 15, Habi 0, Sawi 0, Ginto 0, Batok 0.', () => { ['sheetAntas','sheetLikha','sheetDiwa','sheetGinhawa','sheetHabi','sheetSawi','sheetGinto','sheetBatok'].forEach((id, i) => document.getElementById(id).value = ['1','0','15','15','0','0','0','0'][i]); prevAntas = 1; prevLikha = 0; prevHabi = 0; refreshPool(); gNote('Starting values set on your Character Sheet.'); }]] },
   katangian:{ band:'Bayani', title:'Katangian', text:'Four scores: Lakas for force, Linay for spirit, Listo for timing, Liksi for speed. At Antas 1 they share an Ability Pool of D28: a D10, D8, D6, and D4, one die each. Every Antas and every Batok mark adds D2 to the pool, and each D2 steps one score up a tier. The sheet warns you if your dice outgrow the pool.',
     optsLabel:'Recommended spreads',
     opts:[
@@ -5790,11 +5909,11 @@ const GUIDE_NODES = {
   anito:['Anito','#b0246a','Pamana of gods passed beyond memory.'],
   timaan:['Timaan','#1c1a1b','Pamana taught hand to hand.'],
   likha:['Likha','#5f8f45','Plant one with supplication to rise in Antas.'],
-  antas:['Antas','#b5651d','Your level: +D2 pool, +5 Diwa, +2 Ginhawa.'],
+  antas:['Antas','#b5651d','Your level: +D2 to the Ability Pool.'],
   tadhana:['Tadhana','#2c4fa3','What you become, set by Pamana and focus.'],
   kalagayan:['Kalagayan','#6b2a7a','The four counts of your condition.'],
-  diwa:['Diwa','#2e7d4f','Life force. 15 at Antas 1, +5 per Antas.'],
-  ginhawa:['Ginhawa','#2b6cb0','Poise: how hard you are to hit. 15, +2 per Antas.'],
+  diwa:['Diwa','#2e7d4f','Life force. Starts at 15; independent of Antas.'],
+  ginhawa:['Ginhawa','#2b6cb0','Poise: how hard you are to hit. Starts at 15; independent of Antas.'],
   sawi:['Sawi','#6b2a7a','Grief as a die: 0, 1D2, 1D4, and up.'],
   ginto:['Ginto','#a67c00','Coin and goods. Moves by 1.'],
   katangian:['Katangian','#2a9d8f','An Ability Pool of D28 that grows by D2.'],
@@ -5915,12 +6034,14 @@ buildGuideTree();
 // ================= STATUS DESCRIPTIONS =================
 // Touch a status name to read it; touch it again to fold it away.
 const STATUS_INFO = {
-  antas:['Antas \u00b7 Level','Your level. It rises by 1 each time your Bayani plants a Likha with proper supplication, against a DC your Tagapagsalaysay sets. Each Antas adds D2 to your Ability Pool, 5 Diwa, and 2 Ginhawa, all by itself on this sheet.','#b5651d'],
-  diwa:['Diwa','Life force, and the well your Pamana draws from. It is 15 at Antas 1 and rises by 5 with each Antas, by itself on this sheet. Damage and rest move it by 5.','#2e7d4f'],
+  antas:['Antas \u00b7 Level','Your level. It rises by 1 each time your Bayani plants a Likha with proper supplication, against a DC your Tagapagsalaysay sets. Each Antas adds D2 to your Ability Pool. Diwa, Ginhawa, and Batok do not depend on it.','#b5651d'],
+  diwa:['Diwa','Life force, and the well your Pamana draws from. It starts at 15 and does not depend on Antas. Damage and rest move it by 5.','#2e7d4f'],
   sawi:['Sawi','Grief made physical, counted as a die: 0, then 1D2, 1D4, and up. It weighs on Linay rolls first, then Listo, and draws the Kadiliman.','#6b2a7a'],
-  ginhawa:['Ginhawa','Breath and poise: how hard your Bayani is to hit. It is 15 at Antas 1 and rises by 2 with each Antas, by itself on this sheet.','#2b6cb0'],
+  ginhawa:['Ginhawa','Breath and poise: how hard your Bayani is to hit. It starts at 15 and does not depend on Antas. It moves by 2.','#2b6cb0'],
   ginto:['Ginto','Coin and goods, earned and spent in play. It moves by 1.','#a67c00'],
-  batok:['Batok','Lasting marks tapped into the skin by a Batok Bayani over a full rest. Each mark adds D2 to your Ability Pool. A Bayani may carry one mark per Antas.','#3a3a3a']
+  likha:['Likha','The sacred creations your Bayani has planted with proper supplication, each against a DC your Tagapagsalaysay sets. Every Likha planted raises your Antas by 1, and each new Antas adds D2 to your Ability Pool.','#5f8f45'],
+  habi:['Habi','The weaves your Bayani has completed, each one granted when your Tagapagsalaysay judges a weave finished. Every Habi raises your Ginhawa by 2.','#b5543a'],
+  batok:['Batok','Lasting marks tapped into the skin by a Batok Bayani over a full rest. Each mark adds D2 to your Ability Pool. Batok does not depend on Antas: a Bayani can receive marks at any Antas, even Antas 1.','#3a3a3a']
 };
 document.querySelectorAll('.status-info').forEach(btn => btn.addEventListener('click', () => {
   const box = document.getElementById('statusDesc');
@@ -5995,18 +6116,43 @@ document.querySelectorAll('.abl-step').forEach(btn => btn.addEventListener('clic
   sel.dispatchEvent(new Event('change', { bubbles:true }));
 }));
 function onBatokChanged(){
+  // Batok is not capped by Antas: marks may be added at any level, and each
+  // one adds D2 to the Ability Pool.
   const el = document.getElementById('sheetBatok');
-  const antas = parseInt(document.getElementById('sheetAntas').value, 10) || 1;
   poolWarn('');
-  let n = batokMarks();
-  if (n > antas){ n = antas; poolWarn('A Bayani may carry one batok mark per Antas.'); }
-  el.value = n;
+  el.value = batokMarks();
   refreshPool(); checkAbilityDice();
 }
 document.getElementById('sheetBatok').addEventListener('change', onBatokChanged);
 
-// Antas carries Diwa and Ginhawa with it: +5 Diwa and +2 Ginhawa per level.
+// Antas raises the Ability Pool only. Diwa, Ginhawa, and Batok stand apart from it.
 let prevAntas = 1;
+// Likha and Habi are counts that feed other counts: each Likha planted
+// raises Antas by 1, and each Habi raises Ginhawa by 2.
+let prevLikha = 0, prevHabi = 0;
+function onLikhaChanged(){
+  const el = document.getElementById('sheetLikha');
+  const now = Math.max(0, parseInt(el.value, 10) || 0);
+  el.value = now;
+  const d = now - prevLikha; prevLikha = now;
+  if (d){
+    const a = document.getElementById('sheetAntas');
+    a.value = Math.max(1, (parseInt(a.value, 10) || 1) + d);
+    onAntasChanged();
+  }
+}
+function onHabiChanged(){
+  const el = document.getElementById('sheetHabi');
+  const now = Math.max(0, parseInt(el.value, 10) || 0);
+  el.value = now;
+  const d = now - prevHabi; prevHabi = now;
+  if (d){
+    const g = document.getElementById('sheetGinhawa');
+    g.value = Math.max(0, (parseInt(g.value, 10) || 0) + 2 * d);
+  }
+}
+document.getElementById('sheetLikha').addEventListener('change', onLikhaChanged);
+document.getElementById('sheetHabi').addEventListener('change', onHabiChanged);
 function onAntasChanged(){
   const el = document.getElementById('sheetAntas');
   const now = Math.max(1, parseInt(el.value, 10) || 1);
@@ -6014,10 +6160,8 @@ function onAntasChanged(){
   const delta = now - prevAntas;
   poolWarn('');
   if (delta){
-    const d = document.getElementById('sheetDiwa'), g = document.getElementById('sheetGinhawa');
-    d.value = Math.max(0, (parseInt(d.value, 10) || 0) + 5 * delta);
-    g.value = Math.max(0, (parseInt(g.value, 10) || 0) + 2 * delta);
-    const bk = document.getElementById('sheetBatok'); if (batokMarks() > now) bk.value = now;
+    // Antas only raises the Ability Pool. Diwa, Ginhawa, and Batok are
+    // their own counts and never move with it.
     prevAntas = now;
   }
   refreshPool(); checkAbilityDice();
@@ -6044,6 +6188,8 @@ document.querySelectorAll('.step-btn').forEach(btn => {
     inp.value = Math.max(floor, (parseInt(inp.value, 10) || floor) + dir * step);
     if (inp.id === 'sheetAntas') onAntasChanged();
     if (inp.id === 'sheetBatok') onBatokChanged();
+    if (inp.id === 'sheetLikha') onLikhaChanged();
+    if (inp.id === 'sheetHabi') onHabiChanged();
   });
 });
 
@@ -6316,6 +6462,7 @@ document.getElementById('printSheetBtn').addEventListener('click', () => {
 
 document.getElementById('resetSheetBtn').addEventListener('click', () => {
   if(!confirm('Are you sure you want to clear the entire Talaan?')) return;
+  if (window.clearSheetPhoto) clearSheetPhoto();
   document.getElementById('characterForm').reset();
   sheetHusay = [];
   prevHighestDie = '';
@@ -6324,7 +6471,7 @@ document.getElementById('resetSheetBtn').addEventListener('click', () => {
   tintTabs();
   document.getElementById('sheetAnyo').value = '';
   document.getElementById('abilityWarning').style.display = 'none';
-  document.getElementById('sheetBatok').value = 0; prevAntas = 1;
+  document.getElementById('sheetBatok').value = 0; prevAntas = 1; prevLikha = 0; prevHabi = 0;
   ['ablLKS','ablLIN','ablLIS','ablLIK'].forEach(id => document.getElementById(id).dataset.prev = '');
   setTimeout(refreshPool, 0);
   refreshAbilityDescs();
@@ -6651,11 +6798,13 @@ function buildPrintSummary(){
     : `<p class="ps-empty">This Talaan waits on a blank page. Fill in the Character Sheet, a name, a Pamana, the four ability dice, and the Husay, and the story of your Bayani gathers here.</p>`;
   const stripe = 'linear-gradient(90deg, ' + [pc].concat(st.bands.map(b => b.base)).map((c, i, a) => `${c} ${i * 100 / a.length}% ${(i + 1) * 100 / a.length}%`).join(', ') + ')';
   const today = new Date().toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' });
+  const photo = window.getSheetPhoto ? getSheetPhoto() : '';
   const page = level => `
     <div class="ps-stripe" style="background:${stripe}"></div>
+    <div class="ps-head${photo ? ' has-photo' : ''}">${photo ? `<img class="ps-photo" src="${photo}" alt="">` : ''}<div class="ps-head-text">
     <div class="ps-eyebrow">PAMANA&trade; &middot; Talaan ng Bayani</div>
     <h1>${name ? gEsc(name) : 'Your Bayani'}</h1>
-    <div class="ps-sub">${sub}</div>
+    <div class="ps-sub">${sub}</div></div></div>
     <div class="ps-meta">${meta}</div>
     <div class="ps-story">${story}</div>
     ${psHusayCards(level)}
@@ -6684,6 +6833,282 @@ function buildPrintSummary(){
   ['display', 'position', 'left', 'top'].forEach(k => el.style.removeProperty(k));
 }
 window.addEventListener('beforeprint', buildPrintSummary);
+
+// ================= PORTRAIT, SAVE POINT, SAVE / LOAD FILE =================
+(function(){
+  const SAVE_KEY = 'pamana.talaan.v1';
+  const FIELD_IDS = ['sheetName','sheetPlayer','sheetTadhana','sheetBackground','sheetAntas','sheetDiwa','sheetSawi','sheetGinhawa','sheetGinto','sheetBatok','sheetLikha','sheetHabi','sheetNotes'];
+  const ABL_IDS = ['ablLKS','ablLIN','ablLIS','ablLIK'];
+  const $ = id => document.getElementById(id);
+
+  // ---------- Portrait ----------
+  const OUT = 256;
+  const canvas = $('photoCanvas'), ctx = canvas.getContext('2d');
+  let P = null;            // { img, w, h, cx, cy, z }
+  let photoData = '';      // cropped JPEG data URL, what gets saved and printed
+  let mpDetector = null, mpFailed = false;
+
+  const side = () => Math.min(P.w, P.h) / P.z;
+  function clampCentre(){
+    const s = side();
+    P.cx = Math.min(P.w - s / 2, Math.max(s / 2, P.cx));
+    P.cy = Math.min(P.h - s / 2, Math.max(s / 2, P.cy));
+  }
+  function draw(){
+    ctx.clearRect(0, 0, OUT, OUT);
+    if (!P) return;
+    const s = side();
+    ctx.drawImage(P.img, P.cx - s / 2, P.cy - s / 2, s, s, 0, 0, OUT, OUT);
+  }
+  function commit(){ photoData = P ? canvas.toDataURL('image/jpeg', 0.88) : ''; }
+  function showPhotoUI(on){
+    canvas.hidden = !on;
+    $('photoPh').hidden = on;
+    $('photoTools').hidden = !on;
+    $('photoPick').classList.toggle('has-photo', on);
+    $('photoPick').setAttribute('aria-label', on ? 'Portrait of your Bayani. Drag to reposition.' : 'Upload a portrait of your Bayani');
+  }
+  const say = t => { $('photoMsg').textContent = t || ''; };
+
+  function normBox(b){
+    if (!b) return null;
+    return { x: b.x !== undefined ? b.x : b.originX, y: b.y !== undefined ? b.y : b.originY, w: b.width, h: b.height };
+  }
+  function largest(list){
+    return list.map(normBox).filter(Boolean).sort((a, b) => b.w * b.h - a.w * a.h)[0] || null;
+  }
+  function timeout(ms){ return new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms)); }
+
+  async function mediapipeFace(c){
+    if (mpFailed) return null;
+    try {
+      if (!mpDetector){
+        const base = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
+        const load = (async () => {
+          const mod = await import(base + '/vision_bundle.mjs');
+          const files = await mod.FilesetResolver.forVisionTasks(base + '/wasm');
+          return mod.FaceDetector.createFromOptions(files, {
+            baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite' },
+            runningMode: 'IMAGE'
+          });
+        })();
+        mpDetector = await Promise.race([load, timeout(12000)]);
+      }
+      const res = mpDetector.detect(c);
+      return largest((res.detections || []).map(d => d.boundingBox));
+    } catch (e) { mpFailed = true; return null; }
+  }
+  async function findFace(img){
+    const k = Math.min(1, 640 / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(img.naturalWidth * k));
+    c.height = Math.max(1, Math.round(img.naturalHeight * k));
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    let box = null;
+    if ('FaceDetector' in window){
+      try { const d = new window.FaceDetector({ fastMode: true, maxDetectedFaces: 6 }); box = largest((await d.detect(c)).map(f => f.boundingBox)); } catch (e) {}
+    }
+    if (!box) box = await mediapipeFace(c);
+    return box ? { x: box.x / k, y: box.y / k, w: box.w / k, h: box.h / k } : null;
+  }
+
+  function loadImage(url){
+    return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('image')); i.src = url; });
+  }
+
+  async function takeFile(file){
+    if (!file) return;
+    if (!/^image\//.test(file.type)){ say('That file is not an image.'); return; }
+    if (file.size > 20 * 1024 * 1024){ say('That image is over 20 MB. Try a smaller one.'); return; }
+    say('Finding the face...');
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await loadImage(url);
+      P = { img, w: img.naturalWidth, h: img.naturalHeight, cx: 0, cy: 0, z: 1 };
+      const face = await findFace(img);
+      const base = Math.min(P.w, P.h);
+      if (face){
+        const s = Math.min(base, Math.max(face.w * 2.6, 32));
+        P.z = Math.min(4, Math.max(1, base / s));
+        const s2 = side();
+        P.cx = face.x + face.w / 2;
+        P.cy = face.y + face.h / 2 + s2 * 0.06;
+        say('');
+      } else {
+        P.cx = P.w / 2;
+        P.cy = P.h > P.w ? P.h * 0.38 : P.h / 2;
+        say('No face found automatically, so the photo is centered. Drag or zoom to adjust.');
+      }
+      clampCentre();
+      $('photoZoom').value = P.z;
+      showPhotoUI(true);
+      draw(); commit();
+    } catch (e) {
+      P = null; showPhotoUI(false); say('That image could not be opened.');
+    } finally { URL.revokeObjectURL(url); }
+  }
+
+  async function setPhoto(dataUrl){
+    if (!dataUrl){ clearPhoto(); return; }
+    photoData = dataUrl;
+    try {
+      const img = await loadImage(dataUrl);
+      P = { img, w: img.naturalWidth, h: img.naturalHeight, cx: img.naturalWidth / 2, cy: img.naturalHeight / 2, z: 1 };
+      $('photoZoom').value = 1;
+      showPhotoUI(true); draw();
+      photoData = dataUrl; say('');
+    } catch (e) { clearPhoto(); }
+  }
+  function clearPhoto(){
+    P = null; photoData = ''; ctx.clearRect(0, 0, OUT, OUT);
+    showPhotoUI(false); say(''); $('photoInput').value = '';
+  }
+  window.clearSheetPhoto = clearPhoto;
+  window.getSheetPhoto = () => photoData;
+
+  $('photoPick').addEventListener('click', () => { if (!P) $('photoInput').click(); });
+  $('photoChange').addEventListener('click', () => $('photoInput').click());
+  $('photoRemove').addEventListener('click', clearPhoto);
+  $('photoInput').addEventListener('change', e => { takeFile(e.target.files[0]); e.target.value = ''; });
+  $('photoZoom').addEventListener('input', e => { if (!P) return; P.z = parseFloat(e.target.value) || 1; clampCentre(); draw(); });
+  $('photoZoom').addEventListener('change', () => { if (P) commit(); });
+
+  let drag = null;
+  canvas.addEventListener('pointerdown', e => {
+    if (!P) return;
+    drag = { x: e.clientX, y: e.clientY, cx: P.cx, cy: P.cy };
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', e => {
+    if (!drag || !P) return;
+    const k = side() / canvas.getBoundingClientRect().width;
+    P.cx = drag.cx - (e.clientX - drag.x) * k;
+    P.cy = drag.cy - (e.clientY - drag.y) * k;
+    clampCentre(); draw();
+  });
+  const endDrag = () => { if (drag){ drag = null; commit(); } };
+  canvas.addEventListener('pointerup', endDrag);
+  canvas.addEventListener('pointercancel', endDrag);
+
+  // ---------- Capture / apply ----------
+  function captureState(){
+    const val = id => (($(id) || {}).value) || '';
+    const s = { app: 'pamana-talaan', version: 1, savedAt: new Date().toISOString(),
+      fields: {}, abilities: {}, pamana: val('sheetUnangAntas'), focus: val('sheetAbilityFocus'), daloy: val('sheetDaloy'),
+      husay: sheetHusay.map(h => ({ husay: h.husay, pamana: h.pamana, slot: h.slot })),
+      photo: photoData, baleteOpen: !!BALETE_OPEN };
+    FIELD_IDS.forEach(id => s.fields[id] = val(id));
+    ABL_IDS.forEach(id => s.abilities[id] = val(id));
+    return s;
+  }
+  function applyState(s){
+    const set = (id, v) => { const el = $(id); if (el) el.value = (v === undefined || v === null) ? '' : v; };
+    if (s.baleteOpen){ BALETE_OPEN = true; refreshBaleteLock(); }
+    const f = s.fields || {};
+    FIELD_IDS.forEach(id => { if (f[id] !== undefined) set(id, f[id]); });
+    const num = (v, dflt, min) => { const n = parseInt(v, 10); return isNaN(n) ? dflt : Math.max(min, n); };
+    const antas = num(f.sheetAntas, 1, 1);
+    set('sheetAntas', antas); prevAntas = antas;
+    set('sheetDiwa', num(f.sheetDiwa, 15, 0));
+    set('sheetGinhawa', num(f.sheetGinhawa, 15, 0));
+    set('sheetGinto', num(f.sheetGinto, 0, 0));
+    set('sheetBatok', num(f.sheetBatok, 0, 0));
+    set('sheetLikha', num(f.sheetLikha, 0, 0)); prevLikha = num(f.sheetLikha, 0, 0);
+    set('sheetHabi', num(f.sheetHabi, 0, 0)); prevHabi = num(f.sheetHabi, 0, 0);
+    set('sheetSawi', SAWI_LADDER.includes(f.sheetSawi) ? f.sheetSawi : '0');
+
+    let key = PAMANA_INDEX[s.pamana] ? s.pamana : '';
+    if (isBaleteLocked(key)) key = '';
+    set('sheetUnangAntas', key);
+    lastSheetPamana = key;
+    sheetHusay = [];
+    onUnangAntasChange();
+    set('sheetAbilityFocus', key ? s.focus : '');
+    ABL_IDS.forEach(id => { set(id, (s.abilities || {})[id]); $(id).dataset.prev = $(id).value; });
+    refreshTadhanaDisplay();
+    if (key === 'Marciales' && s.daloy){ set('sheetDaloy', s.daloy); refreshDaloy(); }
+    sheetHusay = (s.husay || []).map(h => SKILLS.find(k => k.husay === h.husay && k.pamana === h.pamana)).filter(Boolean);
+    prevHighestDie = highestAbilityDie();
+    checkAbilityDice();
+    refreshAbilityDescs();
+    tintTabs();
+    setPhoto(s.photo || '');
+    $('characterForm').dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  // ---------- Save point in this browser ----------
+  const statusEl = $('saveStatus');
+  const idleText = 'Your Talaan saves itself in this browser as you write.';
+  function stamp(iso){ try { return new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); } catch (e) { return ''; } }
+  let lastJson = '';
+  function saveNow(){
+    try {
+      const s = captureState();
+      const sig = JSON.stringify(Object.assign({}, s, { savedAt: 0 }));
+      if (sig === lastJson) return;
+      localStorage.setItem(SAVE_KEY, JSON.stringify(s));
+      lastJson = sig;
+      statusEl.textContent = 'Saved in this browser at ' + stamp(s.savedAt) + '. Use Save Talaan File to keep a copy you can carry elsewhere.';
+    } catch (e) {
+      statusEl.textContent = 'This browser would not keep an auto-save (storage is full or blocked). Use Save Talaan File to keep your Talaan.';
+    }
+  }
+  window.__pamanaSaveNow = saveNow;
+
+  // ---------- Save / load a file ----------
+  $('saveSheetBtn').addEventListener('click', () => {
+    const s = captureState();
+    const name = ((s.fields.sheetName || 'Bayani').trim() || 'Bayani').replace(/[^\w\-]+/g, '_').slice(0, 40);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(s, null, 2)], { type: 'application/json' }));
+    a.download = 'Talaan-' + name + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    statusEl.textContent = 'Talaan file saved as ' + a.download + '.';
+  });
+  $('loadSheetBtn').addEventListener('click', () => $('loadSheetInput').click());
+  $('loadSheetInput').addEventListener('change', e => {
+    const file = e.target.files[0]; e.target.value = '';
+    if (!file) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      let data;
+      try { data = JSON.parse(rd.result); } catch (err) { data = null; }
+      if (!data || data.app !== 'pamana-talaan'){
+        statusEl.textContent = 'That file is not a Talaan saved from this page. Load the .json file made by Save Talaan File.';
+        return;
+      }
+      const v = id => ((($(id) || {}).value) || '').trim();
+      const hasWork = v('sheetName') || v('sheetNotes') || v('sheetUnangAntas') || v('sheetTadhana') || v('sheetBackground');
+      if (hasWork && !confirm('Replace the Talaan on this page with the one in this file?')) return;
+      try {
+        applyState(data);
+        saveNow();
+        statusEl.textContent = 'Loaded ' + (((data.fields || {}).sheetName) || 'your Talaan') + '. Keep writing; it saves itself.';
+      } catch (err) {
+        statusEl.textContent = 'That file could not be read completely.';
+      }
+    };
+    rd.readAsText(file);
+  });
+
+  // ---------- Restore on open, then keep saving ----------
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (raw){
+      const s = JSON.parse(raw);
+      if (s && s.app === 'pamana-talaan'){
+        applyState(s);
+        lastJson = JSON.stringify(Object.assign({}, captureState(), { savedAt: 0 }));
+        statusEl.textContent = 'Welcome back. Your Talaan was restored from ' + (stamp(s.savedAt) ? new Date(s.savedAt).toLocaleDateString() + ' ' + stamp(s.savedAt) : 'your last visit') + '.';
+      }
+    }
+  } catch (e) { statusEl.textContent = idleText; }
+  setInterval(saveNow, 1500);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) saveNow(); });
+  window.addEventListener('pagehide', saveNow);
+  window.addEventListener('beforeunload', saveNow);
+})();
 </script>
 </body>
 </html>
