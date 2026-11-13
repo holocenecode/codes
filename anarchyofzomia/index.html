@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="intro-on">
+<html lang="en" class="intro-on" data-theme="grunge">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -906,41 +906,43 @@ label[data-info],h4[data-info]{text-decoration:underline dotted 2px;text-underli
 .tab[data-tab="world"]{white-space:nowrap}
 .lchip{text-align:left;line-height:1.2}
 
-/* ===== opening: one blinking light, then the leylines burst at the seams ===== */
+/* ===== opening: a comic-panel light, then the leylines break. Grunge inks: slate, red, bone, teal ===== */
 html.intro-on .wrap,html.intro-on .dock,html.intro-on .pop{display:none !important}
 html.intro-on,html.intro-on body{overflow:hidden}
-#intro{position:fixed;inset:0;z-index:200;display:block;width:100%;height:100%;margin:0;padding:0;border:0;background:#07050c;cursor:pointer;overflow:hidden;transition:opacity .65s ease}
+#intro{position:fixed;inset:0;z-index:200;display:block;width:100%;height:100%;margin:0;padding:0;border:0;background:#0f1923;cursor:pointer;overflow:hidden;transition:opacity .55s ease}
 #intro svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 #intro:focus-visible{outline:none}
-#intro:focus-visible .i-core{stroke:#ffd60a;stroke-width:4}
+#intro:focus-visible .i-star{stroke:#e8c547}
 #intro.out{opacity:0;pointer-events:none}
-.i-light{animation:iblink 3.4s linear infinite}
-.i-halo{transition:transform .9s cubic-bezier(.2,.8,.3,1)}
-.i-core{transition:transform .9s cubic-bezier(.2,.8,.3,1)}
-@keyframes iblink{0%,38%{opacity:1}41%{opacity:.08}45%{opacity:1}49%{opacity:.12}52%,86%{opacity:1}90%{opacity:.3}94%,100%{opacity:1}}
-#intro.go .i-light{animation:none;opacity:1}
-#intro.go .i-halo{transform:scale(2.4)}
-#intro.go .i-core{transform:scale(2.2)}
-#intro.burst .i-halo{transform:scale(7)}
-#intro.burst .i-core{transform:scale(5)}
-.ray path,.i-br{fill:none;stroke-linejoin:miter;stroke-miterlimit:6;stroke-dasharray:1;stroke-dashoffset:1}
-.ray path{transition:stroke-dashoffset .7s cubic-bezier(.3,.7,.2,1) var(--d,0ms),stroke-width .85s cubic-bezier(.5,0,.8,.4),opacity .85s ease}
-.ray .r-glow{stroke-width:24;opacity:.26}
-.ray .r-body{stroke-width:9}
-.ray .r-core{stroke:#fff;stroke-width:2.5}
-#intro.go .ray path{stroke-dashoffset:0}
-#intro.burst .ray .r-glow{stroke-width:84;opacity:.42}
-#intro.burst .ray .r-body{stroke-width:30}
-#intro.burst .ray .r-core{stroke-width:11}
-.i-br{stroke-width:6;transition:stroke-dashoffset .45s ease-out var(--d,0ms)}
+.i-wedges{opacity:0;transition:opacity .3s steps(3,end)}
+#intro.go .i-wedges{opacity:1}
+#intro.burst .i-wedges{animation:ispin 5s linear infinite}
+@keyframes ispin{to{transform:rotate(360deg)}}
+.i-light{animation:iblink 2.6s linear infinite}
+@keyframes iblink{0%,52%{transform:scale(1) rotate(0deg)}53%,60%{transform:scale(.4) rotate(22.5deg)}61%,68%{transform:scale(1.2) rotate(0deg)}69%,75%{transform:scale(.4) rotate(22.5deg)}76%,100%{transform:scale(1) rotate(0deg)}}
+#intro.go .i-light{animation:ipulse .2s steps(2,end) infinite}
+@keyframes ipulse{0%{transform:scale(1.5) rotate(0deg)}100%{transform:scale(2.3) rotate(45deg)}}
+#intro.flash .i-light{opacity:0}
+.ray path,.i-br{fill:none;stroke-linejoin:miter;stroke-miterlimit:8;stroke-dasharray:1;stroke-dashoffset:1}
+.ray path{transition:stroke-dashoffset .6s cubic-bezier(.3,.7,.2,1) var(--d,0ms),stroke-width .45s cubic-bezier(.3,1.7,.5,1)}
+.ray .r-case{stroke:#000;stroke-width:26}
+.ray .r-rail{stroke-width:13}
+.ray .r-ink{stroke:#000;stroke-width:2.5;stroke-dasharray:.03 .05}
+#intro.go .ray .r-case,#intro.go .ray .r-rail{stroke-dashoffset:0}
+#intro.burst .ray .r-case{stroke-width:62}
+#intro.burst .ray .r-rail{stroke-width:42}
+.i-br{transition:stroke-dashoffset .32s ease-out var(--d,0ms)}
+.i-br.c{stroke:#000;stroke-width:15}
+.i-br.r{stroke-width:6}
 #intro.burst .i-br{stroke-dashoffset:0}
-#intro.burst .i-rays{animation:ishake .11s steps(2,end) infinite}
-@keyframes ishake{0%{transform:translate(5px,-4px)}50%{transform:translate(-5px,3px)}100%{transform:translate(3px,5px)}}
-.i-spark{opacity:0}
-#intro.burst .i-spark{animation:ispark .9s cubic-bezier(.1,.7,.3,1) var(--d,0ms) both}
-@keyframes ispark{0%{opacity:1;transform:translate(0,0) rotate(0)}70%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) rotate(260deg)}}
-.i-flash{opacity:0;pointer-events:none;transition:opacity .28s ease-in}
-#intro.flash .i-flash{opacity:1}
+#intro.burst .i-rays{animation:ishake .12s steps(2,end) infinite}
+@keyframes ishake{0%{transform:translate(6px,-5px)}50%{transform:translate(-6px,4px)}100%{transform:translate(4px,6px)}}
+.i-spark{opacity:0;stroke:#000;stroke-width:3.5;stroke-linejoin:miter}
+#intro.burst .i-spark{animation:ispark .85s cubic-bezier(.1,.7,.3,1) var(--d,0ms) both}
+@keyframes ispark{0%{opacity:1;transform:translate(0,0) rotate(0deg) scale(.4)}75%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) rotate(300deg) scale(1.5)}}
+.i-pow{transform:scale(0);transition:transform .3s cubic-bezier(.2,1.8,.4,1)}
+#intro.burst .i-pow{transform:scale(1)}
+#intro.flash .i-pow{transform:scale(16);transition:transform .36s cubic-bezier(.6,0,.9,.4)}
 @media (prefers-reduced-motion: no-preference){
   .cin{animation:cardin .6s cubic-bezier(.2,1.35,.4,1) calc(var(--i,0) * 65ms + 180ms) both}
   @keyframes cardin{from{opacity:0;transform:translateY(40px) scale(.84) rotate(-2.5deg)}}
@@ -955,22 +957,28 @@ html.home .mast h1{font-size:clamp(40px,8.6vw,118px)}
 html.home .mast-text{padding:0 clamp(18px,3vw,44px) clamp(20px,3.4vw,46px)}
 html.home .tabs{margin-bottom:0}
 html.home .wrap{padding-bottom:28px}
-html.home .dock,html.home footer,html.home .collapsebar{display:none !important}
-.collapsebar{display:flex;justify-content:flex-end;margin:-8px 0 18px}
-.collapsebar .btn{display:inline-flex;align-items:center;gap:8px}
-.collapsebar .btn::before{content:"";width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:9px solid currentColor}
-:root[data-theme="ink"] .collapsebar .btn{color:#141414}
+html.home .dock,html.home footer,html.home .mastcollapse{display:none !important}
+.mastcollapse{position:absolute;right:16px;bottom:14px;z-index:3;display:inline-flex;align-items:center;gap:8px}
+.mastcollapse::before{content:"";width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:9px solid currentColor}
+:root[data-theme="ink"] .mastcollapse{color:#141414}
 @media (max-width:1000px){ html.home .mast svg{height:clamp(260px, calc(100vh - 330px), 620px)} }
+@media (max-width:620px){ .mastcollapse{right:10px;bottom:10px;padding:9px 10px} .mastcollapse span{display:none} }
 @media (prefers-reduced-motion: reduce){ .mast svg,.mast h1{transition:none} }
 </style>
 </head>
 <body>
 <button type="button" class="intro" id="intro" aria-label="Enter The Anarchy of Zomia">
   <svg viewBox="-800 -500 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-    <defs><radialGradient id="iGlow"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".14" stop-color="#5dffb0" stop-opacity=".7"/><stop offset=".45" stop-color="#9b5cff" stop-opacity=".2"/><stop offset="1" stop-color="#9b5cff" stop-opacity="0"/></radialGradient></defs>
+    <defs>
+      <pattern id="iHt" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle cx="8" cy="8" r="3.2" fill="#ece8e1"/></pattern>
+      <radialGradient id="iHtF" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="760"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      <mask id="iHtM" maskUnits="userSpaceOnUse" x="-800" y="-500" width="1600" height="1000"><rect x="-800" y="-500" width="1600" height="1000" fill="url(#iHtF)"/></mask>
+    </defs>
+    <g class="i-wedges"></g>
+    <rect x="-800" y="-500" width="1600" height="1000" fill="url(#iHt)" mask="url(#iHtM)" opacity=".13"/>
     <g class="i-rays"></g><g class="i-sparks"></g>
-    <g class="i-light"><circle class="i-halo" r="110" fill="url(#iGlow)"/><circle class="i-core" r="6" fill="#fff"/></g>
-    <rect class="i-flash" x="-800" y="-500" width="1600" height="1000" fill="#fff"/>
+    <g class="i-pow"></g>
+    <g class="i-light"></g>
   </svg>
 </button>
 <div class="bg" aria-hidden="true">
@@ -981,7 +989,7 @@ html.home .dock,html.home footer,html.home .collapsebar{display:none !important}
 <div class="wrap">
 
 <header class="mast">
-  <div class="themesw" role="group" aria-label="Color scheme"><button type="button" data-th="ink" aria-pressed="true">Ink</button><button type="button" data-th="grunge" aria-pressed="false">Grunge</button><button type="button" data-th="pop" aria-pressed="false">Bubblegum</button></div>
+  <div class="themesw" role="group" aria-label="Color scheme"><button type="button" data-th="ink" aria-pressed="false">Ink</button><button type="button" data-th="grunge" aria-pressed="true">Grunge</button><button type="button" data-th="pop" aria-pressed="false">Bubblegum</button></div>
   <svg class="th-pop" viewBox="0 0 1200 280" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Torn poster bands of pink, yellow and cyan behind cobalt highland ridges, the black Obelisk bursting with light">
     <defs><filter id="graink" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="1" seed="9"/><feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 1.3"/></filter></defs>
     <polygon points="0,280 0,-9.3 30,-14.1 60,-9.8 90,-3.1 120,-14.4 150,-4.1 180,-9.3 210,-8.1 240,-3.1 270,-9.0 300,-7.1 330,-4.3 360,0.1 390,-8.6 420,-1.4 450,-2.9 480,-3.6 510,-6.6 540,-7.1 570,-10.9 600,-9.6 630,-10.1 660,-0.5 690,-7.0 720,-8.0 750,-8.8 780,2.0 810,2.7 840,0.2 870,-4.9 900,-5.2 930,-4.2 960,-1.6 990,-5.6 1020,-1.2 1050,-3.5 1080,6.5 1110,7.0 1140,1.3 1170,-2.7 1200,7.7 1200,280" fill="#ffd60a"/><polygon points="0,280 0,44.0 30,38.8 60,43.9 90,45.0 120,45.1 150,40.7 180,44.7 210,37.5 240,40.9 270,38.2 300,42.3 330,37.1 360,36.6 390,40.3 420,39.1 450,43.8 480,42.8 510,45.6 540,44.1 570,44.7 600,46.7 630,39.7 660,38.5 690,47.5 720,35.6 750,43.4 780,42.1 810,33.4 840,44.3 870,44.9 900,40.9 930,42.2 960,43.1 990,33.4 1020,38.6 1050,38.1 1080,42.5 1110,41.8 1140,41.9 1170,38.3 1200,42.4 1200,280" fill="#ff3d9a"/><polygon points="0,280 0,104.7 30,98.4 60,95.9 90,97.5 120,100.9 150,97.6 180,108.0 210,104.4 240,105.5 270,105.7 300,106.7 330,104.3 360,97.7 390,109.0 420,108.5 450,105.3 480,106.0 510,108.0 540,99.9 570,109.5 600,102.9 630,100.7 660,103.5 690,110.3 720,103.1 750,110.8 780,114.4 810,107.8 840,106.5 870,108.1 900,111.2 930,112.5 960,110.7 990,111.2 1020,103.5 1050,104.7 1080,106.5 1110,113.5 1140,107.6 1170,111.5 1200,104.0 1200,280" fill="#2ec4f1"/><polygon points="0,280 0,154.8 30,159.9 60,159.6 90,158.9 120,153.0 150,155.6 180,154.3 210,153.8 240,148.4 270,158.8 300,148.5 330,158.9 360,157.8 390,144.4 420,150.0 450,154.6 480,156.1 510,148.3 540,145.3 570,143.9 600,153.7 630,142.9 660,147.5 690,140.9 720,145.7 750,151.2 780,139.1 810,148.2 840,143.4 870,148.1 900,145.0 930,137.9 960,146.7 990,140.4 1020,133.4 1050,132.6 1080,138.9 1110,137.8 1140,135.2 1170,132.4 1200,134.7 1200,280" fill="#ffd60a"/><polygon points="0,280 0,218.8 30,206.8 60,217.1 90,218.1 120,207.8 150,218.9 180,215.7 210,218.1 240,209.3 270,210.2 300,210.3 330,218.6 360,212.6 390,209.2 420,209.9 450,207.5 480,204.1 510,204.7 540,214.7 570,206.8 600,215.7 630,205.9 660,205.9 690,209.1 720,204.4 750,206.7 780,214.6 810,213.4 840,212.2 870,209.4 900,213.2 930,213.3 960,207.6 990,209.8 1020,200.2 1050,209.5 1080,205.4 1110,209.4 1140,207.6 1170,202.4 1200,198.9 1200,280" fill="#ff9966"/><polygon points="964.0,118.0 914.6,130.5 953.7,163.1 903.8,152.9 924.8,199.3 884.3,168.5 883.1,219.4 860.0,174.0 836.9,219.4 835.7,168.5 795.2,199.3 816.2,152.9 766.3,163.1 805.4,130.5 756.0,118.0 805.4,105.5 766.3,72.9 816.2,83.1 795.2,36.7 835.7,67.5 836.9,16.6 860.0,62.0 883.1,16.6 884.3,67.5 924.8,36.7 903.8,83.1 953.7,72.9 914.6,105.5" fill="#ffd60a" stroke="#000" stroke-width="5"/>
@@ -1026,6 +1034,7 @@ html.home .dock,html.home footer,html.home .collapsebar{display:none !important}
   <div class="mast-text">
     <h1>The Anarchy! <span>of Zomia</span></h1>
   </div>
+  <button type="button" class="btn mastcollapse" id="collapseAll" aria-label="Collapse everything and return to the poster"><span>Collapse all</span></button>
 </header>
 
 <nav class="tabs" role="tablist" aria-label="Sections">
@@ -1035,7 +1044,6 @@ html.home .dock,html.home footer,html.home .collapsebar{display:none !important}
   <button class="tab" role="tab" id="tab-map" data-tab="map">The Anarchy Map</button>
   <button class="tab" role="tab" id="tab-codex" data-tab="codex">Techniques</button>
 </nav>
-<div class="collapsebar"><button type="button" class="btn" id="collapseAll" aria-label="Collapse everything and return to the poster">Collapse all</button></div>
 
 <!-- ======================= GUIDEBOOK ======================= -->
 <section class="panel" id="panel-guide" role="tabpanel" aria-labelledby="tab-guide">
@@ -2003,10 +2011,10 @@ function renderCodex(){
 
 /* ---------------- guidebook, tabs, start ---------------- */
 function setupTheme(){
-  let t = 'ink'; try{ t = localStorage.getItem('zomia-scheme-v3') || 'ink'; }catch(e){}
+  let t = 'grunge'; try{ t = localStorage.getItem('zomia-scheme-v3') || 'grunge'; }catch(e){}
   const set = v => { document.documentElement.dataset.theme = v;
     document.querySelectorAll('.themesw button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.th===v))); };
-  set(['grunge','pop','ink'].includes(t) ? t : 'ink');
+  set(['grunge','pop','ink'].includes(t) ? t : 'grunge');
   document.querySelector('.themesw').addEventListener('click', e=>{ const b = e.target.closest('[data-th]'); if(!b) return; set(b.dataset.th); try{ localStorage.setItem('zomia-scheme-v3', b.dataset.th); }catch(err){} });
 }
 let gOpen = -1;
@@ -2059,32 +2067,48 @@ go(location.hash.slice(1), true);
 $('collapseAll').addEventListener('click', ()=>{ hidePop(); go(''); try{ window.scrollTo({top:0, behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); } });
 </script>
 <script>
-/* ---------------- opening: a blinking light, then the leylines burst ---------------- */
+/* ---------------- opening: a comic-panel light, then the leylines break ---------------- */
 (function(){
   const root = document.documentElement, intro = document.getElementById('intro');
   if(!intro){ root.classList.remove('intro-on'); return; }
-  const SVGNS = 'http://www.w3.org/2000/svg', gR = intro.querySelector('.i-rays'), gS = intro.querySelector('.i-sparks');
-  const COLS = ['#6b95ff','#ff7a1a','#9b5cff','#ffd60a','#c6f432','#ff2d2d','#ff3d9a','#2ec4f1'];
+  const SVGNS = 'http://www.w3.org/2000/svg', q = c => intro.querySelector(c), gR = q('.i-rays'), gS = q('.i-sparks'), gW = q('.i-wedges'), gP = q('.i-pow'), gL = q('.i-light');
+  /* grunge inks: red, bone, teal, a little yellow */
+  const RED = '#ff4655', BONE = '#ece8e1', TEAL = '#3ec8d8', YEL = '#e8c547';
+  const COLS = [RED, BONE, TEAL, RED, YEL, BONE, RED, TEAL];
   const mk = (t, a) => { const e = document.createElementNS(SVGNS, t); for(const k in a) e.setAttribute(k, a[k]); return e; };
   let seed = 17; const rnd = () => { seed = (seed*9301 + 49297) % 233280; return seed/233280; };
+  const star = (n, R, r, rot, jit) => { let p = ''; for(let i=0;i<n*2;i++){ const a = rot + i*Math.PI/n, d = (i%2 ? r : R)*(jit ? 1 + (rnd()-.5)*jit : 1); p += (d*Math.cos(a)).toFixed(1)+','+(d*Math.sin(a)).toFixed(1)+' '; } return p.trim(); };
   /* a crack: a zigzag that keeps its heading, the way lightning and split seams do */
   function crack(x, y, a, len, step){ const x0 = x, y0 = y, pts = [[x,y]]; let d = 'M'+x.toFixed(1)+' '+y.toFixed(1), side = rnd() < .5 ? -1 : 1;
-    while(Math.hypot(x-x0, y-y0) < len){ const s = step*(.6 + rnd()*.9), k = a + side*(.25 + rnd()*.5);
+    while(Math.hypot(x-x0, y-y0) < len){ const s = step*(.6 + rnd()*.9), k = a + side*(.3 + rnd()*.5);
       x += Math.cos(k)*s; y += Math.sin(k)*s; d += ' L'+x.toFixed(1)+' '+y.toFixed(1); pts.push([x,y]); side = -side; }
     return {d, pts}; }
   try{
-    for(let i=0;i<16;i++){ const a = i*Math.PI/8 + (rnd()-.5)*.22, col = COLS[i%8], c = crack(0, 0, a, 1120, 95), delay = Math.round(rnd()*260);
+    /* speed-line wedges behind everything */
+    for(let i=0;i<18;i++){ const a = i*Math.PI/9, w = .085, R = 1500;
+      gW.appendChild(mk('polygon', {points:'0,0 '+(R*Math.cos(a-w)).toFixed(0)+','+(R*Math.sin(a-w)).toFixed(0)+' '+(R*Math.cos(a+w)).toFixed(0)+','+(R*Math.sin(a+w)).toFixed(0), fill:'#1b2733'})); }
+    /* the leylines: black casing, flat ink */
+    for(let i=0;i<16;i++){ const a = i*Math.PI/8 + (rnd()-.5)*.22, col = COLS[i%8], c = crack(0, 0, a, 1120, 105), delay = Math.round(rnd()*240);
       const g = mk('g', {class:'ray', style:'--d:'+delay+'ms'});
-      g.appendChild(mk('path', {d:c.d, pathLength:1, class:'r-glow', stroke:col}));
-      g.appendChild(mk('path', {d:c.d, pathLength:1, class:'r-body', stroke:col}));
-      g.appendChild(mk('path', {d:c.d, pathLength:1, class:'r-core'}));
+      g.appendChild(mk('path', {d:c.d, pathLength:1, class:'r-case'}));
+      g.appendChild(mk('path', {d:c.d, pathLength:1, class:'r-rail', stroke:col}));
       gR.appendChild(g);
-      for(let b=0;b<3;b++){ const p = c.pts[2 + Math.floor(rnd()*Math.max(1, c.pts.length-5))]; if(!p) continue;
-        const br = crack(p[0], p[1], a + (rnd() < .5 ? -1 : 1)*(.55 + rnd()*.6), 130 + rnd()*200, 55);
-        gR.appendChild(mk('path', {d:br.d, pathLength:1, class:'i-br', stroke:b===1 ? '#fff' : col, style:'--d:'+Math.round(rnd()*500)+'ms'})); } }
-    for(let i=0;i<54;i++){ const a = rnd()*Math.PI*2, r = 320 + rnd()*760, z = 7 + rnd()*12;
-      gS.appendChild(mk('rect', {class:'i-spark', x:-z/2, y:-z/2, width:z, height:z, fill:i%4===0 ? '#fff' : COLS[i%8],
-        style:'--x:'+(Math.cos(a)*r).toFixed(0)+'px;--y:'+(Math.sin(a)*r).toFixed(0)+'px;--d:'+Math.round(rnd()*420)+'ms'})); }
+      for(let b=0;b<2;b++){ const p = c.pts[2 + Math.floor(rnd()*Math.max(1, c.pts.length-5))]; if(!p) continue;
+        const br = crack(p[0], p[1], a + (rnd() < .5 ? -1 : 1)*(.6 + rnd()*.6), 120 + rnd()*190, 55), d = '--d:'+Math.round(rnd()*420)+'ms';
+        gR.appendChild(mk('path', {d:br.d, pathLength:1, class:'i-br c', style:d}));
+        gR.appendChild(mk('path', {d:br.d, pathLength:1, class:'i-br r', stroke:b ? BONE : col, style:d})); } }
+    /* shards thrown out by the break */
+    for(let i=0;i<40;i++){ const a = rnd()*Math.PI*2, r = 320 + rnd()*760, z = 12 + rnd()*20;
+      gS.appendChild(mk('polygon', {class:'i-spark', points:(-z)+','+(z*.6).toFixed(1)+' '+(z*.2).toFixed(1)+','+(-z)+' '+z+','+(z*.8).toFixed(1), fill:COLS[i%8],
+        style:'--x:'+(Math.cos(a)*r).toFixed(0)+'px;--y:'+(Math.sin(a)*r).toFixed(0)+'px;--d:'+Math.round(rnd()*380)+'ms'})); }
+    /* the burst: black, red, then bone, which swallows the panel */
+    gP.appendChild(mk('polygon', {points:star(14, 200, 128, .1, .22), fill:'#000'}));
+    gP.appendChild(mk('polygon', {points:star(14, 176, 112, .1, .2), fill:RED}));
+    gP.appendChild(mk('polygon', {points:star(12, 118, 84, .3, .12), fill:BONE, stroke:'#000', 'stroke-width':5, 'stroke-linejoin':'miter'}));
+    /* the light: an eight-point star with a hard red shadow */
+    gL.appendChild(mk('polygon', {points:star(8, 30, 11, 0), fill:RED, transform:'translate(6 6)'}));
+    gL.appendChild(mk('polygon', {class:'i-star', points:star(8, 30, 11, 0), fill:BONE, stroke:'#000', 'stroke-width':5, 'stroke-linejoin':'miter'}));
+    gL.appendChild(mk('polygon', {points:star(4, 9, 3.5, 0), fill:'#000'}));
   }catch(e){}
   const still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let started = false;
@@ -2094,14 +2118,14 @@ $('collapseAll').addEventListener('click', ()=>{ hidePop(); go(''); try{ window.
     els.forEach((e, i) => { e.style.setProperty('--i', Math.min(i, 20)); e.classList.add('cin'); });
     setTimeout(() => els.forEach(e => { e.classList.remove('cin'); e.style.removeProperty('--i'); }), 2800);
     intro.classList.add('out');
-    setTimeout(() => { intro.remove(); const t = document.querySelector('.tab[aria-selected="true"]'); if(t && document.activeElement === document.body){ try{ t.focus({preventScroll:true}); }catch(e){} } }, 720);
+    setTimeout(() => { intro.remove(); const t = document.querySelector('.tab[aria-selected="true"]') || document.querySelector('.tab'); if(t && document.activeElement === document.body){ try{ t.focus({preventScroll:true}); }catch(e){} } }, 620);
   }
   function start(){ if(started) return; started = true;
     if(still){ reveal(); return; }
     intro.classList.add('go');
-    setTimeout(() => intro.classList.add('burst'), 760);
-    setTimeout(() => intro.classList.add('flash'), 1700);
-    setTimeout(reveal, 2000); }
+    setTimeout(() => intro.classList.add('burst'), 700);
+    setTimeout(() => intro.classList.add('flash'), 1480);
+    setTimeout(reveal, 1860); }
   intro.addEventListener('click', start);
 })();
 </script>
