@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Zomia - Zomiapedia</title>
+<style>
+
+  :root{
+    --link:#0645ad; --linkvisited:#0b0080; --text:#202122; --border:#a2a9b1;
+    --infobox-bg:#f8f9fa; --infobox-head:#eaecf0; --page-bg:#ffffff; --body-bg:#f6f6f6;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--body-bg);color:var(--text);
+    font-family:Georgia,'Linux Libertine','Times New Roman',serif;font-size:16px;line-height:1.6;}
+  a{color:var(--link);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  .chrome-top{background:#ffffff;border-bottom:1px solid var(--border);}
+  .chrome-inner{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;
+    padding:8px 16px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#54595d;}
+  .chrome-left{display:flex;gap:16px;align-items:center;}
+  .logo-mark{width:30px;height:30px;border-radius:50%;background:conic-gradient(from 0deg,#54595d 0 25%,#a2a9b1 0 50%,#54595d 0 75%,#a2a9b1 0 100%);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-family:Georgia,serif;font-size:15px;}
+  .brand{display:flex;flex-direction:column;line-height:1.1;}
+  .brand b{font-family:Georgia,serif;font-size:19px;color:#000;}
+  .brand span{font-size:10.5px;color:#54595d;letter-spacing:.3px;}
+  .tabs{display:flex;gap:2px;margin-left:30px;}
+  .tabs a{padding:8px 12px;border:1px solid transparent;border-bottom:none;color:#36c;font-size:13px;}
+  .tabs a.active{background:#fff;border-color:var(--border);border-radius:3px 3px 0 0;color:#000;font-weight:600;}
+  .searchbar{display:flex;align-items:center;border:1px solid var(--border);border-radius:3px;overflow:hidden;background:#fff;}
+  .searchbar input{border:none;padding:7px 10px;font-size:13px;width:220px;outline:none;font-family:Arial,sans-serif;}
+  .searchbar button{border:none;background:#f8f9fa;padding:7px 10px;border-left:1px solid var(--border);cursor:default;}
+
+  .page-wrap{max-width:1180px;margin:0 auto;display:flex;background:var(--page-bg);}
+  .sidebar{width:170px;flex:0 0 170px;padding:18px 12px;font-family:Arial,Helvetica,sans-serif;font-size:12.5px;color:#222;
+    border-right:1px solid #eaecf0;}
+  .sidebar h3{font-size:12px;color:#54595d;text-transform:uppercase;letter-spacing:.4px;margin:0 0 6px;border-bottom:1px solid #eaecf0;padding-bottom:4px;}
+  .sidebar ul{list-style:none;margin:0 0 20px;padding:0;}
+  .sidebar li{margin:0 0 7px;}
+  .sidebar a{color:#0645ad;}
+  .sidebar .anarchon-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;}
+
+  .content{flex:1;min-width:0;padding:22px 30px 60px;}
+  h1.pagetitle{font-family:Georgia,serif;font-size:2.2em;font-weight:400;border-bottom:3px solid #a2a9b1;padding-bottom:6px;margin:0 0 4px;}
+  .subtitle-note{font-size:13.5px;color:#54595d;font-style:italic;margin-bottom:14px;}
+  .coords-line{font-size:12.5px;color:#54595d;margin-bottom:10px;}
+
+  .infobox{float:right;width:300px;margin:0 0 14px 20px;border:1px solid var(--border);background:var(--infobox-bg);
+    font-family:Arial,Helvetica,sans-serif;font-size:13px;}
+  .infobox-title{background:var(--infobox-head);text-align:center;font-family:Georgia,serif;font-size:17px;font-weight:700;padding:7px 8px;border-bottom:1px solid var(--border);}
+  .infobox-sub{text-align:center;font-size:12px;color:#54595d;padding:4px 8px 8px;border-bottom:1px solid var(--border);font-style:italic;}
+  .infobox-map{padding:10px;border-bottom:1px solid var(--border);background:#fff;}
+  .infobox-map svg{width:100%;height:auto;display:block;}
+  .infobox-caption{font-size:11px;color:#54595d;text-align:center;padding:4px 8px 10px;border-bottom:1px solid var(--border);}
+  .infobox-table{width:100%;border-collapse:collapse;}
+  .infobox-table tr{border-bottom:1px solid #eaecf0;}
+  .infobox-table th{text-align:left;vertical-align:top;padding:6px 8px;width:40%;font-weight:700;color:#202122;background:#eef0f4;font-size:12.3px;}
+  .infobox-table td{padding:6px 8px;vertical-align:top;font-size:12.3px;}
+
+  p{margin:0 0 14px;text-align:justify;}
+  h2{font-family:Georgia,serif;font-size:1.5em;font-weight:400;border-bottom:1px solid #a2a9b1;padding-bottom:4px;margin:28px 0 12px;}
+  h3{font-family:Georgia,serif;font-size:1.18em;font-weight:700;margin:18px 0 8px;}
+  h4{font-family:Georgia,serif;font-size:1em;font-weight:700;margin:16px 0 6px;}
+
+  .toc{display:inline-block;background:#f8f9fa;border:1px solid var(--border);padding:12px 22px;margin:4px 0 24px;font-size:13.5px;}
+  .toc-title{font-weight:700;text-align:center;margin-bottom:6px;font-size:14px;}
+  .toc ol{margin:0;padding-left:20px;}
+  .toc li{margin:3px 0;}
+  .toc ol ol{padding-left:22px;font-size:.96em;}
+
+  table.wikitable{border-collapse:collapse;margin:10px 0 20px;width:100%;font-size:14px;}
+  table.wikitable caption{text-align:left;font-weight:700;margin-bottom:4px;font-size:.95em;}
+  table.wikitable th,table.wikitable td{border:1px solid #a2a9b1;padding:6px 10px;text-align:left;}
+  table.wikitable th{background:#eaecf0;}
+  table.wikitable tr:nth-child(even) td{background:#f8f9fa;}
+  .num-roman{color:#54595d;font-size:.9em;}
+
+  ol.laws{padding-left:26px;}
+  ol.laws li{margin-bottom:9px;}
+
+  .swatch{display:inline-block;width:11px;height:11px;border:1px solid #333;margin-right:6px;vertical-align:middle;}
+
+  .seealso ul{margin:0;padding-left:22px;}
+  .seealso li{margin-bottom:4px;}
+
+  ol.refs{padding-left:24px;font-size:13.5px;color:#222;}
+  ol.refs li{margin-bottom:9px;}
+
+  .catbox{margin-top:40px;border:1px solid var(--border);border-top:3px solid var(--border);background:#f8f9fa;
+    padding:8px 14px;font-size:12.5px;}
+  .catbox b{margin-right:6px;}
+  .catbox a{margin-right:4px;}
+  .catbox a:after{content:" |";color:#a2a9b1;margin-left:4px;}
+  .catbox a:last-child:after{content:"";}
+
+  .stub-note{font-size:12px;color:#54595d;border-top:1px solid #eaecf0;margin-top:18px;padding-top:8px;font-style:italic;}
+
+  .clearfix{clear:both;}
+
+  .disclaimer-box{clear:both;border:1px solid #c8ccd1;background:#f8f9fa;border-left:4px solid #a2a9b1;
+    padding:9px 14px;margin:0 0 18px;font-family:Arial,Helvetica,sans-serif;font-size:12.5px;color:#444;font-style:italic;}
+
+  .tabs a[data-tab]{cursor:pointer;}
+  .tabpage{min-height:200px;}
+
+  .talk-thread{border:1px solid #eaecf0;background:#fafafa;padding:10px 14px;margin:0 0 16px;}
+  .talk-head{font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:14px;border-bottom:1px solid #eaecf0;padding-bottom:6px;margin-bottom:8px;}
+  .talk-body{font-size:14px;margin:0 0 8px;text-align:left;}
+  .talk-indent{margin-left:28px;padding-left:10px;border-left:2px solid #eaecf0;}
+  .talk-sig{font-family:Arial,Helvetica,sans-serif;font-size:11.5px;color:#54595d;font-style:normal;}
+
+  .protect-notice{border:1px solid #fde293;background:#fef6e7;padding:12px 16px;font-family:Arial,Helvetica,sans-serif;font-size:13px;}
+
+  .lightbox-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:999;
+    align-items:center;justify-content:center;flex-direction:column;padding:30px;}
+  .lightbox-overlay.open{display:flex;}
+  .lightbox-overlay img{max-width:92vw;max-height:82vh;border:3px solid #fff;box-shadow:0 6px 30px rgba(0,0,0,.5);}
+  .lightbox-caption{color:#eee;font-family:Arial,Helvetica,sans-serif;font-size:13px;margin-top:12px;max-width:640px;text-align:center;}
+  .lightbox-close{position:absolute;top:18px;right:28px;color:#fff;font-size:34px;font-family:Arial,sans-serif;cursor:pointer;line-height:1;}
+  .map-expandable{cursor:zoom-in;}
+  .map-hint{font-size:10.5px;color:#767676;text-align:center;margin-top:3px;font-family:Arial,Helvetica,sans-serif;}
+  .infobox-cords{padding:10px 10px 4px;border-bottom:1px solid var(--border);display:flex;gap:5px;justify-content:center;}
+  .cord-chip{width:22px;height:8px;border-radius:2px;}
+  .mainarticle{font-size:13px;font-style:italic;color:#54595d;margin:-4px 0 14px;}
+</style>
+</head>
+<body>
+
+<div id="site-zomia" class="site-page">
+
+<div class="chrome-top">
+  <div class="chrome-inner">
+    <div class="chrome-left">
+      <div class="logo-mark">Z</div>
+      <div class="brand"><b>Zomiapedia</b><span>THE FREE ARCHIVE OF THE HIGHLANDS</span></div>
+      <div class="tabs">
+        <a class="active" data-tab="article">Article</a>
+        <a data-tab="talk">Talk</a>
+        <a data-tab="article">Read</a>
+        <a data-tab="edit">Edit leylines</a>
+        <a data-tab="history">View history</a>
+      </div>
+    </div>
+    <div class="searchbar">
+      <input type="text" value="Zomia" readonly>
+      <button>&#128269;</button>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+  <div class="sidebar">
+    <h3>Navigation</h3>
+    <ul>
+      <li><a>Main page</a></li>
+      <li><a>Contents</a></li>
+      <li><a>Random region</a></li>
+      <li><a>About Zomiapedia</a></li>
+    </ul>
+    <h3>The Anarchons</h3>
+    <ul>
+      <li><span class="anarchon-dot" style="background:#4285f4"></span><a>Vanveil</a></li>
+      <li><span class="anarchon-dot" style="background:#fb8c00"></span><a>Ramkeep</a></li>
+      <li><span class="anarchon-dot" style="background:#9c27b0"></span><a>Lungscript</a></li>
+      <li><span class="anarchon-dot" style="background:#f9ab00"></span><a>Luibond</a></li>
+      <li><span class="anarchon-dot" style="background:#c6f432"></span><a>Tlanghaven</a></li>
+      <li><span class="anarchon-dot" style="background:#ea4335"></span><a>Zalenpath</a></li>
+      <li><span class="anarchon-dot" style="background:#ff9e80"></span><a>Vanchord</a></li>
+    </ul>
+    <h3>Related</h3>
+    <ul>
+      <li><a>The Anarchy! of Zomia</a></li>
+      <li><a href="#" data-goto="zombat">Zombat</a></li>
+      <li><a>James C. Scott</a></li>
+      <li><a>Southeast Asian Massif</a></li>
+    </ul>
+  </div>
+
+  <div class="content">
+
+  <div id="page-article" class="tabpage" data-page="article">
+
+    <h1 class="pagetitle">Zomia</h1>
+    <div class="subtitle-note">From Zomiapedia, the free archive of the highlands</div>
+    <div class="coords-line">For the real-world academic region, see <a>Zomia (geography)</a>. For the tabletop role-playing game, see <a>The Anarchy! of Zomia</a>.</div>
+
+    <div class="disclaimer-box">This article is maintained in an in-world voice, describing Zomia and its institutions as though they were a real place. Zomia is a fictional setting belonging to an original, unpublished tabletop role-playing game; see <a href="#development">Development</a> for publication detail.</div>
+
+    <div class="infobox">
+      <div class="infobox-title">Zomia</div>
+      <div class="infobox-sub">Highland macroregion of The Anarchy! of Zomia</div>
+      <div class="infobox-map">
+        <img class="map-expandable" src="zomia_infobox.png" data-full="zomia_infobox.png" alt="Map of the Zomia highland massif, showing the Twelve Regions, the Obelisk, and the ley rail network" style="width:100%;height:auto;display:block;">
+        <div class="map-hint">Click to expand</div>
+      </div>
+      <div class="infobox-caption">The highland arc of Zomia, with the Obelisk marked near its historical core</div>
+      <table class="infobox-table">
+        <tr><th>Type</th><td>Highland macroregion</td></tr>
+        <tr><th>Setting of</th><td>The Anarchy! of Zomia</td></tr>
+        <tr><th>Governing body</th><td>None; see <a>the Obelisk</a></td></tr>
+        <tr><th>Core / seat</th><td>The Obelisk ("Anarchy")</td></tr>
+        <tr><th>Subdivisions</th><td>Twelve Regions</td></tr>
+        <tr><th>Inhabitants</th><td>The Seven Anarchons</td></tr>
+        <tr><th>Ability scores</th><td>Chakna (Body) &middot; Rilru (Mind)</td></tr>
+        <tr><th>Rulebook</th><td><i>The Anarchy! of Zomia</i></td></tr>
+        <tr><th>Created by</th><td>DM Holocene</td></tr>
+        <tr><th>Real-world basis</th><td>Zomia (W. van Schendel, 2002); <i>The Art of Not Being Governed</i> (J. C. Scott, 2009)</td></tr>
+      </table>
+    </div>
+
+    <p><b>Zomia</b> is the highland macroregion at the center of <i>The Anarchy! of Zomia</i>, an original political fantasy tabletop setting credited to <b>DM Holocene</b>. Its name and its founding premise echo a real academic concept: a vast highland refuge across the hill country of mainland Southeast Asia and its neighboring plateaus, historically defined by distance from lowland states rather than by any fixed border.</p>
+
+    <p>Zomia is organized into twelve constituent regions strung along a single highland arc, running from the Tibetan border country in the northwest to the Mekong lowlands of Laos and Cambodia in the southeast. Beneath the regions runs a network of leylines, converging on one obsidian monolith called the Obelisk and known locally as <b>Anarchy</b>. Seven self-governing associations, the <b>Anarchons</b>, each keep a Domain of technique and draw on these leylines in their own way.</p>
+
+    <p>The term and its founding argument recall historian Willem van Schendel, who coined "Zomia" in 2002 to describe this upland zone, and political scientist James C. Scott, whose 2009 study <i>The Art of Not Being Governed: An Anarchist History of Upland Southeast Asia</i> reframed highland statelessness as a sustained political choice rather than a failure to modernize, a reading that extends further into the ethnographic work of Jean Michaud and Edmund Leach.</p>
+
+    <div class="toc">
+      <div class="toc-title">Contents</div>
+      <ol>
+        <li><a href="#etymology">Etymology and real-world inspiration</a></li>
+        <li><a href="#geography">Geography</a>
+          <ol>
+            <li><a href="#terrain">Terrain and climate</a></li>
+            <li><a href="#hydrology">Hydrology</a></li>
+            <li><a href="#regions">The Twelve Regions</a></li>
+          </ol>
+        </li>
+        <li><a href="#history">History</a>
+          <ol>
+            <li><a href="#flight">Flight and founding</a></li>
+            <li><a href="#compact">The Compact of the Ten Laws</a></li>
+            <li><a href="#concessions">The Concession years</a></li>
+            <li><a href="#railyears">The Rail years</a></li>
+            <li><a href="#contemporary">The contemporary era</a></li>
+          </ol>
+        </li>
+        <li><a href="#demographics">Demographics and languages</a>
+          <ol>
+            <li><a href="#languages">Language families</a></li>
+            <li><a href="#religion">Religion and belief</a></li>
+            <li><a href="#ethnicitynote">A note on ethnicity and the Anarchons</a></li>
+          </ol>
+        </li>
+        <li><a href="#obelisk">The Obelisk</a>
+          <ol><li><a href="#laws">The Ten Unwritten Laws</a></li></ol>
+        </li>
+        <li><a href="#anarchons">The Seven Anarchons</a></li>
+        <li><a href="#politics">Politics and governance</a></li>
+        <li><a href="#leylines">The Ley Rail</a></li>
+        <li><a href="#rules">Rules of Anarchy</a>
+          <ol>
+            <li><a href="#mechanics">Chakna and Rilru</a></li>
+            <li><a href="#wheel">The Wheel of Anarchons</a></li>
+            <li><a href="#paths">Anarchy Points and the five paths</a></li>
+          </ol>
+        </li>
+        <li><a href="#zombat">Zombat</a></li>
+        <li><a href="#society">Society and institutions</a>
+          <ol>
+            <li><a href="#zomtech">Zomtech</a></li>
+            <li><a href="#gatenode">Gate-Node Markets</a></li>
+            <li><a href="#zomiamon">Zomiamon and Kaiju</a></li>
+            <li><a href="#lowlands">The Lowlands</a></li>
+          </ol>
+        </li>
+        <li><a href="#development">Development</a></li>
+        <li><a href="#seealso">See also</a></li>
+        <li><a href="#references">References</a></li>
+      </ol>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <h2 id="etymology">Etymology and real-world inspiration</h2>
+    <p>Scott's study frames highland flight from the state, shifting cultivation, oral tradition, and fluid ethnic identity as deliberate strategies of evasion rather than backwardness. Michaud stresses Zomia's ethnolinguistic diversity instead, cautioning against treating the massif as one unified culture. Leach's earlier study of highland Burma describes political systems that swing between hierarchical and egalitarian forms across time rather than settling into either. <i>The Anarchy! of Zomia</i> draws on all three: its seven Anarchons are separate associations rather than one unified order, its Ten Unwritten Laws stand as shared convention rather than imposed code, and its political systems are built to shift.</p>
+
+    <h2 id="geography">Geography</h2>
+    <p>The highlands form a single crescent-shaped massif, narrow at both ends and widest near its historical core, where the borders of Myanmar and China meet. Local cartography divides the massif into twelve regions, each built around one or two capitals and bound to its neighbors by old pilgrim roads rather than drawn boundary lines.</p>
+
+    <h3 id="terrain">Terrain and climate</h3>
+    <p>Elevation across Zomia runs from mid-altitude river terraces to peaks that hold snow past the start of the planting season. The massif's spine is limestone and granite, broken by karst sinkholes in the Hollow Ridges and glacial cirques in the Unbroken Sky; between the ridgelines, terrace agriculture turns the steep ground into shelves of rice, buckwheat, and tea. Two monsoons govern the year: a wet southwest monsoon that fills the lowland paddies first and reaches the highlands weeks later as fog and slow rain, and a dry, cold season in which the ridges clear and sightlines stretch for a day's walk. The combination of terrain and weather has historically slowed every army, railway, and survey team that has entered the massif from the lowlands, a pattern consistent with Scott's account of highland geography as a political resource in itself.</p>
+    <p>A layered network of footpaths, pilgrim roads, and, in the present day, the Ley Rail stands in place of any connected road grid. A journey between adjacent regions can still take longer than the straight-line distance suggests, since routes bend around ridgelines rather than over them.</p>
+
+    <h3 id="hydrology">Hydrology</h3>
+    <p>Zomia sits astride the headwaters of several of mainland Southeast Asia's great rivers. The Forgotten Waters take their name from a river system whose channel moves within its own floodplain from year to year, feeding systems that lowland cartographers associate with the upper Mekong and Salween; the Rainward region drains west toward the Irrawaddy watershed, and the Far Horizon's streams run north toward the Brahmaputra basin. Highland communities have historically measured a region's wealth by its irrigated terrace area rather than by the rivers themselves, since each river passes briefly through many regions in turn and settles permanently in none.</p>
+
+    <h3 id="regions">The Twelve Regions</h3>
+    <table class="wikitable">
+      <caption>The twelve constituent regions of Zomia, listed from the northwest tip of the massif to the southeast</caption>
+      <tr><th>No.</th><th>Region</th><th>Capitals</th><th>Character</th></tr>
+      <tr><td class="num-roman">I</td><td>The Crownlands</td><td>Tlangcrown &middot; Lungkeep</td><td>Highest stone villages and ancient fortresses</td></tr>
+      <tr><td class="num-roman">II</td><td>The Far Horizon</td><td>Vanreach &middot; Arsi Lookout</td><td>Open terraces and starwatching traditions</td></tr>
+      <tr><td class="num-roman">III</td><td>The Hollow Ridges</td><td>Meiridge &middot; Kham Ember</td><td>Smoke ridges and living forges</td></tr>
+      <tr><td class="num-roman">IV</td><td>The Whispering Valleys</td><td>Vanecho &middot; Thli Hollow</td><td>Deep valleys where voices return</td></tr>
+      <tr><td class="num-roman">V</td><td>The Upper Terraces</td><td>Ramterrace &middot; Ram Steps</td><td>Monumental terraces and communal granaries</td></tr>
+      <tr><td class="num-roman">VI</td><td>The Rainward</td><td>Ruahward &middot; Ruah Gate</td><td>Rain-soaked highlands that resist conquest</td></tr>
+      <tr><td class="num-roman">VII</td><td>The Pilgrim Roads</td><td>Kawngstone &middot; Kawng Cairn</td><td>Ancient roads and pilgrimage monuments</td></tr>
+      <tr><td class="num-roman">VIII</td><td>The Forgotten Waters</td><td>Luidrift &middot; Lui Crossing</td><td>Shifting rivers that redraw the land</td></tr>
+      <tr><td class="num-roman">IX</td><td>The Pilgrim Fords</td><td>Kawngford &middot; Kawngbend</td><td>River crossings and mountain choke points</td></tr>
+      <tr><td class="num-roman">X</td><td>The Thunderpaths</td><td>Kawngstorm &middot; Storm Tlang</td><td>Lightning peaks and paths of fugitives</td></tr>
+      <tr><td class="num-roman">XI</td><td>The Lower Terraces</td><td>Ramhollow &middot; Ramhold</td><td>Fertile terraces and longhouses</td></tr>
+      <tr><td class="num-roman">XII</td><td>The Unbroken Sky</td><td>Van &middot; Van Summit</td><td>Wind-swept highlands beyond empire</td></tr>
+    </table>
+
+    <h2 id="history">History</h2>
+    <p>Zomia keeps its history scattered rather than bound into any single chronicle, surviving instead as overlapping oral records, pilgrim-road inscriptions, and the proverbs carried inside technique names passed master to student. This is consistent with Scott's argument that highland societies have long treated the absence of written chronology as a defense against lowland record-keeping and taxation. Historians group the surviving record into four loose eras, with a fifth still being written.</p>
+
+    <h3 id="flight">Flight and founding</h3>
+    <p>The oldest layer of Zomia's history is a flight story repeated, with local variation, in every one of the Twelve Regions: a lowland population, fleeing a tax collector, a conscription order, or a collapsing kingdom, climbs into the hills and stays there. Successive waves arrived over a span that surviving record leaves undated, each adding a terrace, a hill fort, or a pilgrim shrine to ground already settled by an earlier wave. The Obelisk itself is said to have been standing before the first of these migrations, an existing feature of the landscape rather than a highland construction, and its leylines are described as having drawn settlement toward the historical core at the Myanmar-China bend long before anyone organized the Ley Rail that now runs beneath it.</p>
+
+    <h3 id="compact">The Compact of the Ten Laws</h3>
+    <p>Local tradition places the founding of the Ten Unwritten Laws at a gathering of delegations from across the massif, convened at the foot of the Obelisk by elders who came from different language families and different lowland conflicts, united only by a shared wish to avoid becoming what they had fled. The Compact that resulted went unrecorded by design; each Law was instead distributed across the regions as a story, a proverb, or a dispute-resolution custom, scattered deliberately beyond the reach of any single archive that could be seized or burned. The seven Anarchons trace their own founding to the same gathering, emerging as voluntary associations built around seven different Domains of practice already in scattered use, rather than as factions carving the massif into territory.</p>
+
+    <h3 id="concessions">The Concession years</h3>
+    <p>Zomia's closest brush with conquest came in an era local chroniclers call the Concession years, when surveyors and company agents from the surrounding lowland states pushed cartography, teak and mineral concessions, and salt-road tolls into the lower valleys. The highlands answered less with battle than with the strategies Scott's scholarship documents in the real massif: shifting cultivation that left surveyors nothing fixed to tax, dispersal into terrain that defeated every concessionaire's map, and, where pressure was greatest, outright withdrawal higher into the ridges. The Thunderpaths and Pilgrim Fords, regions whose character is still described as paths of fugitives and mountain choke points, trace their present character to this era, when Zalenpath's Anarchons guided refugee households along routes that concession surveys left permanently unfinished.</p>
+
+    <h3 id="railyears">The Rail years</h3>
+    <p>The Ley Rail rose from cooperative labor drawn from across the Twelve Regions, region by region, over a sustained period remembered simply as the Rail years, entirely independent of any outside power. Each of the eight lines was raised by the Anarchon whose Domain ran strongest along its route, with the Kawng Line, the rim-circling pilgrim loop, left open deliberately so the completed network would belong to the massif as a whole rather than to any one association. The Rail years are remembered as the point at which Zomia's highland communities, without ever forming a central government, still built shared infrastructure on a scale the surrounding lowland states had assumed the hills were incapable of attempting. The same years produced the setting's best-documented inter-Anarchon rift, when Zalenpath guides began rerouting Severance Line traffic around a Luibond toll station at Luidrift rather than pay a crossing fee Luibond considered standard and Zalenpath considered an attempt at ownership of a shared current; the dispute ran for two full construction seasons before a Vanchord-mediated hearing settled it under the Third and Ninth Laws, an episode still cited whenever a new line's tolling arrangement comes up for negotiation.</p>
+
+    <h3 id="contemporary">The contemporary era</h3>
+    <p>Three episodes define Zomia's political life in the present day. The Ramterrace mining dispute, named for a concession a lowland-based mineral company secured over a stretch of the Upper Terraces, was resolved when Ramkeep organized a region-wide withdrawal of labor and water-rights cooperation rather than direct confrontation, citing the Fourth Law's limit on absolute land possession; the company's concession lapsed within two growing seasons for lack of a workforce willing to staff it. The Gate-Node Accords followed soon after: a loose set of understandings, left unsigned as any single treaty, under which several surrounding states agreed to recognize dual standing for Anarchy-affiliated households, in return for the regional councils' agreement to flag large-scale leyline extraction projects before they began. And the Luibond-Zalenpath reconciliation, closing the old Rail-years rift between the two Anarchons, was formalized at a joint hearing where both associations agreed to waive tolls on each other's members along the Severance and Covenantcraft Lines, a gesture still renewed by custom rather than by any standing agreement.</p>
+
+    <h2 id="demographics">Demographics and languages</h2>
+    <p>Zomia has escaped every census that its own residents might trust, a condition the massif's communities have historically treated as protection rather than deficiency. Scholars working from the region's own oral and inscriptional record estimate a population scattered unevenly across the Twelve Regions, concentrated in the terraced river valleys and thinning toward the ridgelines, with every language, descent group, and Anarchon remaining a minority against the whole.</p>
+
+    <h3 id="languages">Language families</h3>
+    <p>Everyday speech in Zomia divides into several loosely related highland language families, distinct from the Domain names carried by the Anarchons and from the archaic ritual register used in technique names and Chakna invocation, which linguists in the setting term Rootspeech. The Tlang-Van family dominates the Crownlands, the Unbroken Sky, and the Far Horizon; a Ruah-Kham family is spoken across the Rainward and the Hollow Ridges; a riverine cluster sometimes called Lui-Mei covers the Forgotten Waters and the Whispering Valleys; and the Terrace family links the Upper and Lower Terraces despite the physical distance between them, a relationship local linguists attribute to repeated migration along the pilgrim roads rather than to shared origin. A Kawng trade pidgin, drawn from all four families plus lowland loanwords, serves as the common tongue of the Gate-Node Markets and the Ley Rail, and is the language most outsiders encounter first.</p>
+
+    <h3 id="religion">Religion and belief</h3>
+    <p>Belief in Zomia runs toward ancestor veneration and household spirit-keeping rather than toward any single organized faith, a pattern consistent with Leach's and Michaud's accounts of the real highland massif. Successive flight-era migrations carried Buddhist, animist, and smaller Christian and Muslim lowland traditions into the hills, and most households now layer several of these practices rather than choosing one; the Obelisk itself is approached less as an object of worship than as a shared reference point, a place where a vow carries extra weight because so many generations have sworn one there before.</p>
+
+    <h3 id="ethnicitynote">A note on ethnicity and the Anarchons</h3>
+    <p>Zomiapedia editors stress that the Anarchons, covered in full below, are voluntary associations organized around seven Domains of practice and cut across every language family and descent line described above; an individual Lungscript archivist and an individual Lungscript smith may keep entirely separate home languages and entirely separate ancestries, sharing only a common oath. This follows Michaud's caution, cited in Etymology above, against treating highland populations as a unified culture.</p>
+
+    <h2 id="obelisk">The Obelisk</h2>
+    <p>At the center of the massif rests Anarchy, an obsidian Obelisk whose underground leylines bind otherwise independent territories together. Anarchy is neither a god nor a government: it commands none and crowns none. Its power rises only from the relationships among the communities it touches, answering to how people cooperate, separate, remember, and resist domination.</p>
+
+    <h3 id="laws">The Ten Unwritten Laws</h3>
+    <p>These ten principles stand as shared convention among the Anarchons rather than commandments handed down by a central authority. They can conflict with one another, and individual Anarchons weigh customary authority, personal autonomy, collective welfare, and ancestral obligation differently; the tensions between them form the basis of most political disputes in the setting.</p>
+    <ol class="laws">
+      <li>None shall own the will of another.</li>
+      <li>Those fleeing domination may seek sanctuary.</li>
+      <li>Freely formed bonds create responsibilities.</li>
+      <li>The earth may be tended; none may possess it absolutely.</li>
+      <li>Paths between peoples must remain open.</li>
+      <li>Every generation may inherit and contest its history.</li>
+      <li>Every person retains the right to challenge authority.</li>
+      <li>Freely accepted gifts establish obligations that may be renegotiated.</li>
+      <li>Every community retains the right to withdraw from an alliance.</li>
+      <li>None shall claim sovereignty over the Obelisk.</li>
+    </ol>
+
+    <h2 id="anarchons">The Seven Anarchons</h2>
+    <p>An <b>Anarchon</b> is a self-governing association of communities, open to anyone it accepts. Each keeps a <b>Domain</b> of technique and holds one right above the rest. Membership is a matter of loyalty rather than birth, and an Anarchist may use a technique of any Domain.</p>
+    <table class="wikitable">
+      <caption>The Seven Anarchons, their Domains, and the right each holds</caption>
+      <tr><th>Anarchon</th><th>Domain</th><th>Right</th></tr>
+      <tr><td><span class="swatch" style="background:#4285f4"></span><b>Vanveil</b></td><td>Veilcraft</td><td>The right to disappear</td></tr>
+      <tr><td><span class="swatch" style="background:#fb8c00"></span><b>Ramkeep</b></td><td>Rootcraft</td><td>The right to keep the land whole</td></tr>
+      <tr><td><span class="swatch" style="background:#9c27b0"></span><b>Lungscript</b></td><td>Mnemonics</td><td>The right to remember</td></tr>
+      <tr><td><span class="swatch" style="background:#f9ab00"></span><b>Luibond</b></td><td>Covenantcraft</td><td>The right to stand together</td></tr>
+      <tr><td><span class="swatch" style="background:#c6f432"></span><b>Tlanghaven</b></td><td>Thresholdcraft</td><td>The right to give refuge</td></tr>
+      <tr><td><span class="swatch" style="background:#ea4335"></span><b>Zalenpath</b></td><td>Severance</td><td>The right to leave and begin again</td></tr>
+      <tr><td><span class="swatch" style="background:#ff9e80"></span><b>Vanchord</b></td><td>Resonance</td><td>The right to belong to the common network</td></tr>
+    </table>
+    <p class="stub-note">Editorial note: the Anarchons are inventions rather than depictions of real peoples. Their names, and the names of techniques and places throughout the setting, follow a fictional Mizo-English style built on roots such as Van, Tlang, Zalen, Kawng, and Ram; the compounds are stylistic rather than authentic Mizo expressions, and are offered with respect for the living peoples whose words suggested them. Earlier printings of this article had linked each Anarchon to a real ethnolinguistic group (Hmong, Karen, Lisu, Jingpo and Kachin, Akha, Lahu, and Zo-related communities); later editing replaced that scheme with the invented names above.</p>
+    <p>Membership in an Anarchon is a matter of loyalty rather than territory; governing a region the way a state governs a province sits outside any Anarchon's claimed authority. Even so, each has grown most visible around the regions where its founding generation settled, and keeps halls, training rings, and archives concentrated there.</p>
+
+    <h4>Vanveil</h4>
+    <p>Vanveil is most visible around the Unbroken Sky and the Far Horizon, the wind-swept, high-altitude regions where its founders are said to have walked into fog and reappeared only once the surveyors had moved on. Veilcraft, its Domain, treats concealment as a right rather than a trick: Vanveil halls teach that a household's first duty is the ability to vanish, and its elders are credited with having carried the most refugee lineages through the Concession years undetected. Its members are stereotyped, sometimes unfairly, as reluctant to commit to anything that cannot later be walked away from.</p>
+
+    <h4>Ramkeep</h4>
+    <p>Ramkeep's strongholds are the Upper and Lower Terraces, where its founding generation turned flight into agriculture, building the stepped granaries that still define those regions' skylines. Rootcraft, its Domain, is taught less as combat magic than as a discipline of soil, seed, and healing, and Ramkeep halls double as seed banks that other Anarchons draw on after a bad season. Of the seven, Ramkeep is the most frequently consulted on disputes over land use, since the Fourth Unwritten Law and its limit on absolute possession of the earth is treated as its particular charge.</p>
+
+    <h4>Lungscript</h4>
+    <p>Lungscript is centered on the Crownlands, whose fortress-archives at Lungkeep hold the massif's largest collection of oral-history recordings, inscribed stone, and song-cycles. Mnemonics, its Domain, is described as the discipline of refusing to forget, and Lungscript's elders served as the primary keepers of the Compact of the Ten Laws in the centuries before the Rail years, carrying its unwritten text between regions by memory alone. Zomiapedia editors note the obvious tension between an order dedicated to memory and a highland culture that otherwise prizes the unrecorded; Lungscript's own elders resolve it by distinguishing memory held in people from memory held in archives that outsiders could seize.</p>
+
+    <h4>Luibond</h4>
+    <p>Luibond is rooted in the Forgotten Waters, where a river system that redraws its own channel every flood season forces constant, binding cooperation between households on opposite banks. Covenantcraft, its Domain, governs oaths and bonds, and Luibond's techniques are disproportionately Mend and Guard effects that protect or restore allies rather than attack. The Anarchon is credited with having organized the longest-running of the Ley Rail's construction crews during the Rail years, on the reasoning that a line through unstable terrain required stronger oaths than any other.</p>
+
+    <h4>Tlanghaven</h4>
+    <p>Tlanghaven shares the Crownlands with Lungscript, its halls built into the same fortress walls at Tlangcrown that give the region its name, though its purpose is shelter rather than record-keeping. Thresholdcraft, its Domain, governs wards, barriers, and passage, and Tlanghaven's defining institution is the open door: any household that reaches a Tlanghaven hall during the Concession years was owed shelter under the Second Unwritten Law regardless of which other Anarchon it answered to. <a href="#" data-goto="zombat">Zombat</a>'s famous Tlangring, raised above Tlangcrown, is maintained by Tlanghaven even though the sport itself remains open to every Anarchon alike.</p>
+
+    <h4>Zalenpath</h4>
+    <p>Zalenpath keeps to the road rather than any single capital, moving along the Pilgrim Roads, the Pilgrim Fords, and the Thunderpaths, the fugitive-path regions its guides helped open during the Concession years. Severance, its Domain, covers entropy, dissolution, and transformation, and Zalenpath frames departure itself as a right worth defending: its elders argue that a community able to leave any arrangement, including its own Anarchon, is the clearest proof the arrangement remains freely chosen. Critics within the setting, chiefly Luibond's, describe Zalenpath's halls as the hardest of the seven to find twice.</p>
+
+    <h4>Vanchord</h4>
+    <p>Vanchord is the one Anarchon without a regional stronghold, keeping its halls at the Obelisk itself and along the Resonance Line that loops through every one of the Twelve Regions. Resonance, its Domain, governs spirits, ancestral echo, and the leyline current shared by the whole Ley Rail network, and Vanchord's members are disproportionately drawn from the Rail years' construction crews who chose to keep traveling once the lines were finished. Because Resonance technique touches every other Domain at some point on the Wheel of Anarchons, Vanchord is informally treated as a mediator between the other six, its influence resting on custom alone rather than any formal authority to compel agreement.</p>
+
+    <h3 id="whoisanarchist">Anarchists</h3>
+    <p>An <b>Anarchist</b> is anyone who takes part in Anarchy: a farmer, healer, engineer, student, clerk, lawyer, trader, archivist, soldier, teacher, or courier. Citizenship in a modern state and duty to an Anarchon can sit side by side. One rule sits above every other an Anarchist carries: an Anarchist stays ungoverned, and means to remain so. Even an Anarchon itself earns only as much obedience as its faith deserves; the day it starts issuing orders instead of keeping faith is the day it becomes the very thing the Unwritten Laws stand against.</p>
+
+    <h2 id="politics">Politics and governance</h2>
+    <p>Zomia has avoided forming anything resembling a central government across every era its history records, and disputes within the massif are settled instead through a layered system of regional councils, Gate-Node Market arbitration, and direct appeal to the Ten Unwritten Laws. A council seat is held by custom rather than election in most regions, typically by whichever household or Anarchon hall has mediated the most disputes fairly over time, and a council's rulings carry weight only as long as the parties involved continue to honor them voluntarily, consistent with the Seventh and Ninth Laws.</p>
+    <p>Relations among the seven Anarchons run from close cooperation, as between Ramkeep and Luibond over shared agricultural land, to long-running friction, as the Rail-years rift between Luibond and Zalenpath demonstrates; Zomia's political culture treats this friction as a working feature of highland politics rather than a flaw to resolve, since the Wheel of Anarchons gives every pair of Domains a structural relationship, harmonious, distant, or openly antagonistic, that everyday dealings are expected to surface rather than smooth over.</p>
+    <p>Relations with the surrounding lowland states remain the massif's central political fact. The Gate-Node Accords, discussed above, give most Anarchy-affiliated households dual standing with a neighboring state, but the arrangement is informal enough that its terms shift from one state and one administration to the next, and resource-extraction pressure resembling the Ramterrace mining dispute recurs with each new concession map drawn in a lowland capital. The Lowlands, covered below, examines this pressure from the surrounding states' side of the relationship.</p>
+
+    <h2 id="leylines">The Ley Rail</h2>
+    <p>Where the leylines run close to the surface, cooperatives have built the <b>Ley Rail</b>: bamboo-and-aluminium carriages that ride the current from gate-node to gate-node, silent, unlit, unscheduled, and free to ride. Eight lines cross the range, each kept by the Anarchon whose Domain runs strongest along it, with one exception: the <b>Kawng Line</b>, the pilgrim loop around the rim, belongs to nobody and is ridden by everybody. Every line passes through the Obelisk; carriages slow there and roll on, while pilgrims who wish to stand before it walk the last mile.</p>
+    <table class="wikitable">
+      <caption>The eight lines of the Ley Rail</caption>
+      <tr><th>Line</th><th>Kept by</th><th>Route</th></tr>
+      <tr><td><b>Veilcraft Line</b></td><td>Vanveil</td><td>North to south through the Obelisk</td></tr>
+      <tr><td><b>Rootcraft Line</b></td><td>Ramkeep</td><td>West to east under the Thunderpaths and over the Whispering Valleys</td></tr>
+      <tr><td><b>Mnemonics Line</b></td><td>Lungscript</td><td>From the Unbroken Sky down to the Rainward</td></tr>
+      <tr><td><b>Covenantcraft Line</b></td><td>Luibond</td><td>From the Far Horizon to the Forgotten Waters</td></tr>
+      <tr><td><b>Thresholdcraft Line</b></td><td>Tlanghaven</td><td>Terrace to terrace through the Obelisk</td></tr>
+      <tr><td><b>Severance Line</b></td><td>Zalenpath</td><td>From the Hollow Ridges to the Pilgrim Fords</td></tr>
+      <tr><td><b>Resonance Line</b></td><td>Vanchord</td><td>The upland loop around the Obelisk, linking every station</td></tr>
+      <tr><td><b>Kawng Line</b></td><td>No single Anarchon</td><td>The pilgrim loop around the whole range</td></tr>
+    </table>
+
+    <h2 id="rules">Rules of Anarchy</h2>
+    <p>What outsiders call "technique" and "Anarchy Points" are, to an Anarchist, simply the vocabulary of ability: the terms by which the leylines' current is measured, drawn, and spent. The sections below set out that vocabulary as it is used across the Twelve Regions.</p>
+
+    <h3 id="mechanics">Chakna and Rilru</h3>
+    <p>Every Anarchist is measured by two capacities, <b>Chakna</b> (Body) and <b>Rilru</b> (Mind), each running from 0 to 15. A contested or uncertain act is weighed against a Difficulty running from 10, for an easy act, to 30, for one so rare that living memory holds only a single telling of it. <b>Anarchy Points</b> (AP) measure how much of the leylines an Anarchist can presently shape; the pool opens at 6 and rises and falls with circumstance rather than along any fixed progression, and drawing on a technique spends 1 AP. Every technique falls into one of three families: <b>Break</b>, an attack against Body or Mind; <b>Mend</b>, a restoration of Body, Mind, armor, or AP; and <b>Guard</b>, a reaction that turns aside an opposing Break or Mend.</p>
+
+    <h3 id="wheel">The Wheel of Anarchons</h3>
+    <p>The seven Domains sit in a circle in a fixed order: Veilcraft, Severance, Mnemonics, Resonance, Covenantcraft, Rootcraft, Thresholdcraft, and back to Veilcraft. Every technique is bound to one other Domain, and its deeper effect wakes only when a technique of that bound Domain is also held by the same Anarchist. A neighbor on the Wheel is a <b>Harmony</b>; two steps away is a <b>Dissonance</b>; the far side of the Wheel is an <b>Antagonism</b>. When an Antagonism wakes between techniques of different families, a Break bound to a Mend or a Guard, it becomes a <b>Paradox</b> and draws unusual strength from the contradiction.</p>
+    <p>Every Anarchist answers to a <b>Base Anarchon</b> and draws on two further <b>Ley Sources</b>; technique may be drawn only from those three Domains. A cell or an individual Anarchist whose chosen Domains hold an Antagonism among themselves is spoken of as a <b>Paradox</b> build, prized across the massif for the contradiction it carries.</p>
+
+    <h3 id="paths">Anarchy Points and the five paths</h3>
+    <p>Five paths lead to Anarchy Points, and highland custom treats each as equally legitimate; none is held above the others.</p>
+    <table class="wikitable">
+      <caption>The five paths to Anarchy Points</caption>
+      <tr><th>Path</th><th>Earns AP when an Anarchist</th></tr>
+      <tr><td><b>Exploration</b></td><td>reaches a place missing from every map, climbs higher than before, or finds where a leyline surfaces</td></tr>
+      <tr><td><b>Invention</b></td><td>builds, repairs, or rewires Zomtech that changes what people can do</td></tr>
+      <tr><td><b>Relationships</b></td><td>keeps a promise, shelters someone, wins a Zomiamon's trust, or settles a feud without blood</td></tr>
+      <tr><td><b>Competition</b></td><td>fights a bout in a <a href="#" data-goto="zombat">Zombat</a> ring under a chosen Zombat name, win or lose</td></tr>
+      <tr><td><b>Combat</b></td><td>defies a master, defends someone's freedom, or holds ground that could have been abandoned</td></tr>
+    </table>
+
+    <h2 id="zombat"><a href="#" data-goto="zombat">Zombat</a></h2>
+    <p class="mainarticle">Main article: <a href="#" data-goto="zombat">Zombat</a></p>
+    <p><b><a href="#" data-goto="zombat">Zombat</a></b>, formally <b>Zomian Battle</b>, is the massif's leading contact sport, fought to a yield rather than to death, in terraced rings found across the Twelve Regions. Fighters compete under a chosen <b>Zombat name</b> kept separate from their own, and every bout earns Anarchy Points for its fighters whether they win or lose, under the Competition path described above. Every Anarchon shares equal claim to the sport; its rings stand as common ground, maintained by whichever Anarchon settled nearest and fought over by every Domain alike.</p>
+    <p>Fighters are ranked by cord from Green to Obelisk, compete in formats ranging from the one-on-one Thread Match to the massif-wide Pilgrim's Circuit, and fight most often at one of three rings carrying standing across every region: the Tlangring above Tlangcrown, the flooded Luipit at Luidrift, and the Vancage over the drop at Van. The full article covers match formats, cords, bout rules, and each major ring in turn.</p>
+
+    <h2 id="society">Society and institutions</h2>
+    <p>Zomia's present day stands at the close of its fourth historical era and the start of a fifth: clinics and fiber lines reach the ridges, its people hold citizenship in the surrounding states, and the old foot paths between villages remain faster than the roads.</p>
+
+    <h3 id="zomtech">Zomtech</h3>
+    <p><b>Zomtech</b> is anything built in the highlands that runs on, or around, the leylines, from a phone charged at a gate-node to a bamboo drone that maps the next valley for its cooperative. Designs pass from village to village and improve at every stop; nobody holds the patents.</p>
+
+    <h3 id="gatenode">Gate-Node Markets</h3>
+    <p>Wherever a leyline breaks the surface, a market grows around it. Currency carries little weight there: goods are bartered, labor is owed, and favors are remembered by the elders who sit at the edge of every market with nothing to sell. AP itself cannot be bought or sold, a rule every market keeps without being told.</p>
+
+    <h3 id="zomiamon">Zomiamon and Kaiju</h3>
+    <p>The leylines change whatever lives near them. <b>Zomiamon</b> are the resulting creatures, as ordinary in the highlands as livestock: a Tlangmoth grown to the size of a kite, a Ruahfrog that croaks a day before a flood, a Lungback tortoise with a shell of slate. Rarer, and far larger, are the <b>Kaiju</b>, giants that wake roughly once a generation where the leylines were abused, such as the Ramwyrm, which rose from a flooded reservoir, and the Tlangfather, which rose from a quarried mountain. A Kaiju's waking is remembered as the defining event of whichever years it falls within, marking a generation the way a war or a famine would mark one anywhere else.</p>
+
+    <h3 id="lowlands">The Lowlands</h3>
+    <p>Below the ridgelines sit the surrounding states, their capitals, ministries, and paved roads. They reach the highlands as surveyors, companies with drilling proposals, soldiers, and teachers, each seeking to count something the hills have always preferred to leave uncounted. Zomia's own political culture treats this pressure as a recurring condition of highland life rather than as a war against any single enemy.</p>
+
+    <h2 id="development">Development</h2>
+    <p><i>The Anarchy! of Zomia</i> remains in active, ongoing development by its designer. Its player-facing rulebook presents the setting as an interactive guide in a comic-poster visual language: halftone and sunburst backgrounds, riso-style accent colors, Bungee and Chakra Petch typefaces, and a choice of three print-inspired themes (Ink, Grunge, and Bubblegum). The rulebook includes a 350-node technique tree spanning the seven Domains, a downloadable character sheet called the Anarchist Record, and guidance for <a href="#" data-goto="zombat">Zombat</a>, Gate-Node Markets, and other institutions of play.</p>
+
+    <h2 id="seealso">See also</h2>
+    <div class="seealso">
+      <ul>
+        <li><a>James C. Scott</a></li>
+        <li><a>The Art of Not Being Governed</a></li>
+        <li><a>Southeast Asian Massif</a></li>
+        <li><a>Jean Michaud</a></li>
+        <li><a>Edmund Leach</a></li>
+      </ul>
+    </div>
+
+    <h2 id="references">References</h2>
+    <ol class="refs">
+      <li>Scott, James C. <i>The Art of Not Being Governed: An Anarchist History of Upland Southeast Asia.</i> Yale University Press, 2009.</li>
+      <li>van Schendel, Willem. "Geographies of Knowing, Geographies of Ignorance: Jumping Scale in Southeast Asia." <i>Environment and Planning D: Society and Space</i>, vol. 20, issue 6, 2002, pp. 647-668.</li>
+      <li>Leach, Edmund. <i>Political Systems of Highland Burma: A Study of Kachin Social Structure.</i> Harvard University Press, 1954.</li>
+      <li>Michaud, Jean. <i>Historical Dictionary of the Peoples of the Southeast Asian Massif.</i> Scarecrow Press, 2006.</li>
+    </ol>
+
+    <p class="stub-note">This article covers an original, unpublished tabletop role-playing game setting still in active development. Details may change as design continues.</p>
+
+    <div class="catbox">
+      <b>Categories:</b>
+      <a>Fictional highlands</a>
+      <a>Tabletop role-playing game settings</a>
+      <a>Political fantasy</a>
+      <a>Works inspired by The Art of Not Being Governed</a>
+    </div>
+
+  </div>
+
+  <div id="page-talk" class="tabpage" data-page="talk" style="display:none;">
+    <h1 class="pagetitle">Talk: Zomia</h1>
+    <div class="subtitle-note">From Zomiapedia, the free archive of the highlands</div>
+    <p class="stub-note" style="margin-bottom:20px;">This page is for discussing improvements to the <a>Zomia</a> article. Conversations older than two seasons are moved to the archive.</p>
+
+    <div class="talk-thread">
+      <div class="talk-head">Anarchon naming scheme</div>
+      <p class="talk-body">Shouldn't this article use the older ethnolinguistic-basis table for the Seven Anarchons? That's what half the printed trail-maps still show. <span class="talk-sig">&middot; Vanecho_Clerk, Far Horizon chapter</span></p>
+      <p class="talk-body talk-indent">The old table was pulled for a reason: see the note under <a>#The Seven Anarchons</a>. Printed maps lag the record by a season or two, that's normal. <span class="talk-sig">&middot; Lungkeep_Archivist</span></p>
+      <p class="talk-body talk-indent">Agreed, and worth saying twice: the Domain names stood on their own invention from the start. The old table was a drafting error, best corrected rather than defended as a style choice. <span class="talk-sig">&middot; Obelisk_Watch</span></p>
+    </div>
+
+    <div class="talk-thread">
+      <div class="talk-head">Luidrift toll dispute: sourcing</div>
+      <p class="talk-body">Where does the two-season figure for the Rail-years rift come from? I have it as three seasons in the Luibond hall log. <span class="talk-sig">&middot; Ramterrace_Surveyor</span></p>
+      <p class="talk-body talk-indent">Hall logs count from the first routing complaint; the article counts from the formal hearing request. Both figures are defensible, I'd note the discrepancy in a footnote rather than pick one. <span class="talk-sig">&middot; Vanchord_Mediator_07</span></p>
+    </div>
+
+    <div class="talk-thread">
+      <div class="talk-head">Proposing a split: Zombat to its own page</div>
+      <p class="talk-body">Zombat has grown large enough here that it probably deserves its own article, with this page keeping a summary and a link. Raising it before anyone starts the split. <span class="talk-sig">&middot; Tlangring_Regular</span></p>
+      <p class="talk-body talk-indent">Fine in principle, though better held off until the Rings table has entries for more than three venues; a one-section split still reads thin. <span class="talk-sig">&middot; Lungkeep_Archivist</span></p>
+      <p class="talk-body talk-indent">Went ahead regardless: <a href="#" data-goto="zombat">Zombat</a> now carries the full Match formats, Classes, Rules of a bout, and Rings material, including a Lesser rings entry left open for further sourcing, and this page keeps the summary discussed here. <span class="talk-sig">&middot; Obelisk_Watch</span></p>
+    </div>
+  </div>
+
+  <div id="page-history" class="tabpage" data-page="history" style="display:none;">
+    <h1 class="pagetitle">Revision history of "Zomia"</h1>
+    <div class="subtitle-note">From Zomiapedia, the free archive of the highlands</div>
+    <p class="stub-note" style="margin-bottom:16px;">View a record of past edits to this page. For an explanation of the process, see <a>Help: Revision history</a>.</p>
+    <table class="wikitable" style="font-size:13px;">
+      <tr><th>Date</th><th>Editor</th><th>Change</th><th>Size</th></tr>
+      <tr><td>This season</td><td>Obelisk_Watch</td><td>split Zombat out to its own article per the Talk-page proposal; replaced section with a summary and main-article link</td><td>&minus;9,010</td></tr>
+      <tr><td>This season</td><td>Obelisk_Watch</td><td>expanded Zombat into a dedicated section with match formats and ring listings</td><td>+9,482</td></tr>
+      <tr><td>This season</td><td>Lungkeep_Archivist</td><td>added Demographics and languages; added Politics and governance</td><td>+7,115</td></tr>
+      <tr><td>Last season</td><td>Vanchord_Mediator_07</td><td>added History section (Flight and founding through the Rail years)</td><td>+5,920</td></tr>
+      <tr><td>Last season</td><td>Lungkeep_Archivist</td><td>replaced Seven Anarchons table: removed ethnolinguistic-basis column, added Right column and invented names</td><td>+2,310</td></tr>
+      <tr><td>Two seasons ago</td><td>Ramterrace_Surveyor</td><td>corrected Ten Unwritten Laws wording to match current Obelisk inscription</td><td>+340</td></tr>
+      <tr><td>Two seasons ago</td><td>Tlangring_Regular</td><td>added infobox map image, cropped from the regional survey</td><td>+180</td></tr>
+      <tr><td>Three seasons ago</td><td>Obelisk_Watch</td><td>article created</td><td>+6,004</td></tr>
+    </table>
+  </div>
+
+  <div id="page-edit" class="tabpage" data-page="edit" style="display:none;">
+    <h1 class="pagetitle">Editing Zomia</h1>
+    <div class="subtitle-note">From Zomiapedia, the free archive of the highlands</div>
+    <div class="protect-notice">
+      <b>This page is semi-protected.</b> Only established editors (accounts in good standing with an Anarchon hall or a regional council) may edit this page directly. See <a>Zomiapedia: Protection policy</a>, or raise a change on the <a>Talk page</a> instead.
+    </div>
+  </div>
+
+  </div>
+</div>
+
+</div>
+
+<div id="site-zombat" class="site-page" style="display:none;">
+
+<div class="chrome-top">
+  <div class="chrome-inner">
+    <div class="chrome-left">
+      <div class="logo-mark">Z</div>
+      <div class="brand"><b>Zomiapedia</b><span>THE FREE ARCHIVE OF THE HIGHLANDS</span></div>
+      <div class="tabs">
+        <a class="active" data-tab="article">Article</a>
+        <a data-tab="talk">Talk</a>
+        <a data-tab="article">Read</a>
+        <a data-tab="edit">Edit leylines</a>
+        <a data-tab="history">View history</a>
+      </div>
+    </div>
+    <div class="searchbar">
+      <input type="text" value="Zombat" readonly>
+      <button>&#128269;</button>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+  <div class="sidebar">
+    <h3>Navigation</h3>
+    <ul>
+      <li><a href="#" data-goto="zomia">Main page</a></li>
+      <li><a href="#" data-goto="zomia" data-anchor="toc">Contents</a></li>
+      <li><a>Random region</a></li>
+      <li><a>About Zomiapedia</a></li>
+    </ul>
+    <h3>Zombat cords</h3>
+    <ul>
+      <li><span class="anarchon-dot" style="background:#8bc34a"></span><a href="#zombatclasses">Green Cord</a></li>
+      <li><span class="anarchon-dot" style="background:#9e9e9e"></span><a href="#zombatclasses">Iron Cord</a></li>
+      <li><span class="anarchon-dot" style="background:#5c6b73"></span><a href="#zombatclasses">Slate Cord</a></li>
+      <li><span class="anarchon-dot" style="background:#b06a35"></span><a href="#zombatclasses">Bronze Cord</a></li>
+      <li><span class="anarchon-dot" style="background:#2b2b2b"></span><a href="#zombatclasses">Obelisk Cord</a></li>
+    </ul>
+    <h3>Related</h3>
+    <ul>
+      <li><a href="#" data-goto="zomia">Zomia</a></li>
+      <li><a href="#" data-goto="zomia" data-anchor="anarchons">The Seven Anarchons</a></li>
+      <li><a href="#" data-goto="zomia" data-anchor="paths">Anarchy Points</a></li>
+      <li><a href="#" data-goto="zomia" data-anchor="gatenode">Gate-Node Markets</a></li>
+    </ul>
+  </div>
+
+  <div class="content">
+
+  <div id="zb-page-article" class="tabpage" data-page="article">
+
+    <h1 class="pagetitle">Zombat</h1>
+    <div class="subtitle-note">From Zomiapedia, the free archive of the highlands</div>
+    <div class="coords-line">For the highland macroregion, see <a href="#" data-goto="zomia">Zomia</a>. "Zomian Battle" redirects here.</div>
+
+    <div class="disclaimer-box">This article is maintained in an in-world voice, describing Zombat as though it were a real sport. It belongs to <i>The Anarchy! of Zomia</i>, a fictional tabletop setting; see <a href="#" data-goto="zomia" data-anchor="development">Development</a> on the Zomia article for publication detail.</div>
+
+    <div class="infobox">
+      <div class="infobox-title">Zombat</div>
+      <div class="infobox-sub">Zomian Battle</div>
+      <div class="infobox-cords">
+        <span class="cord-chip" style="background:#8bc34a"></span>
+        <span class="cord-chip" style="background:#9e9e9e"></span>
+        <span class="cord-chip" style="background:#5c6b73"></span>
+        <span class="cord-chip" style="background:#b06a35"></span>
+        <span class="cord-chip" style="background:#2b2b2b"></span>
+      </div>
+      <table class="infobox-table">
+        <tr><th>Type</th><td>Contact sport, fought to a yield</td></tr>
+        <tr><th>Full name</th><td>Zomian Battle</td></tr>
+        <tr><th>Played across</th><td>The Twelve Regions</td></tr>
+        <tr><th>Formats</th><td>Thread Match &middot; Cell Match &middot; Ring Rush &middot; Pilgrim's Circuit</td></tr>
+        <tr><th>Classes</th><td>Green, Iron, Slate, Bronze, Obelisk Cord</td></tr>
+        <tr><th>Notable rings</th><td>Tlangring &middot; Luipit &middot; Vancage</td></tr>
+        <tr><th>Governing body</th><td>None; shared across <a href="#" data-goto="zomia" data-anchor="anarchons">the Seven Anarchons</a></td></tr>
+        <tr><th>Anarchy Points path</th><td><a href="#" data-goto="zomia" data-anchor="paths">Competition</a></td></tr>
+        <tr><th>Part of</th><td><a href="#" data-goto="zomia">Zomia</a></td></tr>
+      </table>
+    </div>
+
+    <p><b>Zombat</b>, formally <b>Zomian Battle</b>, is the leading contact sport of the Twelve Regions, fought to a yield rather than to death in terraced rings found across the highlands. Fighters compete under a chosen <b>Zombat name</b> kept separate from their own, and every bout earns Anarchy Points for its fighters whether they win or lose, under the Competition path. Every Anarchon shares equal claim to the sport; its rings stand as common ground, maintained by whichever Anarchon settled nearest and fought over by every Domain alike.</p>
+
+    <div class="toc" id="toc">
+      <div class="toc-title">Contents</div>
+      <ol>
+        <li><a href="#zb-etymology">Etymology</a></li>
+        <li><a href="#zb-history">History</a></li>
+        <li><a href="#zombatformats">Match formats</a></li>
+        <li><a href="#zombatclasses">Classes</a></li>
+        <li><a href="#zombatrules">Rules of a bout</a>
+          <ol>
+            <li><a href="#zombatcell">The cell</a></li>
+            <li><a href="#zombatring">The ring</a></li>
+            <li><a href="#zombatexchanges">Exchanges and rounds</a></li>
+            <li><a href="#zombathits">Hits and knockback</a></li>
+            <li><a href="#zombatterritory">Territory</a></li>
+            <li><a href="#zombatwinround">Winning a round</a></li>
+            <li><a href="#zombatridge">The Ridge</a></li>
+            <li><a href="#zombatfouls">Fouls</a></li>
+            <li><a href="#zombatbuilds">Builds in the ring</a></li>
+            <li><a href="#zombatbonds">Bonds and Anarchy Points</a></li>
+          </ol>
+        </li>
+        <li><a href="#zombatrings">Rings</a>
+          <ol>
+            <li><a href="#tlangring">Tlangring</a></li>
+            <li><a href="#luipit">Luipit</a></li>
+            <li><a href="#vancage">Vancage</a></li>
+            <li><a href="#lesserrings">Lesser rings</a></li>
+          </ol>
+        </li>
+        <li><a href="#culture">Culture</a></li>
+        <li><a href="#governance">Governance and disputes</a></li>
+        <li><a href="#zb-seealso">See also</a></li>
+      </ol>
+    </div>
+
+    <h2 id="zb-etymology">Etymology</h2>
+    <p>The full name, <b>Zomian Battle</b>, is formal usage, kept for hearings, hall records, and the Obelisk inscriptions that record a fighter's rise through the cords. Everyday speech contracts it to <b>Zombat</b>, a form that entered the Kawng trade pidgin alongside the rest of the Gate-Node Markets' common vocabulary and spread back out along the Ley Rail until it displaced the full name almost everywhere outside formal writing.</p>
+
+    <h2 id="zb-history">History</h2>
+    <p>Zombat's origin is traditionally placed at the same founding gathering that produced the Compact of the Ten Laws, when delegations speaking entirely separate languages needed a way to settle disputes of standing that a hearing alone left unresolved. A contest fought to a yield on neutral ground, territory and knockback read the same way by every onlooker regardless of language, offered a settlement free of any claim that it was rigged toward a single Domain, and the format has changed little since. The sport's association with the Ley Rail dates to the Rail years, when construction crews from different Anarchons, thrown together on the same line, settled disagreements over pace and precedence in improvised rings beside the half-built track; several of today's recognized rings began as exactly such a work-camp clearing.</p>
+
+    <h2 id="zombatformats">Match formats</h2>
+    <table class="wikitable">
+      <caption>Recognized Zombat formats</caption>
+      <tr><th>Format</th><th>Description</th></tr>
+      <tr><td><b>Thread Match</b></td><td>A single fighter against a single fighter, the oldest and simplest format</td></tr>
+      <tr><td><b>Cell Match</b></td><td>Three fighters against three, the standard competitive format and the one that earns a cell its standing in regional rankings</td></tr>
+      <tr><td><b>Ring Rush</b></td><td>An open bout with a side count set fresh each time, fought until a single fighter remains unyielded</td></tr>
+      <tr><td><b>Pilgrim's Circuit</b></td><td>A regional elimination tournament carried ring to ring along a stretch of the Ley Rail, closing at whichever ring hosts that year's final</td></tr>
+    </table>
+
+    <h2 id="zombatclasses">Classes</h2>
+    <p>Fighters are grouped by cord, a ranking tied to the technique tier a fighter has reached rather than to age or weight. A Green Cord fighter draws only on tier-one technique; by Obelisk Cord, the highest standing the sport recognizes, a fighter may call on technique up to the full tier-five range, the same ceiling the <a href="#" data-goto="zomia" data-anchor="rules">Rules of Anarchy</a> place on any Anarchist's reach.</p>
+    <table class="wikitable">
+      <caption>Zombat cords</caption>
+      <tr><th>Cord</th><th>Technique tier</th><th>Standing</th></tr>
+      <tr><td><span class="swatch" style="background:#8bc34a"></span>Green Cord</td><td>I</td><td>Newly sworn fighters, their first season in any ring</td></tr>
+      <tr><td><span class="swatch" style="background:#9e9e9e"></span>Iron Cord</td><td>II</td><td>Regional competitors with a season or more behind them</td></tr>
+      <tr><td><span class="swatch" style="background:#5c6b73"></span>Slate Cord</td><td>III</td><td>Ring veterans eligible to enter a Pilgrim's Circuit</td></tr>
+      <tr><td><span class="swatch" style="background:#b06a35"></span>Bronze Cord</td><td>IV</td><td>Fighters ranked across more than one region</td></tr>
+      <tr><td><span class="swatch" style="background:#2b2b2b"></span>Obelisk Cord</td><td>V</td><td>The massif's highest-ranked fighters, rare enough that a single region may go a season without one</td></tr>
+    </table>
+
+    <h2 id="zombatrules">Rules of a bout</h2>
+    <p>A Cell Match, the standard by which every cell's regional standing is measured, is fought three on three on a terraced ring of three zones a side, with a pool of cold water waiting behind the losing ground. The system below, zone, territory, and yield together, governs every Cell Match on the massif and carries over, scaled to fewer fighters or a single zone of footing, into the Thread Match, the Ring Rush, and the Pilgrim's Circuit alike.</p>
+
+    <h3 id="zombatcell">The cell</h3>
+    <p>Zombat is fought between cells of three Anarchists, each entering under a chosen Zombat name kept apart from their own. A cell must field at least one fighter who leans Chakna and one who leans Rilru, and all three must hold a different combat role, drawn from the six roles set out under Builds in the ring below. A cell whose three Base Anarchons hold an Antagonism among themselves fights as a Paradox cell, and the terraces turn out for one before any other sight the sport offers.</p>
+
+    <h3 id="zombatring">The ring</h3>
+    <p>The ring is a terraced platform split along a centre line. Each side of the line steps down the slope in three zones: Zone 1 nearest the centre, Zone 2 behind it, and Zone 3 above a standing pool of cold water. Every fighter opens a round in Zone 1, and a fighter pushed back out of Zone 3 falls into the pool and leaves the round.</p>
+
+    <h3 id="zombatexchanges">Exchanges and rounds</h3>
+    <p>A round runs five exchanges. Within each exchange, every fighter still on the terrace acts once, the two cells alternating turns, and the cell presently holding less territory acting first. A match runs to the best of three rounds.</p>
+
+    <h3 id="zombathits">Hits and knockback</h3>
+    <p>Technique drawn inside the ropes is fought as an Arena Break, to a yield rather than to lasting harm. A hit deals half its damage, rounded down, and pushes its target back one zone; a hit that beats the target's defense by five or more pushes it back two zones instead. A successful Guard cancels the damage and the push alike. A fighter reduced to zero Body HP or zero Mind HP yields on the spot and leaves the ring for the remainder of the round.</p>
+
+    <h3 id="zombatterritory">Territory</h3>
+    <p>Territory changes hands at the close of an exchange. Where every standing fighter on one side has fallen back to Zone 2 or further, the other cell steps forward and claims the ground just vacated; a cell that advances again on a later exchange takes a second zone the same way. Ground won this way can be lost the same way, in reverse, once the tide of the bout turns.</p>
+
+    <h3 id="zombatwinround">Winning a round</h3>
+    <p>A round is taken outright by knockout, putting every fighter of the opposing cell into the pool or out by yield. Where both cells remain standing once the fifth exchange closes, the cell holding the greater territory takes the round instead; where territory stands even between them, the round is scored a draw and neither cell gains from it.</p>
+
+    <h3 id="zombatridge">The Ridge</h3>
+    <p>A match still level after three rounds is settled on the Ridge, a raised plank laid out over the pool. Each cell sends forward a single fighter, and the two trade Breaks until one is pushed from the plank into the water below. A Guard is permitted in answer; nothing else is drawn.</p>
+
+    <h3 id="zombatfouls">Fouls</h3>
+    <p>Four acts draw a foul in any ring: crossing the centre line into territory a cell has yet to win; drawing a technique that spends a fighter's entire Anarchy Points pool, since an Arena Break is fought only to a yield, far short of that extreme; striking a fighter already falling toward the pool; and mending a teammate who has already left the ring. A foul pushes the offending fighter back one zone on the spot; a second foul committed within the same round sends them straight into the pool.</p>
+
+    <h3 id="zombatbuilds">Builds in the ring</h3>
+    <p>The six combat roles that fill out a cell each carry a trait that applies only inside the ropes, layered over whatever the role grants a fighter elsewhere on the leylines.</p>
+    <table class="wikitable">
+      <caption>Arena traits by build</caption>
+      <tr><th>Build</th><th>Arena trait</th></tr>
+      <tr><td><b>Striker</b></td><td><i>Press.</i> Once in a round, a hit that pushes its target also carries the Striker forward one zone, across the centre line itself if the cell has already advanced.</td></tr>
+      <tr><td><b>Warden</b></td><td><i>Hold the Line.</i> While the Warden stands in Zone 1, any single hit against a teammate also in Zone 1 pushes that teammate back only one zone at most.</td></tr>
+      <tr><td><b>Mender</b></td><td><i>Corner.</i> Once in a match, between rounds, the Mender restores one teammate to full Body and Mind HP and returns them to Zone 1.</td></tr>
+      <tr><td><b>Saboteur</b></td><td><i>Short Circuit.</i> A fighter drained to zero Anarchy Points by the Saboteur's Breaks is limited to Mundane attacks for the rest of the round.</td></tr>
+      <tr><td><b>Chakna lean</b></td><td><i>Brace.</i> As a Reaction, a Chakna-leaning fighter may refuse a push and take full damage in its place.</td></tr>
+      <tr><td><b>Rilru lean</b></td><td><i>Read.</i> Once in a round, a Rilru-leaning fighter names the opponent expected to attack them next; a correct naming grants advantage on the Guard raised against that attack.</td></tr>
+    </table>
+
+    <h3 id="zombatbonds">Bonds and Anarchy Points</h3>
+    <p>Technique bonds wake inside the ring exactly as they do anywhere along the leylines, Harmony, Dissonance, Antagonism, and Paradox alike. A Paradox cell gains one additional Anarchy Point at the opening of every round, the price the terraces are glad to pay for the contradiction on display. Every Anarchy Point spent during a bout returns once the bout ends, since a sporting match costs a fighter standing and pride, and leaves the deeper pool untouched.</p>
+
+    <h2 id="zombatrings">Rings</h2>
+    <p>Three rings carry standing recognized across every region, and a longer list of lesser rings serve regional and local bouts.</p>
+
+    <h3 id="tlangring">Tlangring</h3>
+    <p>The <b>Tlangring</b>, raised above Tlangcrown in the Crownlands and kept by Tlanghaven, is the oldest of the three major rings and fought on bare stone. Its age gives it a ceremonial weight the others lack; a Pilgrim's Circuit final held there draws spectators from every region regardless of which fighters have reached it.</p>
+
+    <h3 id="luipit">Luipit</h3>
+    <p>The <b>Luipit</b>, at Luidrift in the Forgotten Waters, floods with the season and favors fighters whose technique turns the footing itself into an advantage. A bout fought at the Luipit during full flood is scored under a separate local convention that credits a fighter for forcing an opponent into deeper water, on top of the standard yield rules.</p>
+
+    <h3 id="vancage">Vancage</h3>
+    <p>The <b>Vancage</b>, a ring of bamboo scaffolding hung over the drop at Van in the Unbroken Sky, is the highest and most dangerous of the three major rings, and fighters who favor Veilcraft or other aerial technique compete there by preference. A fall from the Vancage is caught by a net strung below the scaffolding, a precaution local custom credits with having ended more disputes between bouts than the matches themselves.</p>
+
+    <h3 id="lesserrings">Lesser rings</h3>
+    <p>Beyond the three major rings, most settlements of any size keep a local ring for Thread Matches and training bouts, unranked and unrecorded beyond the region that hosts it. These lesser rings feed fighters upward: a Green Cord fighter typically spends an entire first season in a local ring before entering a recognized regional bout.</p>
+
+    <h2 id="culture">Culture</h2>
+    <p>A Zombat name follows the same compound-root naming convention used for technique and place names across the massif, built from roots such as Van, Tlang, Ram, Kawng, and Zalen rather than a fighter's own household name; a fighter may retire a Zombat name and take a new one at any point between seasons, and most do at least once over a long career. Cell rivalries, particularly between cells fielded by rival halls of the same Anarchon, draw the largest crowds of any Cell Match, outdrawing bouts between cells of different Domains even when the technique on display is more varied.</p>
+
+    <h2 id="governance">Governance and disputes</h2>
+    <p>Zombat answers to custom rather than to any single authority; a ring-keeper calls zones, territory, and fouls at each bout, and the office passes by local custom rather than by appointment from any formal body. Disputes over a ring-keeper's call, a ring's upkeep, or a cell's standing are carried to the same regional councils described under <a href="#" data-goto="zomia" data-anchor="politics">Politics and governance</a> on the Zomia article, and a serious dispute over cord ranking has occasionally been settled, fittingly, with a further bout.</p>
+
+    <h2 id="zb-seealso">See also</h2>
+    <div class="seealso">
+      <ul>
+        <li><a href="#" data-goto="zomia">Zomia</a></li>
+        <li><a href="#" data-goto="zomia" data-anchor="anarchons">The Seven Anarchons</a></li>
+        <li><a href="#" data-goto="zomia" data-anchor="rules">Rules of Anarchy</a></li>
+        <li><a href="#" data-goto="zomia" data-anchor="paths">Anarchy Points and the five paths</a></li>
+        <li><a href="#" data-goto="zomia" data-anchor="gatenode">Gate-Node Markets</a></li>
+      </ul>
+    </div>
+
+    <p class="stub-note">This article covers an institution within an original, unpublished tabletop role-playing game setting still in active development. Details may change as later material is added.</p>
+
+    <div class="catbox">
+      <b>Categories:</b>
+      <a>Fictional sports</a>
+      <a>Institutions of Zomia</a>
+      <a>Tabletop role-playing game settings</a>
+    </div>
+
+  </div>
+
+  <div id="zb-page-talk" class="tabpage" data-page="talk" style="display:none;">
+    <h1 class="pagetitle">Talk: Zombat</h1>
+    <div class="subtitle-note">From Zomiapedia, the free archive of the highlands</div>
+    <p class="stub-note" style="margin-bottom:20px;">This page is for discussing improvements to the <a>Zombat</a> article. Conversations older than two seasons are moved to the archive.</p>
+
+    <div class="talk-thread">
+      <div class="talk-head">Split complete</div>
+      <p class="talk-body">Carried over from the Zomia talk page: the split discussed there is done, this article now holds the full Match formats, Classes, Rules of a bout, and Rings material, and the Zomia article keeps a shorter summary with a link here. <span class="talk-sig">&middot; Lungkeep_Archivist</span></p>
+      <p class="talk-body talk-indent">Confirmed from this end too. Leaving the Rings section open for additional entries under Lesser rings as they get sourced. <span class="talk-sig">&middot; Tlangring_Regular</span></p>
+    </div>
+
+    <div class="talk-thread">
+      <div class="talk-head">Luipit scoring convention</div>
+      <p class="talk-body">The flood-scoring note for the Luipit needs a second source before it reads as settled convention rather than local custom from one season. <span class="talk-sig">&middot; Ramterrace_Surveyor</span></p>
+      <p class="talk-body talk-indent">Flagged as local custom in the prose already, which should cover it without overstating how widely it's followed. <span class="talk-sig">&middot; Vanchord_Mediator_07</span></p>
+    </div>
+
+    <div class="talk-thread">
+      <div class="talk-head">Should Zombat names get their own article?</div>
+      <p class="talk-body">The naming convention under Culture could support a full article of its own, parallel to how technique and place names are handled. Parking the idea here rather than starting it unprompted. <span class="talk-sig">&middot; Obelisk_Watch</span></p>
+    </div>
+  </div>
+
+  <div id="zb-page-history" class="tabpage" data-page="history" style="display:none;">
+    <h1 class="pagetitle">Revision history of "Zombat"</h1>
+    <div class="subtitle-note">From Zomiapedia, the free archive of the highlands</div>
+    <p class="stub-note" style="margin-bottom:16px;">View a record of past edits to this page. For an explanation of the process, see <a>Help: Revision history</a>.</p>
+    <table class="wikitable" style="font-size:13px;">
+      <tr><th>Date</th><th>Editor</th><th>Change</th><th>Size</th></tr>
+      <tr><td>This season</td><td>Obelisk_Watch</td><td>article created, split out of Zomia per the Talk-page proposal; carried over Match formats, Classes, Rules of a bout, and Rings</td><td>+9,482</td></tr>
+      <tr><td>This season</td><td>Lungkeep_Archivist</td><td>added Etymology and History sections</td><td>+1,870</td></tr>
+      <tr><td>This season</td><td>Tlangring_Regular</td><td>added Culture and Governance and disputes sections; expanded Rings into Tlangring, Luipit, Vancage, and Lesser rings</td><td>+1,540</td></tr>
+    </table>
+  </div>
+
+  <div id="zb-page-edit" class="tabpage" data-page="edit" style="display:none;">
+    <h1 class="pagetitle">Editing Zombat</h1>
+    <div class="subtitle-note">From Zomiapedia, the free archive of the highlands</div>
+    <div class="protect-notice">
+      <b>This page is semi-protected.</b> Only established editors (accounts in good standing with an Anarchon hall or a regional council) may edit this page directly. See <a>Zomiapedia: Protection policy</a>, or raise a change on the <a data-tab="talk" style="cursor:pointer;">Talk page</a> instead.
+    </div>
+  </div>
+
+  </div>
+</div>
+
+</div>
+
+<div class="lightbox-overlay" id="lightbox">
+  <span class="lightbox-close" id="lightboxClose">&times;</span>
+  <img src="zomia_infobox.png" id="lightboxImg" alt="Full map of the Zomia highland massif">
+  <div class="lightbox-caption">The highland arc of Zomia, with the Twelve Regions, the Obelisk, and the ley rail network. Click outside the image to close.</div>
+</div>
+
+<script>
+  (function(){
+    function initTabs(container){
+      var tabs = container.querySelectorAll('[data-tab]');
+      var pages = {
+        article: container.querySelector('[data-page="article"]'),
+        talk: container.querySelector('[data-page="talk"]'),
+        history: container.querySelector('[data-page="history"]'),
+        edit: container.querySelector('[data-page="edit"]')
+      };
+      tabs.forEach(function(tab){
+        tab.addEventListener('click', function(e){
+          e.preventDefault();
+          var key = tab.getAttribute('data-tab');
+          if(!pages[key]) return;
+          Object.keys(pages).forEach(function(k){
+            if(pages[k]) pages[k].style.display = (k === key) ? '' : 'none';
+          });
+          tabs.forEach(function(t){ t.classList.remove('active'); });
+          container.querySelectorAll('[data-tab="' + key + '"]').forEach(function(t){
+            t.classList.add('active');
+          });
+          window.scrollTo(0,0);
+        });
+      });
+    }
+    document.querySelectorAll('.site-page').forEach(initTabs);
+
+    function gotoSite(key, anchor){
+      document.querySelectorAll('.site-page').forEach(function(s){
+        s.style.display = (s.id === 'site-' + key) ? '' : 'none';
+      });
+      if(anchor){
+        var tgt = document.getElementById(anchor);
+        if(tgt){ tgt.scrollIntoView(); return; }
+      }
+      window.scrollTo(0,0);
+    }
+    document.querySelectorAll('[data-goto]').forEach(function(a){
+      a.addEventListener('click', function(e){
+        e.preventDefault();
+        gotoSite(a.getAttribute('data-goto'), a.getAttribute('data-anchor'));
+      });
+    });
+
+    var lb = document.getElementById('lightbox');
+    var lbImg = document.getElementById('lightboxImg');
+    var lbClose = document.getElementById('lightboxClose');
+    document.querySelectorAll('.infobox-map img, .map-expandable').forEach(function(img){
+      img.style.cursor = 'zoom-in';
+      img.addEventListener('click', function(){
+        lbImg.src = img.getAttribute('data-full') || img.src;
+        lb.classList.add('open');
+      });
+    });
+    function closeLightbox(){ lb.classList.remove('open'); }
+    lbClose.addEventListener('click', closeLightbox);
+    lb.addEventListener('click', function(e){ if(e.target === lb) closeLightbox(); });
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeLightbox(); });
+  })();
+</script>
+
+</body>
+</html>
