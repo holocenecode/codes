@@ -768,18 +768,18 @@ label[data-info],h4[data-info]{text-decoration:underline dotted 2px;text-underli
 .postergrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
 .poster{position:relative;aspect-ratio:3 / 4;border:3px solid #000;background:var(--card);overflow:hidden;padding:0;cursor:pointer;text-align:left;container-type:inline-size;
   box-shadow:6px 6px 0 #000;transition:transform .22s cubic-bezier(.2,.8,.3,1), box-shadow .22s cubic-bezier(.2,.8,.3,1)}
-.poster:nth-child(3n+1){transform:rotate(-.6deg)} .poster:nth-child(3n+2){transform:rotate(.5deg)} .poster:nth-child(3n){transform:rotate(-.3deg)}
+.poster:nth-of-type(3n+1){transform:rotate(-.6deg)} .poster:nth-of-type(3n+2){transform:rotate(.5deg)} .poster:nth-of-type(3n){transform:rotate(-.3deg)}
 .poster:hover{transform:translate(-2px,-3px) rotate(0);box-shadow:9px 9px 0 #000}
 .poster.on{outline:4px solid var(--yel);outline-offset:4px;transform:rotate(0)}
 .poster::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(170deg,var(--mag) 0 18%,var(--yel) 18% 36%,var(--blue) 36% 52%,var(--cyan) 52% 70%,var(--peach) 70% 86%,var(--lime) 86% 100%);opacity:.9}
-.poster:nth-child(2n)::before{background:repeating-linear-gradient(10deg,var(--yel) 0 16%,var(--cyan) 16% 34%,var(--mag) 34% 50%,var(--blue) 50% 68%,var(--yel) 68% 84%,var(--peach) 84% 100%)}
+.poster:nth-of-type(2n)::before{background:repeating-linear-gradient(10deg,var(--yel) 0 16%,var(--cyan) 16% 34%,var(--mag) 34% 50%,var(--blue) 50% 68%,var(--yel) 68% 84%,var(--peach) 84% 100%)}
 .poster::after{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at center, rgba(0,0,0,.28) 0 1.1px, transparent 1.5px);background-size:5px 5px;mix-blend-mode:multiply;pointer-events:none}
 .pbands{position:absolute;left:4%;right:4%;top:17%;bottom:14%;display:flex;flex-direction:column;justify-content:center;gap:2%;z-index:1}
 .pband{display:block;background:var(--bb);color:var(--bf);font-family:var(--display);font-size:calc(var(--k) * 1cqi);line-height:.92;padding:4cqi 4cqi 2.5cqi;letter-spacing:-.01em;
   text-shadow:.6cqi .6cqi 0 rgba(0,0,0,.35)}
 .pstick{position:absolute;z-index:2;right:4%;top:3%;max-width:62%;background:#fff;color:#000;font-weight:700;font-size:clamp(9px,4.6cqi,13px);line-height:1.2;padding:4px 7px;border:2px solid #000;transform:rotate(3deg);text-align:left}
 .pscrib{position:absolute;z-index:2;left:-6%;right:-6%;top:58%;height:5cqi;background:var(--lime);transform:rotate(-8deg);opacity:.85;clip-path:polygon(0 30%,100% 0,100% 70%,0 100%)}
-.poster:nth-child(2n) .pscrib{top:30%;background:#fff;transform:rotate(6deg);height:3cqi}
+.poster:nth-of-type(2n) .pscrib{top:30%;background:#fff;transform:rotate(6deg);height:3cqi}
 .pfoot{position:absolute;z-index:2;left:0;right:0;bottom:0;display:flex;justify-content:space-between;gap:6px;background:#fff;color:#000;border-top:3px solid #000;padding:6px 8px;font-size:clamp(8px,4cqi,11.5px);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
 .pfoot span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wpanel{position:relative;border:3px solid var(--k);background:var(--panel);padding:24px 26px;box-shadow:6px 6px 0 var(--accent),6px 6px 0 3px var(--k);height:0;min-height:100%;overflow:auto;scrollbar-width:thin;scrollbar-color:var(--mag) transparent}
@@ -935,6 +935,11 @@ html.shv-open,html.shv-open body{overflow:hidden}
 .shv-bar .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;padding:8px 14px}
 .shv-tip{color:#ece8e1;text-align:center !important;margin:0;max-width:520px;font-size:13.5px}
 .sheetview img{display:block;width:100%;max-width:620px;height:auto;border:3px solid #000;box-shadow:6px 6px 0 var(--mag);-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto}
+
+/* ===== narrow screens: the reading panel sits directly under the card that opened it ===== */
+.inrow{grid-column:1 / -1;position:static !important;height:auto !important;min-height:0 !important;overflow:visible !important;margin:0 0 6px}
+.gpanel.shut,.wpanel.shut{display:none !important}
+@media (max-width:1000px){ .gpanel,.wpanel{padding:18px 16px 16px} }
 
 /* ===== opening: a comic-panel light, then the leylines break. Grunge inks: slate, red, bone, teal ===== */
 html.intro-on .wrap,html.intro-on .dock,html.intro-on .pop{display:none !important}
@@ -1921,41 +1926,56 @@ async function drawSheet(){
     const fx = cLines(x, 'With a '+AN[t.pd][0]+' technique among your Techniques: '+t.fx, TW); const lh = Math.round(f*1.36), mlh = Math.round(f*.88*1.34);
     const h = 16 + Math.round(f*1.5) + meta.length*mlh + Math.round(f*1.45) + Math.round(f*1.2) + mech.length*lh + Math.round(f*1.6) + fx.length*lh + 14;
     return {t, f, meta, mech, fx, lh, mlh, h}; };
-  const TOP = 886, BOTTOM = 1456, AV = BOTTOM - TOP; let f = 17, plans = [], rowsH = [];
+  const TOP = 832, BOTTOM = 1456, AV = BOTTOM - TOP; let f = 17, plans = [], rowsH = [];
   for(; f >= 10; f -= .5){ plans = tk.map(t=>plan(t, f)); rowsH = []; for(let i=0;i<plans.length;i+=2) rowsH.push(Math.max(plans[i].h, plans[i+1] ? plans[i+1].h : 0));
     if(rowsH.reduce((a,b)=>a+b,0) + Math.max(0,rowsH.length-1)*16 <= AV) break; }
   x.fillStyle = C('panel'); x.fillRect(0, 0, W, H);
   x.fillStyle = cLum(C('panel')) < .35 ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.06)'; for(let yy=0; yy<H; yy+=12) for(let xx=(yy/12)%2*6; xx<W; xx+=12) x.fillRect(xx, yy, 2.2, 2.2);
-  x.textAlign = 'left'; x.fillStyle = C('ink'); x.font = '18px '+DF; x.fillText('THE ANARCHY! OF ZOMIA', M, 42); x.textAlign = 'right'; x.fillText('ANARCHIST RECORD', W-M, 42);
-  cTorn(x, 48, 30, C('yel'), 7);
-  x.font = '700 13px '+BF; x.fillStyle = C('dim'); x.textAlign = 'right'; x.fillText('BUILD TITLE', W-M, 78); x.textAlign = 'left';
-  const tfs = cFit(x, title, DF, 260, 32, 20), tw = x.measureText(title).width + 22, th = Math.round(tfs*1.5), tboxX = W-M-tw, tboxY = 86;
-  x.fillStyle = C('mag'); x.fillRect(tboxX, tboxY, tw, th); x.lineWidth = 3; x.strokeStyle = '#000'; x.strokeRect(tboxX, tboxY, tw, th);
-  x.fillStyle = '#fff'; x.fillText(title, tboxX+11, tboxY + Math.round(th*0.72));
-  const nm = (S.name || 'Unnamed Anarchist').toUpperCase(); x.fillStyle = C('ink'); cFit(x, nm, DF, IW - tw - 40, 52, 30); x.fillText(nm, M, 150);
-  x.font = '700 20px '+BF; x.fillStyle = C('dim'); x.fillText('Zombat name: '+(S.zombat || 'unclaimed'), M, 184);
-  if(S.player){ x.textAlign = 'right'; x.fillText('Player: '+S.player, W-M, 184); x.textAlign = 'left'; }
-  const PT = 300, PS = 214; cBox(x, M, PT, PS, PS, C('well'), C('mag'));
-  if(S.portrait){ const im = await new Promise(r=>{ const i = new Image(); i.onload = ()=>r(i); i.onerror = ()=>r(null); i.src = S.portrait; }); if(im){ x.drawImage(im, M+3, PT+3, PS-6, PS-6); x.lineWidth = 5; x.strokeStyle = '#000'; x.strokeRect(M, PT, PS, PS); } }
-  else { x.fillStyle = C('dim'); x.font = '96px '+DF; x.textAlign = 'center'; x.fillText('?', M+PS/2, PT+PS/2+34); x.textAlign = 'left'; }
-  const rows = [['Base Anarchon', S.anarchon ? S.anarchon+', '+AN[S.anarchon][0] : 'Unchosen', S.anarchon ? AN[S.anarchon][2] : 'var(--dim)', ''],
-    ['Ley Source', S.src1 ? S.src1+', '+AN[S.src1][0] : 'Unchosen', S.src1 ? AN[S.src1][2] : 'var(--dim)', S.anarchon && S.src1 ? RELN[REL[wdist(S.anarchon,S.src1)]] : ''],
-    ['Ley Source', S.src2 ? S.src2+', '+AN[S.src2][0] : 'Unchosen', S.src2 ? AN[S.src2][2] : 'var(--dim)', S.anarchon && S.src2 ? RELN[REL[wdist(S.anarchon,S.src2)]] : ''],
-    ['Combat role', S.role || 'Unchosen', 'var(--yel)', ''], ['Level', String(S.level), 'var(--lime)', '']];
-  rows.forEach((r,i)=>{ const yy = PT + i*44, lx = M + PS + 40; x.fillStyle = cvar(r[2]); x.fillRect(lx, yy+4, 20, 20); x.lineWidth = 3; x.strokeStyle = '#000'; x.strokeRect(lx, yy+4, 20, 20);
-    x.fillStyle = C('dim'); x.font = '700 14px '+BF; x.fillText(r[0].toUpperCase(), lx+34, yy+12); x.fillStyle = C('ink'); cFit(x, r[1], DF, 560, 22, 14); x.fillText(r[1], lx+34, yy+36);
-    if(r[3]){ x.font = '15px '+DF; const w = x.measureText(r[3].toUpperCase()).width + 20, bc = r[3]==='Harmony' ? C('acid') : r[3]==='Dissonance' ? C('yel') : C('red');
-      x.fillStyle = bc; x.fillRect(W-M-w, yy+10, w, 28); x.strokeRect(W-M-w, yy+10, w, 28); x.fillStyle = '#000'; x.fillText(r[3].toUpperCase(), W-M-w+10, yy+30); } });
-  x.fillStyle = C('ink'); x.font = '24px '+DF; x.fillText('BODY AND MIND', M, 570);
-  const bars = [['Chakna', S.body, S.body/15, 'orng'], ['Rilru', S.mind, S.mind/15, 'cyan'], ['Body HP', d0.bCur+' / '+d0.bMax, d0.bCur/d0.bMax, 'red'], ['Mind HP', d0.mCur+' / '+d0.mMax, d0.mCur/d0.mMax, 'blue'], ['AP', S.ap, Math.min(1,S.ap/9), 'yel'], ['Points', (S.body+S.mind)+' / '+d0.pool, (S.body+S.mind)/d0.pool, 'lime']];
+  /* the identification card: header, photo, a grid of fields, and a coded strip */
+  const CT = 36, CH = 444, CL = M, HS = 62, PL = CL + 22, PT = CT + HS + 20, PS = 280;
+  const nm = (S.name || 'Unnamed Anarchist').toUpperCase();
+  cBox(x, CL, CT, IW, CH, C('card'), C('mag'));
+  x.fillStyle = C('mag'); x.fillRect(CL, CT, IW, HS); x.fillStyle = '#000'; x.fillRect(CL, CT+HS-2, IW, 5);
+  x.textAlign = 'left'; x.lineJoin = 'miter'; x.miterLimit = 2; x.font = '27px '+DF; x.lineWidth = 5; x.strokeStyle = '#000'; x.fillStyle = '#fff';
+  x.strokeText('THE ANARCHY! OF ZOMIA', CL+22, CT+43); x.fillText('THE ANARCHY! OF ZOMIA', CL+22, CT+43);
+  x.textAlign = 'right'; x.font = '17px '+DF; x.lineWidth = 4; x.strokeText('ANARCHIST IDENTIFICATION', CL+IW-22, CT+40); x.fillText('ANARCHIST IDENTIFICATION', CL+IW-22, CT+40); x.textAlign = 'left';
+  cBox(x, PL, PT, PS, PS, C('well'), C('cyan'));
+  if(S.portrait){ const im = await new Promise(r=>{ const i = new Image(); i.onload = ()=>r(i); i.onerror = ()=>r(null); i.src = S.portrait; }); if(im){ x.drawImage(im, PL+3, PT+3, PS-6, PS-6); x.lineWidth = 5; x.strokeStyle = '#000'; x.strokeRect(PL, PT, PS, PS); } }
+  else { x.fillStyle = C('dim'); x.font = '120px '+DF; x.textAlign = 'center'; x.fillText('?', PL+PS/2, PT+PS/2+42); x.textAlign = 'left'; }
+  const FX = PL + PS + 36, FW = CL + IW - 22 - FX, COLW = FW/3, R1 = PT + 74, R2 = R1 + 66, R3 = R2 + 66;
+  const lab = (t, lx, ly) => { x.font = '700 13px '+BF; x.fillStyle = C('dim'); x.fillText(t.toUpperCase(), lx, ly); };
+  const rule = yy => { x.save(); x.globalAlpha = .28; x.fillStyle = C('dim'); x.fillRect(FX, yy, FW, 2); x.restore(); };
+  const badgeC = r => r==='Harmony' ? C('acid') : r==='Dissonance' ? C('yel') : C('red');
+  const cell = (col, yy, label, val, sw, badge) => { const lx = FX + col*COLW; let tx = lx; lab(label, lx, yy+22);
+    if(sw){ x.fillStyle = cvar(sw); x.fillRect(lx, yy+32, 18, 18); x.lineWidth = 3; x.strokeStyle = '#000'; x.strokeRect(lx, yy+32, 18, 18); tx = lx + 28; }
+    x.fillStyle = C('ink'); cFit(x, val, DF, COLW - 18 - (tx - lx), 21, 11); x.fillText(val, tx, yy+49);
+    if(badge){ x.font = '13px '+DF; const t = badge.toUpperCase(), w = x.measureText(t).width + 16; x.fillStyle = badgeC(badge); x.fillRect(lx, yy+58, w, 22); x.lineWidth = 2.5; x.strokeStyle = '#000'; x.strokeRect(lx, yy+58, w, 22); x.fillStyle = '#000'; x.fillText(t, lx+8, yy+74); } };
+  lab('Name', FX, PT+14); x.fillStyle = C('ink'); cFit(x, nm, DF, FW, 46, 22); x.fillText(nm, FX, PT+60);
+  rule(R1); cell(0, R1, 'Zombat name', S.zombat || 'Unclaimed'); cell(1, R1, 'Player', S.player || 'Unlisted');
+  lab('Build title', FX + 2*COLW, R1+22); cFit(x, title, DF, COLW - 34, 21, 11); { const tw = x.measureText(title).width + 18, lx = FX + 2*COLW;
+    x.fillStyle = C('mag'); x.fillRect(lx, R1+29, tw, 28); x.lineWidth = 3; x.strokeStyle = '#000'; x.strokeRect(lx, R1+29, tw, 28); x.fillStyle = '#fff'; x.fillText(title, lx+9, R1+50); }
+  rule(R2); cell(0, R2, 'Base Anarchon', S.anarchon ? S.anarchon+', '+AN[S.anarchon][0] : 'Unchosen', S.anarchon ? AN[S.anarchon][2] : 'var(--dim)');
+  cell(1, R2, 'Combat role', S.role || 'Unchosen', 'var(--yel)'); cell(2, R2, 'Level', String(S.level), 'var(--lime)');
+  rule(R3); [S.src1, S.src2].forEach((src, i)=>cell(i, R3, 'Ley Source '+(i+1), src ? src+', '+AN[src][0] : 'Unchosen', src ? AN[src][2] : 'var(--dim)', S.anarchon && src ? RELN[REL[wdist(S.anarchon, src)]] : ''));
+  cell(2, R3, 'Technique slots', tk.length+' of '+d0.slots+' filled', 'var(--cyan)');
+  { const SY = CT + CH - 50; let hsh = 2166136261; const seedText = [S.name, S.zombat, S.anarchon, S.src1, S.src2, S.role].join('|');
+    for(let i=0;i<seedText.length;i++){ hsh ^= seedText.charCodeAt(i); hsh = Math.imul(hsh, 16777619); } hsh >>>= 0;
+    const code = ('0000000'+hsh.toString(36).toUpperCase()).slice(-7), idno = 'ZM-'+code.slice(0,3)+'-'+code.slice(3);
+    x.fillStyle = C('well'); x.fillRect(CL, SY, IW, 50); x.fillStyle = '#000'; x.fillRect(CL, SY-2, IW, 4);
+    let bx = PL, r = hsh || 1; x.fillStyle = C('ink'); while(bx < PL + PS - 6){ r = (Math.imul(r, 1103515245) + 12345) >>> 0; const w = 2 + ((r>>>16)%3)*2; x.fillRect(bx, SY+11, w, 28); bx += w + 3 + ((r>>>20)%3)*2; }
+    x.font = '19px '+DF; x.fillText(idno, FX, SY+33);
+    x.textAlign = 'right'; x.font = '15px '+DF; x.fillStyle = C('dim'); x.fillText('FREE PASSAGE ON ALL EIGHT LINES', CL+IW-22, SY+32); x.textAlign = 'left';
+    x.lineWidth = 5; x.strokeStyle = '#000'; x.strokeRect(CL, CT, IW, CH); }
+  x.fillStyle = C('ink'); x.font = '24px '+DF; x.fillText('BODY AND MIND', M, 526);
+  const bars = [['Chakna', S.body+'  mod +'+d0.bMod, S.body/15, 'orng'], ['Rilru', S.mind+'  mod +'+d0.mMod, S.mind/15, 'cyan'], ['Body HP', d0.bCur+' / '+d0.bMax, d0.bCur/d0.bMax, 'red'], ['Mind HP', d0.mCur+' / '+d0.mMax, d0.mCur/d0.mMax, 'blue'], ['AP', S.ap, Math.min(1,S.ap/9), 'yel'], ['Points', (S.body+S.mind)+' / '+d0.pool, (S.body+S.mind)/d0.pool, 'lime']];
   const bw = (IW - 24)/2;
-  bars.forEach((b,i)=>{ const l = M + (i%2)*(bw+24), t = 590 + Math.floor(i/2)*58; cBox(x, l, t, bw, 44, C('well'), C(b[3])); x.fillStyle = C(b[3]); x.fillRect(l+3, t+3, Math.max(0, Math.min(1, b[2]))*(bw-6), 38);
+  bars.forEach((b,i)=>{ const l = M + (i%2)*(bw+24), t = 542 + Math.floor(i/2)*58; cBox(x, l, t, bw, 44, C('well'), C(b[3])); x.fillStyle = C(b[3]); x.fillRect(l+3, t+3, Math.max(0, Math.min(1, b[2]))*(bw-6), 38);
     x.font = '17px '+DF; x.lineWidth = 3.5; x.strokeStyle = '#000'; x.fillStyle = '#fff'; x.strokeText(b[0].toUpperCase(), l+14, t+29); x.fillText(b[0].toUpperCase(), l+14, t+29);
     x.textAlign = 'right'; x.font = '22px '+DF; x.strokeText(String(b[1]), l+bw-14, t+31); x.fillText(String(b[1]), l+bw-14, t+31); x.textAlign = 'left'; });
   const gw = (IW - 3*20)/4;
   [['Body AC', d0.bAC, 'peach'], ['Mind AC', d0.mAC, 'vio'], ['Body Dmg', '+'+S.body, 'mag'], ['Mind Dmg', '+'+S.mind, 'acid']].forEach((b,i)=>{ const l = M + i*(gw+20);
-    cBox(x, l, 764, gw, 50, C('card'), '#000'); x.fillStyle = C(b[2]); x.fillRect(l, 764, 12, 50); x.lineWidth = 5; x.strokeRect(l, 764, gw, 50); x.fillStyle = C('dim'); x.font = '700 16px '+BF; x.fillText(b[0], l+24, 795);
-    x.textAlign = 'right'; x.fillStyle = C(b[2]); x.font = '26px '+DF; x.fillText(String(b[1]), l+gw-14, 800); x.textAlign = 'left'; });
+    cBox(x, l, 718, gw, 50, C('card'), '#000'); x.fillStyle = C(b[2]); x.fillRect(l, 718, 12, 50); x.lineWidth = 5; x.strokeRect(l, 718, gw, 50); x.fillStyle = C('dim'); x.font = '700 16px '+BF; x.fillText(b[0], l+24, 749);
+    x.textAlign = 'right'; x.fillStyle = C(b[2]); x.font = '26px '+DF; x.fillText(String(b[1]), l+gw-14, 754); x.textAlign = 'left'; });
   x.fillStyle = C('ink'); x.font = '24px '+DF; x.fillText('TECHNIQUES', M, TOP - 18);
   if(!plans.length){ x.fillStyle = C('dim'); x.font = '700 20px '+BF; x.fillText('Open slots. Fill them on the Anarchist Sheet.', M, TOP + 30); }
   let ry = TOP;
@@ -2010,9 +2030,27 @@ async function downloadSheet(){ const b = $('dlSheet'), msg = $('dlMsg'); b.disa
 $('dlSheet').addEventListener('click', downloadSheet);
 
 /* ---------------- the Anarchy posters ---------------- */
+/* On narrow screens a reading panel moves into the card grid, under the row of the card that opened it. */
+const NARROW = window.matchMedia('(max-width:1000px)');
+function seatPanel(panel, home, card, user){
+  if(NARROW.matches && card){ const top = card.offsetTop; let last = card, n = card.nextElementSibling;
+    while(n){ if(n !== panel){ if(n.offsetTop !== top) break; last = n; } n = n.nextElementSibling; }
+    if(last.nextElementSibling !== panel) last.after(panel); panel.classList.add('inrow');
+    if(user) requestAnimationFrame(()=>{ const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const y = panel.getBoundingClientRect().top + window.scrollY - Math.min(card.offsetHeight + 18, 132);
+      try{ window.scrollTo({top:Math.max(0, y), behavior: still ? 'auto' : 'smooth'}); }catch(e){ window.scrollTo(0, Math.max(0, y)); } }); }
+  else { panel.classList.remove('inrow'); if(panel.parentElement !== home) home.appendChild(panel); }
+}
 function setupWorld(){ const ps = [...document.querySelectorAll('.poster')], ss = [...document.querySelectorAll('.wsec')];
-  const open = i => { ps.forEach((p,j)=>{ p.classList.toggle('on', j===i); p.setAttribute('aria-pressed', String(j===i)); }); ss.forEach((x,j)=>x.classList.toggle('on', j===i)); $('wpanel').scrollTop = 0; };
-  ps.forEach((p,i)=>p.addEventListener('click', ()=>open(i))); open(0); }
+  const wp = $('wpanel'), home = wp.parentElement; let cur = 0;
+  const open = (i, user) => {
+    if(user && NARROW.matches && i === cur && !wp.classList.contains('shut')){ wp.classList.add('shut'); ps[i].classList.remove('on'); ps[i].setAttribute('aria-pressed', 'false'); return; }
+    cur = i; wp.classList.remove('shut');
+    ps.forEach((p,j)=>{ p.classList.toggle('on', j===i); p.setAttribute('aria-pressed', String(j===i)); }); ss.forEach((x,j)=>x.classList.toggle('on', j===i)); wp.scrollTop = 0;
+    seatPanel(wp, home, ps[i], user); };
+  ps.forEach((p,i)=>p.addEventListener('click', ()=>open(i, true))); open(0);
+  const reseat = () => { wp.classList.remove('shut'); open(cur); };
+  NARROW.addEventListener ? NARROW.addEventListener('change', reseat) : NARROW.addListener(reseat); }
 
 /* ---------------- codex ---------------- */
 const F = {q:'',ty:'',ab:'',cu:'',an:'',open:false};
@@ -2087,17 +2125,22 @@ function setupGuide(){
   ];
   const MARK = '<svg class="gmark" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 2 L23 15 L36 12 L25 20 L34 30 L21 25 L20 38 L19 25 L6 30 L15 20 L4 12 L17 15Z" fill="currentColor"/></svg>';
   const secs = [...document.querySelectorAll('.gsec')], btns = [];
-  const open = i => {
-    gOpen = i;
+  const gp = $('gpanel'), ghome = gp.parentElement;
+  const open = (i, user) => {
+    if(user && NARROW.matches && i === gOpen && !gp.classList.contains('shut')){ gp.classList.add('shut'); btns[i].classList.remove('on'); btns[i].setAttribute('aria-expanded', 'false'); return; }
+    gOpen = i; gp.classList.remove('shut');
     secs.forEach((s,j)=>s.classList.toggle('on', j===gOpen)); btns.forEach((b,j)=>{ b.classList.toggle('on', j===gOpen); b.setAttribute('aria-expanded', String(j===gOpen)); });
+    seatPanel(gp, ghome, btns[i], user);
   };
+  const greseat = () => { gp.classList.remove('shut'); if(gOpen >= 0) open(gOpen); };
+  NARROW.addEventListener ? NARROW.addEventListener('change', greseat) : NARROW.addListener(greseat);
   const grid = $('gcardgrid');
   secs.forEach((s, i)=>{ const c = COL[i%COL.length], t = s.dataset.t;
     s.style.setProperty('--nc', c);
     s.insertAdjacentHTML('afterbegin','<h2>'+esc(t)+'</h2>');
     const b = document.createElement('button'); b.type = 'button'; b.className = 'gcard'; b.style.setProperty('--nc', c);
     b.setAttribute('aria-expanded','false'); b.innerHTML = MARK+'<h3>'+esc(t)+'</h3><p class="teaser">'+esc(TEASER[i]||'')+'</p>';
-    b.addEventListener('click', ()=>open(i)); grid.appendChild(b); btns.push(b); });
+    b.addEventListener('click', ()=>open(i, true)); grid.appendChild(b); btns.push(b); });
   open(0);
 }
 
