@@ -906,6 +906,36 @@ label[data-info],h4[data-info]{text-decoration:underline dotted 2px;text-underli
 .tab[data-tab="world"]{white-space:nowrap}
 .lchip{text-align:left;line-height:1.2}
 
+/* ===== phones: the dice fold down to one die in the corner, and open as a small card above it ===== */
+@media (max-width:900px){
+  .dock{left:auto !important;right:12px !important;margin:0;width:auto;max-width:calc(100vw - 24px);padding:6px;gap:6px;flex-direction:column-reverse !important;align-items:flex-end;flex-wrap:nowrap}
+  .dock.folded{background:transparent;border-color:transparent;box-shadow:none;padding:0}
+  .dock-head{width:54px;height:54px}
+  .dock.folded .dice-panel,.dock.folded:hover .dice-panel,.dock.folded:focus-within .dice-panel{display:none !important}
+  .dock:not(.folded) .dice-panel{display:flex !important;flex-direction:column !important;align-items:stretch;width:min(330px,calc(100vw - 44px));max-width:none;opacity:1;overflow:visible;white-space:normal;gap:8px}
+  .dock .keys{flex-wrap:wrap}
+  .dock .keys button{flex:1 1 auto;font-size:14px;padding:10px 12px}
+  .dock .keys .ksep{display:none}
+  .dock .res{min-width:0;max-width:none}
+  .dock .res .rdet{white-space:normal}
+  .wrap{padding-bottom:96px}
+}
+/* fingers need more room than a mouse pointer */
+@media (pointer:coarse){
+  .themesw button{min-height:36px;padding-top:6px;padding-bottom:6px}
+  .chip,.lchip{min-height:36px}
+  .qmark{min-width:30px;min-height:30px}
+  .tab{min-height:46px}
+}
+/* ===== sheet preview: on phones the finished sheet opens here, to save, share or hold ===== */
+html.shv-open,html.shv-open body{overflow:hidden}
+.sheetview{position:fixed;inset:0;z-index:150;background:rgba(6,9,13,.92);overflow:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;align-items:center;gap:12px;
+  padding:calc(14px + env(safe-area-inset-top,0px)) 12px calc(28px + env(safe-area-inset-bottom,0px))}
+.shv-bar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;position:sticky;top:0;z-index:1}
+.shv-bar .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;padding:8px 14px}
+.shv-tip{color:#ece8e1;text-align:center !important;margin:0;max-width:520px;font-size:13.5px}
+.sheetview img{display:block;width:100%;max-width:620px;height:auto;border:3px solid #000;box-shadow:6px 6px 0 var(--mag);-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto}
+
 /* ===== opening: a comic-panel light, then the leylines break. Grunge inks: slate, red, bone, teal ===== */
 html.intro-on .wrap,html.intro-on .dock,html.intro-on .pop{display:none !important}
 html.intro-on,html.intro-on body{overflow:hidden}
@@ -1866,6 +1896,7 @@ let DLCAP = null;
 (function(){ const b = $('dlSheet'); if(!window.claude || !window.claude.use) return; b.hidden = true;
   window.claude.use('downloads').then(x=>{ DLCAP = x; if(x) b.hidden = false; }).catch(()=>{}); })();
 const cvar = v => { const m = String(v).match(/var\((--[\w-]+)\)/); return m ? (getComputedStyle(document.documentElement).getPropertyValue(m[1]).trim() || '#888') : v; };
+const cLum = v => { const m = String(v).trim().match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i); if(!m) return .5; let h = m[1]; if(h.length===3) h = h.replace(/./g,'$&$&'); const n = parseInt(h,16); return (.2126*(n>>16&255) + .7152*(n>>8&255) + .0722*(n&255))/255; };
 function cWrap(x, text, left, y, maxW, lh, maxLines){ const words = String(text||'').split(/\s+/).filter(Boolean); let line = '', n = 0;
   for(let i=0;i<words.length;i++){ const t = line ? line+' '+words[i] : words[i];
     if(x.measureText(t).width > maxW && line){ n++; if(maxLines && n>=maxLines){ let rest = line; while(x.measureText(rest+'...').width > maxW && rest.length) rest = rest.slice(0,-1); x.fillText(rest+'...', left, y); return y+lh; }
@@ -1894,7 +1925,7 @@ async function drawSheet(){
   for(; f >= 10; f -= .5){ plans = tk.map(t=>plan(t, f)); rowsH = []; for(let i=0;i<plans.length;i+=2) rowsH.push(Math.max(plans[i].h, plans[i+1] ? plans[i+1].h : 0));
     if(rowsH.reduce((a,b)=>a+b,0) + Math.max(0,rowsH.length-1)*16 <= AV) break; }
   x.fillStyle = C('panel'); x.fillRect(0, 0, W, H);
-  x.fillStyle = 'rgba(0,0,0,.06)'; for(let yy=0; yy<H; yy+=12) for(let xx=(yy/12)%2*6; xx<W; xx+=12) x.fillRect(xx, yy, 2.2, 2.2);
+  x.fillStyle = cLum(C('panel')) < .35 ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.06)'; for(let yy=0; yy<H; yy+=12) for(let xx=(yy/12)%2*6; xx<W; xx+=12) x.fillRect(xx, yy, 2.2, 2.2);
   x.textAlign = 'left'; x.fillStyle = C('ink'); x.font = '18px '+DF; x.fillText('THE ANARCHY! OF ZOMIA', M, 42); x.textAlign = 'right'; x.fillText('ANARCHIST RECORD', W-M, 42);
   cTorn(x, 48, 30, C('yel'), 7);
   x.font = '700 13px '+BF; x.fillStyle = C('dim'); x.textAlign = 'right'; x.fillText('BUILD TITLE', W-M, 78); x.textAlign = 'left';
@@ -1946,12 +1977,33 @@ async function drawSheet(){
   x.font = '18px '+BF; const bgL = cLines(x, S.background || 'Unwritten.', IW); bgL.slice(0, 3).forEach((l,i)=>{ x.fillText(i===2 && bgL.length>3 ? l.replace(/\s*\S*$/, '...') : l, M, 1530 + i*26); });
   x.fillStyle = C('mag'); x.fillRect(0, H-14, W, 14);
   return c; }
+const touchy = () => !!(window.matchMedia && window.matchMedia('(pointer:coarse)').matches) || (navigator.maxTouchPoints > 0 && window.innerWidth < 1000);
+/* Phones and in-app browsers often drop a silent file download, so the sheet opens as a picture with three ways out. */
+function showSheet(blob, fname){
+  const old = document.querySelector('.sheetview'); if(old) old.remove();
+  const url = URL.createObjectURL(blob), o = document.createElement('div'); let file = null;
+  try{ file = new File([blob], fname, {type:'image/png'}); }catch(e){}
+  const canShare = !!(file && navigator.canShare && navigator.share && navigator.canShare({files:[file]}));
+  o.className = 'sheetview'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', 'Your Anarchist sheet');
+  o.innerHTML = '<div class="shv-bar">'+(canShare ? '<button type="button" class="btn go" data-shv="share">Save or share</button>' : '')+'<a class="btn'+(canShare ? '' : ' go')+'" data-shv="dl">Download</a><button type="button" class="btn" data-shv="close">Close</button></div>'
+    + '<p class="note shv-tip">You can also press and hold the sheet, then choose Save.</p><img alt="Anarchist sheet">';
+  const a = o.querySelector('[data-shv="dl"]'); a.href = url; a.download = fname; o.querySelector('img').src = url;
+  const close = () => { o.remove(); document.documentElement.classList.remove('shv-open'); document.removeEventListener('keydown', onKey); setTimeout(()=>URL.revokeObjectURL(url), 1000); try{ $('dlSheet').focus({preventScroll:true}); }catch(e){} };
+  const onKey = e => { if(e.key === 'Escape') close(); };
+  o.addEventListener('click', e => { const b = e.target.closest('[data-shv]'); if(!b){ if(e.target === o) close(); return; }
+    if(b.dataset.shv === 'close') close();
+    if(b.dataset.shv === 'share'){ navigator.share({files:[file], title:fname.replace(/\.png$/, '')}).catch(()=>{}); } });
+  document.addEventListener('keydown', onKey);
+  document.body.appendChild(o); document.documentElement.classList.add('shv-open');
+  try{ o.querySelector('.btn').focus({preventScroll:true}); }catch(e){}
+}
 async function downloadSheet(){ const b = $('dlSheet'), msg = $('dlMsg'); b.disabled = true; msg.textContent = 'Printing...';
   try{ const c = await drawSheet(); const blob = await new Promise(r=>c.toBlob(r, 'image/png'));
     const base = (S.name || 'Anarchist').replace(/[^\w\- ]+/g, '').trim() || 'Anarchist';
     const fname = base + ' - ' + (S.title || titlesFor(ley(), S.body, S.mind, S.role)[0] || 'Zomia') + '.png';
     if(DLCAP){ try{ await DLCAP.save({filename: fname, data: blob}); msg.textContent = 'Sheet saved.'; }
       catch(e){ msg.textContent = e && e.code === 'declined' ? 'Download cancelled.' : e && e.code === 'rate_limited' ? 'One moment, then try again.' : 'Saving is unavailable here.'; } }
+    else if(touchy()){ showSheet(blob, fname); msg.textContent = 'Sheet ready.'; }
     else { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fname; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000); msg.textContent = 'Sheet downloaded.'; }
   } catch(e){ msg.textContent = 'The sheet failed to print. Try again.'; }
   finally{ b.disabled = false; } }
