@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zombat Battle Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#111111; --text:#1a1a1a; --border:#111111; --chrome-bg:#111111;
+    --infobox-bg:#fff6e4; --infobox-head:#ffe9b8; --page-bg:#ffffff; --body-bg:#fff1d6;
+    --a:#1e6dff; --a-tint:#dceaff; --a-tint2:#b9d4ff; --a-pop:#0045cc;
+    --b:#ff2e63; --b-tint:#ffe0e8; --b-tint2:#ffc2d1; --b-pop:#c70042;
+    --pop-yellow:#ffd400; --pop-green:#2bd97c;
+    --body-hp:#ff2e63; --mind-hp:#1e6dff; --ap:#b8860b;
+    --good:#1f9e5a; --good-tint:#dcfbe9; --warn:#b8860b; --warn-tint:#fff3cf; --bad:#e01040; --bad-tint:#ffdbe4;
+    --floatbar-h:122px;
+    --shadow-sm:3px 3px 0 var(--ink); --shadow-md:5px 5px 0 var(--ink); --shadow-lg:7px 7px 0 var(--ink);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;padding:0;color:var(--text);
+    background:var(--body-bg) radial-gradient(circle, rgba(17,17,17,.09) 1.3px, transparent 1.3px) 0 0/16px 16px;
+    font-family:'Rubik',Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;}
+  h1,h2,h3{font-family:'Bangers',cursive;font-weight:400;margin:0;letter-spacing:.5px;}
+  button,select,input{font-family:'Rubik',Arial,Helvetica,sans-serif;}
+  button{cursor:pointer;}
+  body{display:flex;flex-direction:column;min-height:100vh;padding-bottom:calc(var(--floatbar-h) + 10px);}
+
+  /* ---------- masthead / dashboard strip ---------- */
+  .chrome-top{background:var(--chrome-bg);border-bottom:4px solid var(--chrome-bg);flex:0 0 auto;}
+  .chrome-inner{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    padding:7px 14px;font-size:12px;color:#fff;}
+  .logo-mark{width:30px;height:30px;border-radius:50%;background:var(--pop-yellow);border:3px solid #fff;
+    display:flex;align-items:center;justify-content:center;color:var(--ink);font-weight:900;font-family:'Bangers',cursive;font-size:16px;flex:0 0 auto;
+    box-shadow:2px 2px 0 #fff;}
+  .brand{display:flex;flex-direction:column;line-height:1;margin-right:8px;}
+  .brand b{font-family:'Bangers',cursive;font-size:19px;color:#fff;letter-spacing:.5px;text-shadow:2px 2px 0 var(--b-pop);}
+  .brand span{font-size:8.5px;color:var(--pop-yellow);letter-spacing:.6px;font-weight:700;}
+
+  .scoreinline{display:flex;align-items:center;gap:6px;background:#fff;border:3px solid var(--ink);border-radius:8px;padding:4px 10px;box-shadow:var(--shadow-sm);}
+  .scoreinline input.cellname{border:none;background:transparent;
+    font-family:'Bangers',cursive;font-size:13.5px;width:98px;padding:1px 0;}
+  .scoreinline.A input.cellname{color:var(--a-pop);} .scoreinline.B input.cellname{color:var(--b-pop);}
+  .scoreinline .n{font-size:20px;font-weight:900;font-family:'Bangers',cursive;color:#fff;
+    border-radius:6px;padding:0 8px;line-height:1.3;}
+  .scoreinline.A .n{background:var(--a-pop);} .scoreinline.B .n{background:var(--b-pop);}
+  .paradox-chk{font-size:9.5px;color:var(--ink);display:flex;align-items:center;gap:3px;font-weight:700;}
+  .vsmall{font-size:14px;color:var(--pop-yellow);font-family:'Bangers',cursive;}
+
+  .counters{display:flex;gap:7px;margin-left:auto;}
+  .counter{background:var(--pop-yellow);border:3px solid var(--ink);border-radius:8px;padding:3px 10px;text-align:center;min-width:52px;box-shadow:var(--shadow-sm);transform:rotate(-1.5deg);}
+  .counter:nth-child(2){transform:rotate(1.5deg);} .counter:nth-child(3){transform:rotate(-1.5deg);}
+  .counter .v{font-size:17px;font-weight:900;font-family:'Bangers',cursive;color:var(--ink);}
+  .counter .l{font-size:8px;color:var(--ink);text-transform:uppercase;letter-spacing:.3px;font-weight:700;}
+
+  /* ---------- match-flow strip ---------- */
+  .flowbar{flex:0 0 auto;display:flex;flex-wrap:wrap;gap:7px;align-items:center;justify-content:center;
+    background:var(--infobox-bg);border-bottom:3px solid var(--ink);padding:7px 10px;}
+  .flowbar .cbtn{padding:6px 12px;border-radius:7px;border:3px solid var(--ink);background:#fff;color:var(--ink);
+    font-size:11.5px;font-weight:700;box-shadow:var(--shadow-sm);transition:transform .08s,box-shadow .08s;}
+  .flowbar .cbtn:hover{background:var(--pop-yellow);}
+  .flowbar .cbtn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink);}
+  .flowbar .cbtn.primary{background:var(--a);border-color:var(--ink);color:#fff;}
+  .flowbar .cbtn.primary:hover{background:var(--a-pop);}
+  .flowbar .cbtn.reset{border-color:var(--ink);color:#fff;background:var(--b);}
+  .flowbar .cbtn.reset:hover{background:var(--b-pop);}
+  .resolve-banner{flex:0 0 auto;text-align:center;color:var(--ink);font-size:12px;font-weight:700;min-height:16px;
+    background:var(--pop-yellow);padding:2px 0;}
+
+  /* ---------- main area ---------- */
+  .mainarea{flex:1 1 auto;display:flex;gap:10px;padding:8px 10px 4px;min-height:0;}
+  .ringpanel{flex:2.1 1 0;min-width:0;display:flex;flex-direction:column;}
+  .ring-wrap{background:var(--infobox-bg);border:3px solid var(--ink);border-radius:8px;padding:8px 10px;overflow:auto;flex:1 1 auto;display:flex;flex-direction:column;box-shadow:var(--shadow-md);position:relative;}
+  .panel-h{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--ink);margin-bottom:5px;}
+
+  /* the track: a background strip of zone columns, with fighter "lanes" layered
+     over it so each fighter's token can slide left/right between zones */
+  .track{position:relative;min-width:620px;flex:1 1 auto;}
+  .trackbg{position:absolute;inset:0;display:flex;gap:3px;z-index:0;}
+  .zonecol{flex:1;min-width:0;border-radius:6px;padding:4px 2px;text-align:center;position:relative;display:flex;flex-direction:column;
+    border:2.5px solid var(--ink);overflow:hidden;transition:background .25s;}
+  .zonecol .zlabel{font-size:8.5px;text-transform:uppercase;letter-spacing:.2px;color:var(--ink);font-weight:700;position:relative;z-index:2;}
+  .zonecol.poolcol{background:repeating-linear-gradient(135deg,#bfe4ff,#bfe4ff 9px,#e7f6ff 9px,#e7f6ff 18px);border-style:dashed;}
+  .zonecol.zoneA1,.zonecol.zoneA2,.zonecol.zoneA3{background:var(--a-tint);}
+  .zonecol.zoneB1,.zonecol.zoneB2,.zonecol.zoneB3{background:var(--b-tint);}
+  .zonecol.zoneA1{border-color:var(--a-pop);box-shadow:inset 0 0 0 2px var(--a);} .zonecol.zoneB1{border-color:var(--b-pop);box-shadow:inset 0 0 0 2px var(--b);}
+  .zonecol.dragover{outline:3px solid var(--pop-yellow);outline-offset:-2px;}
+  /* captured: the attacking side has pushed into this enemy zone and now holds it */
+  .zonecol.captured-A{background:repeating-linear-gradient(45deg,var(--a) 0 10px,var(--a-pop) 10px 20px);}
+  .zonecol.captured-B{background:repeating-linear-gradient(45deg,var(--b) 0 10px,var(--b-pop) 10px 20px);}
+  .zonecol.captured-A .zlabel,.zonecol.captured-B .zlabel{color:#fff;text-shadow:1px 1px 0 var(--ink);}
+  .stamp{position:absolute;top:4px;left:50%;transform:translateX(-50%) rotate(-8deg);z-index:3;
+    font-family:'Bangers',cursive;font-size:10px;color:var(--ink);background:var(--pop-yellow);
+    border:2px solid var(--ink);border-radius:5px;padding:0 5px;white-space:nowrap;box-shadow:2px 2px 0 var(--ink);pointer-events:none;display:none;}
+  .centerdivider{position:absolute;left:50%;top:0;bottom:0;width:4px;transform:translateX(-50%);z-index:1;
+    background:repeating-linear-gradient(180deg,var(--ink) 0 6px,transparent 6px 12px);}
+  .vsburst{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:30px;height:30px;z-index:4;
+    background:var(--pop-yellow);border:2.5px solid var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:'Bangers',cursive;font-size:11px;color:var(--ink);box-shadow:2px 2px 0 var(--ink);pointer-events:none;}
+  .lanes{position:relative;z-index:2;padding-top:18px;}
+  .lane{position:relative;height:40px;}
+  .token{position:absolute;top:50%;width:94px;background:#fff;border:2px solid var(--ink);border-radius:6px;padding:2px 5px;font-size:10px;
+    text-align:left;box-shadow:2px 2px 0 var(--ink);cursor:grab;transform:translate(-50%,-50%);
+    transition:left .45s cubic-bezier(.22,.8,.25,1),top .3s;}
+  .token:active{cursor:grabbing;}
+  .token.sideA{border-left:5px solid var(--a);} .token.sideB{border-left:5px solid var(--b);}
+  .token.selected{outline:3px solid var(--pop-yellow);outline-offset:1px;}
+  .token .tname{font-weight:700;color:#000;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .token .tbars{display:flex;gap:2px;margin-top:2px;}
+  .mini-bar{flex:1;height:4px;border-radius:2px;background:#ddd;overflow:hidden;border:1px solid var(--ink);}
+  .mini-bar i{display:block;height:100%;}
+  .token.yielded,.token.inpool{opacity:.5;}
+  .turfmeter{margin-top:6px;flex:0 0 auto;}
+  .turfmeter-top{display:flex;justify-content:space-between;align-items:center;font-size:10.5px;font-weight:700;margin-bottom:3px;}
+  .turfmeter-top .ta{color:var(--a-pop);} .turfmeter-top .tb{color:var(--b-pop);}
+  .turf-bar{display:flex;gap:3px;height:18px;}
+  .turf-chip{flex:1;border:2.5px solid var(--ink);border-radius:5px;background:#e9e3d4;display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:900;color:transparent;transition:background .2s,color .2s;}
+  .turf-chip.on-A{background:var(--a);color:#fff;} .turf-chip.on-B{background:var(--b);color:#fff;}
+  .turf-chip.mid{border-style:dashed;}
+  .terr-banner{text-align:center;margin-top:5px;font-size:11px;color:var(--ink);font-weight:700;min-height:15px;flex:0 0 auto;}
+
+  /* ---------- side panel: ridge + log ---------- */
+  .sidepanel{flex:1 1 260px;max-width:300px;display:flex;flex-direction:column;gap:8px;min-height:0;}
+  .ridge-box{display:none;background:var(--pop-yellow);border:3px solid var(--ink);border-radius:8px;padding:10px;text-align:center;flex:0 0 auto;box-shadow:var(--shadow-sm);}
+  .ridge-box.show{display:block;}
+  .ridge-box h2{color:var(--ink);margin-bottom:5px;font-size:17px;}
+  .ridge-box p{font-size:10.5px;color:var(--ink);margin:0 0 8px;font-weight:500;}
+  .ridge-pick{display:flex;justify-content:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;align-items:center;}
+  .ridge-pick select{padding:3px 6px;border:2px solid var(--ink);border-radius:5px;font-size:11px;}
+  .mbtn.good{border-color:var(--ink);color:#fff;background:var(--good);}
+  .mbtn.good:hover{background:#17793f;}
+
+  .log-wrap{background:var(--infobox-bg);border:3px solid var(--ink);border-radius:8px;padding:8px 10px;flex:1 1 auto;display:flex;flex-direction:column;min-height:0;box-shadow:var(--shadow-md);}
+  .log-wrap h3{font-size:11px;color:var(--ink);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;font-weight:700;font-family:'Rubik',sans-serif;flex:0 0 auto;}
+  .log{overflow-y:auto;font-size:11px;line-height:1.5;color:#202122;flex:1 1 auto;min-height:0;}
+  .log div{border-bottom:1px dashed var(--border);padding:3px 0;}
+  .log div .tag{color:var(--a-pop);font-size:9.5px;margin-right:5px;font-weight:700;}
+
+  /* ---------- roster strip (compact chips) ---------- */
+  .rosterstrip{flex:0 0 auto;display:flex;gap:14px;padding:5px 10px 9px;overflow-x:auto;}
+  .chipgroup{display:flex;gap:6px;flex:1 1 0;min-width:0;}
+  .chip{flex:1 1 0;min-width:150px;background:#fff;border:2.5px solid var(--ink);border-radius:7px;padding:5px 7px;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .08s;}
+  .chip:hover{transform:translate(-1px,-1px);}
+  .chip.sideA{border-left:6px solid var(--a);} .chip.sideB{border-left:6px solid var(--b);}
+  .chip.selected{outline:3px solid var(--pop-yellow);outline-offset:1px;}
+  .chip.yielded,.chip.inpool{opacity:.55;}
+  .chip-top{display:flex;justify-content:space-between;align-items:center;gap:4px;}
+  .chip input.cname{font-family:'Bangers',cursive;font-weight:400;font-size:13px;border:none;background:transparent;width:92px;padding:0;color:#000;}
+  .chip .zpill{font-size:9px;padding:1px 6px;border-radius:8px;font-weight:700;color:#fff;border:1.5px solid var(--ink);}
+  .chip .zpill.A{background:var(--a);} .chip .zpill.B{background:var(--b);} .chip .zpill.pool{background:#0e6a94;}
+  .chip .cbars{margin-top:3px;}
+  .chip .cbarrow{display:flex;align-items:center;gap:4px;margin-bottom:2px;}
+  .chip .cbarrow .lab{width:14px;font-size:8.5px;font-weight:700;text-align:center;border-radius:3px;border:1px solid var(--ink);line-height:1.4;}
+  .chip .cbarouter{flex:1;height:8px;background:#e8e8e8;border-radius:4px;overflow:hidden;border:1.5px solid var(--ink);}
+  .chip .cbarinner{height:100%;}
+  .chip .cbarval{font-size:8px;color:var(--ink);font-weight:700;width:30px;text-align:right;flex:0 0 auto;}
+  .chip select{font-size:9.5px;padding:1px 2px;border:1.5px solid var(--ink);border-radius:4px;margin-top:3px;width:48%;}
+  .chip .status{font-size:8.5px;margin-top:3px;display:inline-block;padding:1px 5px;border-radius:7px;background:#eaecf0;color:#54595d;font-weight:700;border:1px solid var(--ink);}
+  .chip .status.active{color:#fff;background:var(--good);}
+  .chip .status.yielded{color:#fff;background:var(--bad);}
+  .chip .status.inpool{color:#fff;background:#0e6a94;}
+  .chip .status.guarding{color:var(--ink);background:var(--pop-yellow);}
+
+  /* ---------- floating action bar ---------- */
+  .floatbar{position:fixed;left:0;right:0;bottom:0;height:var(--floatbar-h);z-index:60;
+    background:#fff;border-top:4px solid var(--ink);box-shadow:0 -4px 0 var(--ink);
+    display:flex;align-items:center;gap:14px;padding:6px 16px;overflow-x:auto;}
+  .floatbar.empty{justify-content:center;color:#767676;font-style:italic;}
+  .fb-id{display:flex;flex-direction:column;gap:2px;min-width:150px;flex:0 0 auto;}
+  .fb-id .fb-name{font-family:'Bangers',cursive;font-size:18px;font-weight:400;border:none;border-bottom:2px dashed var(--border);background:transparent;width:150px;}
+  .fb-id .fb-sub{font-size:10px;color:#54595d;display:flex;gap:5px;align-items:center;}
+  .fb-id .zpill{font-size:10px;padding:2px 8px;border-radius:9px;font-weight:700;color:#fff;border:1.5px solid var(--ink);}
+  .fb-id .zpill.A{background:var(--a);} .fb-id .zpill.B{background:var(--b);} .fb-id .zpill.pool{background:#0e6a94;}
+  .fb-bars{display:flex;flex-direction:column;gap:3px;min-width:140px;flex:0 0 auto;}
+  .fb-barrow{display:flex;align-items:center;gap:5px;}
+  .fb-barrow .lab{width:30px;font-size:10px;font-weight:700;text-align:center;border-radius:4px;border:1.5px solid var(--ink);padding:2px 0;}
+  .fb-barouter{width:90px;height:10px;background:#e8e8e8;border-radius:5px;overflow:hidden;border:1.5px solid var(--ink);}
+  .fb-barinner{height:100%;}
+  .fb-barval{font-size:11px;color:#202122;font-weight:700;width:34px;padding:2px;border:1.5px solid var(--ink);border-radius:4px;text-align:center;}
+  .fb-barmax{font-size:10px;color:#767676;}
+  .fb-editcell{display:flex;flex-direction:column;gap:1px;flex:0 0 auto;}
+  .fb-editcell .elab{font-size:8.5px;color:#54595d;text-transform:uppercase;font-weight:700;}
+  .fb-editcell select,.fb-editcell input[type=number]{font-size:11px;padding:3px 4px;border:1.5px solid var(--ink);border-radius:5px;width:78px;}
+  .fb-btns{display:flex;flex-wrap:wrap;gap:4px;flex:1 1 260px;align-items:center;}
+  .mbtn{font-size:11px;padding:5px 9px;border-radius:5px;border:2px solid var(--ink);background:#f8f9fa;color:var(--ink);white-space:nowrap;font-weight:700;box-shadow:2px 2px 0 var(--ink);transition:transform .08s,box-shadow .08s;}
+  .mbtn:hover{background:var(--pop-yellow);}
+  .mbtn:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--ink);}
+  .mbtn.danger{border-color:var(--ink);color:#fff;background:var(--b);}
+  .mbtn.danger:hover{background:var(--b-pop);}
+  .mbtn.warn{border-color:var(--ink);color:var(--ink);background:var(--pop-yellow);}
+  .fb-hit{display:flex;align-items:center;gap:4px;background:var(--infobox-bg);border:2px solid var(--ink);border-radius:6px;padding:5px 8px;flex:0 0 auto;font-size:10.5px;font-weight:700;}
+  .fb-hit input[type=number]{width:44px;padding:3px;border:1.5px solid var(--ink);border-radius:4px;font-size:11px;}
+  .fb-hit select{padding:3px;border:1.5px solid var(--ink);border-radius:4px;font-size:10.5px;}
+  .fb-hit label{display:flex;align-items:center;gap:2px;color:#54595d;}
+
+  @media (max-width:1150px){
+    .mainarea{flex-direction:column;}
+    .sidepanel{max-width:none;flex-direction:row;}
+    .log-wrap{max-height:140px;}
+  }
+
+  @media (max-width:640px){
+    html,body{font-size:13px;}
+    .chrome-inner{padding:6px 8px;gap:7px;}
+    .brand b{font-size:16px;}
+    .brand span{font-size:7.5px;}
+    .scoreinline{padding:3px 7px;}
+    .scoreinline input.cellname{width:72px;font-size:12px;}
+    .counter{min-width:40px;padding:2px 6px;}
+    .counter .v{font-size:14px;}
+    .sidepanel{flex-direction:column;}
+    .mainarea{padding:6px 6px 2px;gap:8px;}
+    .track{min-width:520px;}
+    .rosterstrip{gap:8px;padding:5px 8px 8px;}
+    .chip{min-width:130px;}
+    :root{--floatbar-h:150px;}
+    .floatbar{flex-wrap:wrap;align-items:flex-start;padding:6px 10px;row-gap:6px;}
+    .fb-btns{flex-basis:100%;}
+  }
+
+  /* ---------- toast + confirm modal (replace native alert/confirm, which the artifact sandbox blocks) ---------- */
+  .toastwrap{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:90;
+    display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;}
+  .toast{background:var(--pop-yellow);color:var(--ink);font-family:'Bangers',cursive;font-size:15px;padding:8px 18px;
+    border:3px solid var(--ink);border-radius:7px;box-shadow:var(--shadow-sm);opacity:0;transition:opacity .25s;max-width:80vw;text-align:center;}
+  .toast.show{opacity:1;}
+  .modalOverlay{display:none;position:fixed;inset:0;z-index:95;background:rgba(0,0,0,.55);
+    align-items:center;justify-content:center;}
+  .modalOverlay.show{display:flex;}
+  .modalBox{background:#fff;border:3px solid var(--ink);border-radius:9px;padding:18px 20px;max-width:320px;
+    box-shadow:var(--shadow-lg);}
+  .modalBox p{margin:0 0 14px;font-size:14px;color:var(--text);font-weight:700;}
+  .modalBtns{display:flex;justify-content:flex-end;gap:8px;}
+
+  /* ---------- theme toggle (top right) ---------- */
+  .themebtn{margin-left:auto;padding:5px 10px;border-radius:7px;border:3px solid #fff;background:var(--pop-yellow);
+    color:var(--ink);font-size:11px;font-weight:700;box-shadow:2px 2px 0 #fff;flex:0 0 auto;}
+  .themebtn:hover{filter:brightness(1.05);}
+  .themebtn:active{transform:translate(2px,2px);box-shadow:0 0 0 #fff;}
+
+  /* ---------- format / undo strip ---------- */
+  .formatbar{flex:0 0 auto;display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;
+    background:#fff;border-bottom:3px solid var(--ink);padding:5px 10px;font-size:10.5px;}
+  .formatbar .flabel{font-weight:700;color:var(--ink);margin-right:2px;}
+  .formatbar .cbtn{padding:4px 9px;border-radius:6px;border:2px solid var(--ink);background:var(--infobox-bg);color:var(--ink);font-size:10.5px;font-weight:700;}
+  .formatbar .cbtn.on{background:var(--pop-green);}
+  .formatbar .cbtn.undo{background:var(--pop-yellow);}
+
+  /* ---------- help ("?") buttons + popovers ---------- */
+  .helpq{width:17px;height:17px;border-radius:50%;border:2px solid var(--ink);background:var(--pop-yellow);color:var(--ink);
+    font-size:10px;font-weight:900;line-height:1;padding:0;flex:0 0 auto;box-shadow:1.5px 1.5px 0 var(--ink);}
+  .helpq:hover{filter:brightness(1.08);}
+  .ringhelp-anchor{position:absolute;top:6px;right:8px;z-index:5;}
+  .helppop{position:fixed;z-index:120;max-width:250px;background:#fff;border:2.5px solid var(--ink);border-radius:8px;
+    padding:9px 11px;font-size:11.5px;line-height:1.35;color:var(--ink);box-shadow:var(--shadow-sm);}
+
+  /* ---------- roster add/remove controls ---------- */
+  .chip{position:relative;}
+  .chipdel{position:absolute;top:3px;right:3px;width:15px;height:15px;border-radius:50%;border:1.5px solid var(--ink);
+    background:var(--b);color:#fff;font-size:9px;line-height:1;padding:0;font-weight:900;}
+  .addfighterbtn{flex:0 0 auto;min-width:54px;background:var(--infobox-bg);border:2px dashed var(--ink);border-radius:7px;
+    color:var(--ink);font-size:18px;font-weight:900;line-height:1;}
+  .addfighterbtn:hover{background:var(--pop-yellow);}
+
+  /* ---------- alternate color themes (toggled via body[data-theme]) ----------
+     "ink" is the base look already set in :root above (bold black linework,
+     blue vs crimson); only the other two themes need an override block. */
+
+  body[data-theme="grunge"]{
+    --ink:#e9e3d2; --infobox-bg:#332e26; --page-bg:#2a251e; --body-bg:#201c17;
+    --a:#c1552b; --a-tint:#4a3324; --a-tint2:#5c3f29; --a-pop:#8a3a1a;
+    --b:#6f7f3c; --b-tint:#38402a; --b-tint2:#454f30; --b-pop:#4c5a27;
+    --pop-yellow:#c9a227; --pop-green:#7a8f4f; --chrome-bg:#161210;
+    --body-hp:#c1552b; --mind-hp:#5f7fae;
+    background:var(--body-bg)
+      repeating-linear-gradient(115deg, rgba(0,0,0,.18) 0 2px, transparent 2px 7px),
+      radial-gradient(circle, rgba(233,227,210,.07) 1.3px, transparent 1.3px) 0 0/16px 16px;
+  }
+  body[data-theme="grunge"] .chip,body[data-theme="grunge"] .token,body[data-theme="grunge"] .scoreinline,
+  body[data-theme="grunge"] .floatbar,body[data-theme="grunge"] .modalBox,body[data-theme="grunge"] .flowbar,
+  body[data-theme="grunge"] .formatbar,body[data-theme="grunge"] .helppop,body[data-theme="grunge"] .chrome-inner .counter{
+    background:var(--infobox-bg);color:var(--ink);}
+  body[data-theme="grunge"] .fb-barval,body[data-theme="grunge"] .chip input.cname,body[data-theme="grunge"] .fb-name,
+  body[data-theme="grunge"] .token .tname,body[data-theme="grunge"] .modalBox p{color:var(--ink);background:transparent;}
+  body[data-theme="grunge"] .turf-chip{background:#2a2620;}
+  body[data-theme="grunge"] .flowbar .cbtn{background:var(--infobox-bg);color:var(--ink);}
+  body[data-theme="grunge"] .zonecol.poolcol{background:repeating-linear-gradient(135deg,#3a4538,#3a4538 9px,#2f392d 9px,#2f392d 18px);}
+  /* grunge moves several panels to a dark ground (chip/token/scoreinline/floatbar/
+     modal/log above); these secondary text colors were tuned for a light ground
+     and go unreadable on the dark one, so grunge gets its own lighter set. */
+  body[data-theme="grunge"] .fb-id .fb-sub,body[data-theme="grunge"] .fb-editcell .elab,
+  body[data-theme="grunge"] .fb-hit label,body[data-theme="grunge"] .fb-barmax,
+  body[data-theme="grunge"] .floatbar.empty,body[data-theme="grunge"] .log{color:#c9bfa8;}
+  body[data-theme="grunge"] .log div .tag,
+  body[data-theme="grunge"] .scoreinline.A input.cellname,body[data-theme="grunge"] .turfmeter-top .ta{color:#e38148;}
+  body[data-theme="grunge"] .scoreinline.B input.cellname,body[data-theme="grunge"] .turfmeter-top .tb{color:#a8c26a;}
+
+  body[data-theme="bubblegum"]{
+    --ink:#5b2250; --infobox-bg:#fff0fa; --page-bg:#fff7fc; --body-bg:#ffe1f3;
+    --a:#ff6fb5; --a-tint:#ffe1f0; --a-tint2:#ffc2e2; --a-pop:#e8398f;
+    --b:#2fd9c4; --b-tint:#dbfbf6; --b-tint2:#b6f3e9; --b-pop:#14a893;
+    --pop-yellow:#ffe066; --pop-green:#6be3b5; --chrome-bg:#3a1030;
+    --body-hp:#ff6fb5; --mind-hp:#2fb8d9;
+    background:var(--body-bg) radial-gradient(circle, rgba(91,34,80,.10) 1.6px, transparent 1.6px) 0 0/16px 16px;
+  }
+  body[data-theme="bubblegum"] .zonecol.poolcol{background:repeating-linear-gradient(135deg,#d6f6ff,#d6f6ff 9px,#eefdff 9px,#eefdff 18px);}
+</style>
+</head>
+<body>
+
+<div class="chrome-top">
+  <div class="chrome-inner">
+    <div class="logo-mark">Z</div>
+    <div class="brand"><b>ZOMBAT!</b><span>LIVE BOUT DASHBOARD</span></div>
+
+    <div class="scoreinline A">
+      <input class="cellname" id="cellNameA" value="Cell A">
+      <div class="n" id="scoreA">0</div>
+      <label class="paradox-chk"><input type="checkbox" id="paradoxA"> Paradox</label>
+    </div>
+    <span class="vsmall">vs</span>
+    <div class="scoreinline B">
+      <input class="cellname" id="cellNameB" value="Cell B">
+      <div class="n" id="scoreB">0</div>
+      <label class="paradox-chk"><input type="checkbox" id="paradoxB"> Paradox</label>
+    </div>
+
+    <div class="counters">
+      <div class="counter"><div class="v" id="roundDisp">1/3</div><div class="l">Round</div></div>
+      <div class="counter"><div class="v" id="exchangeDisp">1/5</div><div class="l">Exch.</div></div>
+      <div class="counter"><div class="v" id="turnDisp">A</div><div class="l">Acting</div></div>
+    </div>
+    <button class="themebtn" id="themeBtn" type="button">🖋️ Ink</button>
+  </div>
+</div>
+
+<div class="flowbar" id="flowbarEl">
+  <button class="cbtn" id="prevExchangeBtn">◀ Prev exchange</button>
+  <button class="cbtn primary" id="nextExchangeBtn">Next exchange ▶</button>
+  <button class="cbtn" id="advanceTerrABtn">A advances territory</button>
+  <button class="cbtn" id="advanceTerrBBtn">B advances territory</button>
+  <button class="cbtn" id="resolveRoundBtn">Resolve round…</button>
+  <button class="cbtn" id="startRidgeBtn">Start the Ridge</button>
+  <button class="cbtn reset" id="resetBtn">New bout</button>
+</div>
+<div class="formatbar">
+  <span class="flabel">Format:</span>
+  <button class="cbtn" id="fmt1">1 v 1</button>
+  <button class="cbtn" id="fmt2">2 v 2</button>
+  <button class="cbtn on" id="fmt3">3 v 3</button>
+  <button class="cbtn undo" id="undoBtn">↶ Undo</button>
+</div>
+<div class="resolve-banner" id="resolveBanner"></div>
+
+<div class="mainarea">
+  <div class="ringpanel">
+    <div class="ring-wrap">
+      <div class="panel-h">The Ring <span id="helpHostRing"></span></div>
+      <div class="track" id="trackEl">
+        <div class="trackbg" id="trackBg"></div>
+        <div class="centerdivider"></div>
+        <div class="vsburst">VS</div>
+        <div class="lanes" id="lanesEl"></div>
+      </div>
+      <div class="turfmeter">
+        <div class="turfmeter-top"><span class="ta" id="terrLabelA">Cell A turf</span><span id="helpHostTurf"></span><span class="tb" id="terrLabelB">Cell B turf</span></div>
+        <div class="turf-bar" id="turfBar"></div>
+      </div>
+      <div class="terr-banner" id="terrBanner"></div>
+    </div>
+  </div>
+  <div class="sidepanel">
+    <div class="ridge-box" id="ridgeBox">
+      <h2>The Ridge <span id="helpHostRidge"></span></h2>
+      <p>Each cell sends one fighter onto the plank; they trade Breaks, Guard permitted, until one is pushed off.</p>
+      <div class="ridge-pick">
+        <select id="ridgeA"></select>
+        <span style="color:#5a3d6b;">vs</span>
+        <select id="ridgeB"></select>
+      </div>
+      <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
+        <button class="mbtn good" id="ridgeWinA">A's fighter wins</button>
+        <button class="mbtn good" id="ridgeWinB">B's fighter wins</button>
+      </div>
+    </div>
+    <div class="log-wrap">
+      <h3>Bout log</h3>
+      <div class="log" id="logEl"></div>
+    </div>
+  </div>
+</div>
+
+<div class="rosterstrip">
+  <span id="helpHostRoster" style="flex:0 0 auto;align-self:center;"></span>
+  <div class="chipgroup" id="chipsA"></div>
+  <div class="chipgroup" id="chipsB"></div>
+</div>
+
+<div class="floatbar" id="floatbar"></div>
+
+<div class="toastwrap" id="toastWrap"></div>
+<div class="modalOverlay" id="modalOverlay">
+  <div class="modalBox">
+    <p id="modalMsg"></p>
+    <div class="modalBtns">
+      <button class="mbtn" id="modalCancel">Cancel</button>
+      <button class="mbtn danger" id="modalOk">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var ROLES = ["Striker","Warden","Mender","Saboteur"];
+  var LEANS = ["Chakna lean","Rilru lean","·"];
+  var THEMES = [{key:'ink',label:'🖋️ Ink'},{key:'grunge',label:'🤘 Grunge'},{key:'bubblegum',label:'🍬 Bubblegum'}];
+
+  var state = null;
+  var undoStack = [];
+  var laneEls = {};   // fighter id -> {lane, token}
+  var colEls = {};    // column key -> {el, stamp, side, zone, pool}
+  var trackBuilt = false;
+
+  // ---------------- toast + confirm (artifacts run sandboxed, so window.alert/confirm
+  // are silently blocked there; these replace them with in-page UI) ----------------
+  function showToast(msg){
+    var wrap = document.getElementById('toastWrap');
+    var t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+    wrap.appendChild(t);
+    requestAnimationFrame(function(){ t.classList.add('show'); });
+    setTimeout(function(){
+      t.classList.remove('show');
+      setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 300);
+    }, 3200);
+  }
+  var pendingConfirm = null;
+  function askConfirm(msg, onYes){
+    pendingConfirm = onYes;
+    document.getElementById('modalMsg').textContent = msg;
+    document.getElementById('modalOverlay').classList.add('show');
+  }
+
+  // ---------------- undo ----------------
+  // A snapshot is taken before every discrete action, rather than every keystroke,
+  // so Undo always rewinds to the state right before the last button press.
+  function snapshot(){ return JSON.parse(JSON.stringify(state)); }
+  function pushUndo(){ undoStack.push(snapshot()); if(undoStack.length>40) undoStack.shift(); }
+  function undo(){
+    if(!undoStack.length){ showToast('Nothing to undo yet.'); return; }
+    state = undoStack.pop();
+    resetTrackDom();
+    refresh();
+    showToast('Undid the last action.');
+  }
+
+  // Wipes the ring's persistent lane/token elements along with the tracking
+  // maps, so the next render rebuilds them from a clean slate instead of
+  // piling new nodes on top of leftover ones with the same id.
+  function resetTrackDom(){
+    trackBuilt = false; laneEls = {}; colEls = {};
+    var lanesHost = document.getElementById('lanesEl');
+    if(lanesHost) lanesHost.innerHTML = '';
+  }
+
+  // ---------------- color theme ----------------
+  function applyTheme(){
+    var key = (state && state.theme) || 'ink';
+    document.body.setAttribute('data-theme', key);
+    var t = THEMES.filter(function(x){ return x.key===key; })[0] || THEMES[0];
+    document.getElementById('themeBtn').textContent = t.label;
+  }
+  function cycleTheme(){
+    var i = THEMES.map(function(t){return t.key;}).indexOf((state.theme)||'ink');
+    state.theme = THEMES[(i+1)%THEMES.length].key;
+    applyTheme();
+    save();
+  }
+
+  function freshFighter(side){
+    state.fighterSeq = (state.fighterSeq||0) + 1;
+    var n = state.fighterSeq;
+    return {
+      id: side + '_' + n,
+      side: side,
+      name: "Fighter " + n,
+      role: ROLES[n % ROLES.length],
+      lean: (n % 3 === 1) ? "Chakna lean" : ((n % 3 === 2) ? "Rilru lean" : "·"),
+      hpMax: 20, hp: 20,
+      mpMax: 20, mp: 20,
+      ap: 5,
+      zone: 1,
+      fouls: 0,
+      guarding: false
+    };
+  }
+
+  function freshState(){
+    var s = {
+      round:1, exchange:1,
+      scores:{A:0,B:0},
+      territory:{A:0,B:0},
+      cellName:{A:"Cell A",B:"Cell B"},
+      paradox:{A:false,B:false},
+      turn:"A",
+      selected:null,
+      fighters:[],
+      fighterSeq:0,
+      theme:'ink',
+      ridge:{on:false},
+      log:[{t:"R1·E1", m:"The ring opens."}]
+    };
+    state = s; // freshFighter reads/writes state.fighterSeq, so point state here first
+    for(var i=0;i<3;i++) s.fighters.push(freshFighter("A"));
+    for(var j=0;j<3;j++) s.fighters.push(freshFighter("B"));
+    s.selected = s.fighters[0].id;
+    return s;
+  }
+
+  function save(){ try{ localStorage.setItem("zombat_tracker_state", JSON.stringify(state)); }catch(e){} }
+  function load(){
+    try{ var raw = localStorage.getItem("zombat_tracker_state"); if(raw) return JSON.parse(raw); }catch(e){}
+    return null;
+  }
+
+  function fightersOf(side){ return state.fighters.filter(function(f){ return f.side===side; }); }
+  function byId(id){ return state.fighters.filter(function(f){ return f.id===id; })[0]; }
+  function selectedFighter(){ return state.selected ? byId(state.selected) : null; }
+  function standing(f){ return f.zone!=='pool' && f.zone!=='yielded'; }
+
+  function logMsg(msg){
+    state.log.unshift({t: "R"+state.round+"·E"+state.exchange, m: msg});
+    if(state.log.length>200) state.log.length = 200;
+  }
+
+  function zoneLabel(z, side){
+    if(z==='pool') return 'Pool';
+    if(z==='yielded') return 'Yielded';
+    return side + ' · Zone ' + z;
+  }
+
+  function selectFighter(id){ state.selected = id; refresh(); }
+
+  // ---------------- header ----------------
+
+  function renderHeader(){
+    document.getElementById('scoreA').textContent = state.scores.A;
+    document.getElementById('scoreB').textContent = state.scores.B;
+    document.getElementById('roundDisp').textContent = (state.ridge.on ? 'Ridge' : (state.round + '/3'));
+    document.getElementById('exchangeDisp').textContent = state.ridge.on ? 'n/a' : (state.exchange + '/5');
+    document.getElementById('turnDisp').textContent = state.turn;
+    if(document.activeElement !== document.getElementById('cellNameA')) document.getElementById('cellNameA').value = state.cellName.A;
+    if(document.activeElement !== document.getElementById('cellNameB')) document.getElementById('cellNameB').value = state.cellName.B;
+    document.getElementById('paradoxA').checked = state.paradox.A;
+    document.getElementById('paradoxB').checked = state.paradox.B;
+  }
+
+  // ---------------- ring ----------------
+
+  function moveFighterToZone(fid, side, zone){
+    var f = byId(fid);
+    if(!f || f.side !== side) return;
+    pushUndo();
+    f.zone = zone;
+    logMsg(f.name + (zone==='pool' ? ' is dragged into the pool.' : (' is moved to ' + zoneLabel(zone, side) + '.')));
+    refresh();
+  }
+
+  // The track has 8 equal background columns. A token's horizontal position
+  // (left %) is set directly from this index, and because the token element
+  // itself stays put across renders instead of getting rebuilt, the CSS "left"
+  // transition actually plays: a fighter visibly slides toward the cell that
+  // pushed it, rather than just changing color or teleporting.
+  var COLS = [
+    {key:'poolA', side:'A', pool:true,  label:'Pool'},
+    {key:'A3',    side:'A', zone:3,     label:'A·Z3'},
+    {key:'A2',    side:'A', zone:2,     label:'A·Z2'},
+    {key:'A1',    side:'A', zone:1,     label:'A·Z1'},
+    {key:'B1',    side:'B', zone:1,     label:'B·Z1'},
+    {key:'B2',    side:'B', zone:2,     label:'B·Z2'},
+    {key:'B3',    side:'B', zone:3,     label:'B·Z3'},
+    {key:'poolB', side:'B', pool:true,  label:'Pool'}
+  ];
+
+  function colIndexFor(f){
+    if(f.zone==='pool') return f.side==='A' ? 0 : 7;
+    if(f.zone==='yielded') return f.side==='A' ? 0 : 7; // parked at their own edge while out for the round
+    return f.side==='A' ? (4 - f.zone) : (3 + f.zone);
+  }
+
+  // A zone k (1..3) is captured by the opposing side once that side's territory reaches k.
+  function capturedBy(side, zone){
+    if(side==='A' && state.territory.B >= zone) return 'B';
+    if(side==='B' && state.territory.A >= zone) return 'A';
+    return null;
+  }
+
+  function buildTrackOnce(){
+    if(trackBuilt) return;
+    var bg = document.getElementById('trackBg');
+    bg.innerHTML = '';
+    colEls = {};
+    COLS.forEach(function(c){
+      var d = document.createElement('div');
+      d.className = 'zonecol ' + (c.pool ? 'poolcol' : ('zone'+c.side+c.zone));
+      var l = document.createElement('div'); l.className='zlabel'; l.textContent=c.label;
+      var st = document.createElement('div'); st.className='stamp';
+      d.appendChild(l); d.appendChild(st);
+      d.addEventListener('dragover', function(e){ e.preventDefault(); d.classList.add('dragover'); });
+      d.addEventListener('dragleave', function(){ d.classList.remove('dragover'); });
+      d.addEventListener('drop', function(e){
+        e.preventDefault(); d.classList.remove('dragover');
+        var fid = e.dataTransfer.getData('text/plain');
+        moveFighterToZone(fid, c.side, c.pool ? 'pool' : c.zone);
+      });
+      bg.appendChild(d);
+      colEls[c.key] = {el:d, stamp:st, side:c.side, zone:c.zone, pool:c.pool};
+    });
+    trackBuilt = true;
+  }
+
+  function newTokenEl(f){
+    var d = document.createElement('div');
+    d.id = 'tok-' + f.id;
+    d.draggable = true;
+    d.addEventListener('dragstart', function(e){ e.dataTransfer.setData('text/plain', f.id); e.dataTransfer.effectAllowed = 'move'; });
+    d.addEventListener('click', function(){ selectFighter(f.id); });
+    var nm = document.createElement('div'); nm.className='tname';
+    var bars = document.createElement('div'); bars.className='tbars';
+    var bb = document.createElement('div'); bb.className='mini-bar'; var bi=document.createElement('i'); bi.style.background='var(--body-hp)'; bb.appendChild(bi);
+    var mb = document.createElement('div'); mb.className='mini-bar'; var mi=document.createElement('i'); mi.style.background='var(--mind-hp)'; mb.appendChild(mi);
+    bars.appendChild(bb); bars.appendChild(mb);
+    d.appendChild(nm); d.appendChild(bars);
+    return d;
+  }
+
+  function syncLanes(){
+    var host = document.getElementById('lanesEl');
+    // remove lanes for fighters that have left the roster
+    Object.keys(laneEls).forEach(function(fid){
+      if(!byId(fid)){ laneEls[fid].lane.remove(); delete laneEls[fid]; }
+    });
+    // create lanes for any new fighters, in roster order
+    state.fighters.forEach(function(f){
+      if(laneEls[f.id]) return;
+      var lane = document.createElement('div'); lane.className='lane';
+      var tok = newTokenEl(f);
+      lane.appendChild(tok);
+      host.appendChild(lane);
+      laneEls[f.id] = {lane:lane, token:tok};
+    });
+    // keep DOM order matching roster order (cheap even when already matching)
+    state.fighters.forEach(function(f){ host.appendChild(laneEls[f.id].lane); });
+  }
+
+  function renderRing(){
+    buildTrackOnce();
+    syncLanes();
+
+    // backgrounds: paint captured enemy zones in the attacker's color + stamp
+    Object.keys(colEls).forEach(function(key){
+      var rec = colEls[key];
+      var capturer = rec.pool ? null : capturedBy(rec.side, rec.zone);
+      rec.el.classList.remove('captured-A','captured-B');
+      if(capturer){
+        rec.el.classList.add('captured-'+capturer);
+        rec.stamp.style.display = 'block';
+        rec.stamp.textContent = (capturer==='A'?state.cellName.A:state.cellName.B).toUpperCase()+'!';
+      } else {
+        rec.stamp.style.display = 'none';
+      }
+    });
+
+    // tokens: update position/looks on the SAME element each time, so the
+    // CSS left-transition actually animates the slide instead of teleporting
+    state.fighters.forEach(function(f){
+      var rec = laneEls[f.id]; if(!rec) return;
+      var tok = rec.token;
+      var idx = colIndexFor(f);
+      tok.style.left = ((idx+0.5)*12.5) + '%';
+      tok.className = 'token side'+f.side + (f.zone==='pool'?' inpool':'') + (f.zone==='yielded'?' yielded':'') + (state.selected===f.id?' selected':'');
+      tok.querySelector('.tname').textContent = f.name;
+      tok.querySelector('.tbars .mini-bar:nth-child(1) i').style.width = Math.max(0,(f.hp/f.hpMax*100))+'%';
+      tok.querySelector('.tbars .mini-bar:nth-child(2) i').style.width = Math.max(0,(f.mp/f.mpMax*100))+'%';
+    });
+
+    renderTerritory();
+  }
+
+  function renderTerritory(){
+    var bar = document.getElementById('turfBar');
+    bar.innerHTML = '';
+    // Six slots mirror the ring's inner zones: A·Z3 A·Z2 A·Z1 | B·Z1 B·Z2 B·Z3.
+    // A slot is "on" for whichever cell currently occupies that ground: its home
+    // side by default, or the opposing side once their territory count has pushed
+    // in that far (matching the capture logic drawn on the ring above).
+    var slots = [
+      {side:'A', zone:3}, {side:'A', zone:2}, {side:'A', zone:1},
+      {side:'B', zone:1}, {side:'B', zone:2}, {side:'B', zone:3}
+    ];
+    slots.forEach(function(s, i){
+      var chip = document.createElement('div'); chip.className = 'turf-chip' + (i===2||i===3 ? ' mid' : '');
+      var owner = s.side;
+      if(s.side==='A' && state.territory.B >= s.zone) owner = 'B';
+      if(s.side==='B' && state.territory.A >= s.zone) owner = 'A';
+      chip.classList.add('on-'+owner);
+      chip.textContent = owner==='A' ? 'A' : 'B';
+      bar.appendChild(chip);
+    });
+    document.getElementById('terrLabelA').textContent = state.cellName.A + ' ⚡ ' + state.territory.A + '/3 taken';
+    document.getElementById('terrLabelB').textContent = state.territory.B + '/3 taken ⚡ ' + state.cellName.B;
+
+    var banner = document.getElementById('terrBanner');
+    var aStand = fightersOf('A').filter(standing), bStand = fightersOf('B').filter(standing);
+    var msg = '';
+    if(aStand.length && aStand.every(function(f){ return f.zone>=2; })){
+      msg = state.cellName.B + ' may advance: Side A has fallen to Zone 2+.';
+    } else if(bStand.length && bStand.every(function(f){ return f.zone>=2; })){
+      msg = state.cellName.A + ' may advance: Side B has fallen to Zone 2+.';
+    }
+    banner.textContent = msg;
+  }
+
+  function renderResolveBanner(){
+    var b = document.getElementById('resolveBanner');
+    var aStand = fightersOf('A').filter(standing), bStand = fightersOf('B').filter(standing);
+    if(!state.ridge.on){
+      if(aStand.length===0 || bStand.length===0) b.textContent = 'Every fighter on one side is down; resolve the round by knockout.';
+      else if(state.exchange>=5) b.textContent = 'Exchange 5 is done; compare territory, or resolve the round now.';
+      else b.textContent = '';
+    } else b.textContent = '';
+  }
+
+  // ---------------- roster chips ----------------
+
+  function renderChips(){
+    ['A','B'].forEach(function(side){
+      var host = document.getElementById('chips'+side);
+      host.innerHTML = '';
+      fightersOf(side).forEach(function(f){ host.appendChild(chipEl(f)); });
+      var add = document.createElement('button'); add.className='addfighterbtn'; add.type='button'; add.title='Add a fighter to Side '+side;
+      add.textContent = '+';
+      add.addEventListener('click', function(){ addFighter(side); });
+      host.appendChild(add);
+    });
+  }
+
+  function addFighter(side){
+    pushUndo();
+    var f = freshFighter(side);
+    state.fighters.push(f);
+    logMsg(f.name+' joins Side '+side+'.');
+    refresh();
+  }
+  function removeFighter(fid){
+    var f = byId(fid); if(!f) return;
+    pushUndo();
+    state.fighters = state.fighters.filter(function(x){ return x.id!==fid; });
+    // syncLanes() removes the now-orphaned lane/token DOM node on the next render
+    if(state.selected===fid){ var rest = fightersOf(f.side); state.selected = rest[0] ? rest[0].id : (state.fighters[0]?state.fighters[0].id:null); }
+    logMsg(f.name+' leaves the cell.');
+    if(fightersOf(f.side).length===0) showToast('Side '+f.side+' is empty of fighters now.');
+    refresh();
+  }
+
+  function chipEl(f){
+    var c = document.createElement('div');
+    c.className = 'chip side'+f.side + (f.zone==='pool'?' inpool':'') + (f.zone==='yielded'?' yielded':'') + (state.selected===f.id?' selected':'');
+    c.addEventListener('click', function(e){ if(e.target.tagName!=='INPUT' && e.target.tagName!=='SELECT' && e.target.className!=='chipdel') selectFighter(f.id); });
+
+    var del = document.createElement('button'); del.className='chipdel'; del.type='button'; del.title='Remove '+f.name; del.textContent='×';
+    del.addEventListener('click', function(e){ e.stopPropagation(); removeFighter(f.id); });
+    c.appendChild(del);
+
+    var top = document.createElement('div'); top.className='chip-top';
+    var nameI = document.createElement('input'); nameI.className='cname'; nameI.value=f.name;
+    nameI.addEventListener('input', function(){
+      f.name = nameI.value || f.name;
+      var tok = document.getElementById('tok-'+f.id); if(tok){ var tn=tok.querySelector('.tname'); if(tn) tn.textContent=f.name; }
+      var fbn = document.getElementById('fb-name-input'); if(fbn && state.selected===f.id) fbn.value = f.name;
+      save();
+    });
+    top.appendChild(nameI);
+    var zp = document.createElement('span'); zp.className='zpill '+(f.zone==='pool'?'pool':f.side); zp.textContent = f.zone==='pool'?'Pool':(f.zone==='yielded'?'Yield':'Z'+f.zone);
+    top.appendChild(zp);
+    c.appendChild(top);
+
+    var bars = document.createElement('div'); bars.className='cbars';
+    bars.appendChild(cbarRow('B', f.hp, f.hpMax, 'var(--body-hp)'));
+    bars.appendChild(cbarRow('M', f.mp, f.mpMax, 'var(--mind-hp)'));
+    c.appendChild(bars);
+
+    var roleS = document.createElement('select');
+    ROLES.forEach(function(r){ var o=document.createElement('option'); o.value=r; o.textContent=r; roleS.appendChild(o); });
+    roleS.value = f.role; roleS.addEventListener('change', function(){ f.role=roleS.value; refresh(); });
+    var leanS = document.createElement('select');
+    LEANS.forEach(function(l){ var o=document.createElement('option'); o.value=l; o.textContent=l; leanS.appendChild(o); });
+    leanS.value = f.lean; leanS.addEventListener('change', function(){ f.lean=leanS.value; refresh(); });
+    c.appendChild(roleS); c.appendChild(leanS);
+
+    var statusKey = f.zone==='pool' ? 'inpool' : (f.zone==='yielded' ? 'yielded' : (f.guarding ? 'guarding' : 'active'));
+    var statusText = {inpool:'Pool', yielded:'Yielded', guarding:'Guarding', active:'Active'}[statusKey];
+    var st = document.createElement('span'); st.className='status '+statusKey; st.textContent = statusText + (f.fouls? ' · '+f.fouls+'f':'');
+    c.appendChild(st);
+
+    return c;
+  }
+
+  function cbarRow(label, val, max, color){
+    var row = document.createElement('div'); row.className='cbarrow';
+    var lab = document.createElement('div'); lab.className='lab'; lab.textContent=label; lab.title = (label==='B'?'Body':'Mind')+' HP';
+    lab.style.background = color; lab.style.color = '#fff';
+    var outer = document.createElement('div'); outer.className='cbarouter';
+    var inner = document.createElement('div'); inner.className='cbarinner'; inner.style.width=Math.max(0,(val/max*100))+'%'; inner.style.background=color;
+    outer.appendChild(inner);
+    var v = document.createElement('div'); v.className='cbarval'; v.textContent=val+'/'+max;
+    row.appendChild(lab); row.appendChild(outer); row.appendChild(v);
+    return row;
+  }
+
+  // ---------------- floating action bar ----------------
+
+  function renderFloatbar(){
+    var bar = document.getElementById('floatbar');
+    bar.innerHTML = '';
+    var f = selectedFighter();
+    if(!f){
+      bar.className = 'floatbar empty';
+      bar.textContent = 'Click a fighter token or chip to select them here.';
+      return;
+    }
+    bar.className = 'floatbar';
+
+    var idBox = document.createElement('div'); idBox.className='fb-id';
+    var nameI = document.createElement('input'); nameI.id='fb-name-input'; nameI.className='fb-name'; nameI.value=f.name;
+    nameI.addEventListener('input', function(){
+      f.name = nameI.value || f.name;
+      var tok=document.getElementById('tok-'+f.id); if(tok){ var tn=tok.querySelector('.tname'); if(tn) tn.textContent=f.name; }
+      save();
+    });
+    idBox.appendChild(nameI);
+    var sub = document.createElement('div'); sub.className='fb-sub';
+    var zp = document.createElement('span'); zp.className='zpill '+(f.zone==='pool'?'pool':f.side); zp.textContent=zoneLabel(f.zone,f.side);
+    sub.appendChild(zp);
+    var statusKey = f.zone==='pool' ? 'inpool' : (f.zone==='yielded' ? 'yielded' : (f.guarding ? 'guarding' : 'active'));
+    sub.appendChild(document.createTextNode({inpool:'In the pool', yielded:'Yielded', guarding:'Guarding', active:'Active'}[statusKey]));
+    idBox.appendChild(sub);
+    if(typeof helpBtn==='function') idBox.appendChild(helpBtn('floatbar'));
+    bar.appendChild(idBox);
+
+    var barsBox = document.createElement('div'); barsBox.className='fb-bars';
+    barsBox.appendChild(fbBarRow('Body', f.hp, f.hpMax, 'var(--body-hp)', function(v){ f.hp=Math.max(0,Math.min(f.hpMax,v)); refresh(); }));
+    barsBox.appendChild(fbBarRow('Mind', f.mp, f.mpMax, 'var(--mind-hp)', function(v){ f.mp=Math.max(0,Math.min(f.mpMax,v)); refresh(); }));
+    bar.appendChild(barsBox);
+
+    bar.appendChild(fbSelect('Role', f.role, ROLES, function(v){ f.role=v; refresh(); }));
+    bar.appendChild(fbSelect('Lean', f.lean, LEANS, function(v){ f.lean=v; refresh(); }));
+    bar.appendChild(fbNumber('Body cap', f.hpMax, function(v){ f.hpMax=v; if(f.hp>v) f.hp=v; refresh(); }));
+    bar.appendChild(fbNumber('Mind cap', f.mpMax, function(v){ f.mpMax=v; if(f.mp>v) f.mp=v; refresh(); }));
+    bar.appendChild(fbNumber('AP', f.ap, function(v){ f.ap=v; refresh(); }));
+
+    var btns = document.createElement('div'); btns.className='fb-btns';
+    btns.appendChild(mbtn('⟵ Push 1', function(){ pushBack(f,1); }));
+    btns.appendChild(mbtn('⟵⟵ Push 2', function(){ pushBack(f,2); }));
+    btns.appendChild(mbtn('⟶ Advance 1', function(){ advanceOne(f); }));
+    btns.appendChild(mbtn('↩ Zone 1', function(){ pushUndo(); f.zone=1; logMsg(f.name+' returns to Zone 1.'); refresh(); }));
+    btns.appendChild(mbtn(f.guarding ? 'Guarding ✓' : 'Guard', function(){ pushUndo(); f.guarding=!f.guarding; logMsg(f.name+(f.guarding?' raises a Guard.':' lowers their Guard.')); refresh(); }, 'warn'));
+    btns.appendChild(mbtn('Foul', function(){ foul(f); }, 'danger'));
+    btns.appendChild(mbtn(f.zone==='yielded' ? 'Un-yield' : 'Yield', function(){ toggleYield(f); }, 'danger'));
+    btns.appendChild(mbtn('Corner (heal+Z1)', function(){ corner(f); }, 'good'));
+    bar.appendChild(btns);
+
+    var hf = document.createElement('div'); hf.className='fb-hit';
+    var dmgInput = document.createElement('input'); dmgInput.type='number'; dmgInput.min='0'; dmgInput.placeholder='dmg';
+    var trackSel = document.createElement('select');
+    ['Body','Mind'].forEach(function(t){ var o=document.createElement('option'); o.value=t; o.textContent=t; trackSel.appendChild(o); });
+    var beatLbl = document.createElement('label');
+    var beatChk = document.createElement('input'); beatChk.type='checkbox';
+    beatLbl.appendChild(beatChk); beatLbl.appendChild(document.createTextNode(' +5 AC'));
+    var applyBtn = mbtn('Apply hit', function(){
+      var raw = parseInt(dmgInput.value,10);
+      if(isNaN(raw) || raw<0) return;
+      resolveHit(f, raw, trackSel.value, beatChk.checked);
+      dmgInput.value=''; beatChk.checked=false;
+    }, 'danger');
+    hf.appendChild(document.createTextNode('Hit:'));
+    hf.appendChild(dmgInput); hf.appendChild(trackSel); hf.appendChild(beatLbl); hf.appendChild(applyBtn);
+    bar.appendChild(hf);
+  }
+
+  function fbBarRow(label, val, max, color, onChange){
+    var row = document.createElement('div'); row.className='fb-barrow';
+    var lab = document.createElement('div'); lab.className='lab'; lab.textContent=label;
+    lab.style.background = color; lab.style.color = '#fff';
+    var outer = document.createElement('div'); outer.className='fb-barouter';
+    var inner = document.createElement('div'); inner.className='fb-barinner'; inner.style.width=Math.max(0,(val/max*100))+'%'; inner.style.background=color;
+    outer.appendChild(inner);
+    var v = document.createElement('input'); v.type='number'; v.min='0'; v.max=String(max); v.className='fb-barval'; v.value=val;
+    v.title = 'Current '+label+' HP, out of '+max+'. Type a value to set it directly.';
+    v.addEventListener('change', function(){
+      var n = parseInt(v.value,10); if(isNaN(n)) n = val;
+      onChange(Math.max(0,Math.min(max,n)));
+    });
+    var mx = document.createElement('span'); mx.className='fb-barmax'; mx.textContent='/ '+max;
+    row.appendChild(lab); row.appendChild(outer); row.appendChild(v); row.appendChild(mx);
+    return row;
+  }
+
+  function fbSelect(label, value, options, onChange){
+    var wrap = document.createElement('div'); wrap.className='fb-editcell';
+    var l = document.createElement('div'); l.className='elab'; l.textContent=label;
+    var s = document.createElement('select');
+    options.forEach(function(o){ var op=document.createElement('option'); op.value=o; op.textContent=o; s.appendChild(op); });
+    s.value = value; s.addEventListener('change', function(){ onChange(s.value); });
+    wrap.appendChild(l); wrap.appendChild(s);
+    return wrap;
+  }
+
+  function fbNumber(label, value, onChange){
+    var wrap = document.createElement('div'); wrap.className='fb-editcell';
+    var l = document.createElement('div'); l.className='elab'; l.textContent=label;
+    var i = document.createElement('input'); i.type='number'; i.value=value;
+    i.addEventListener('change', function(){ var v=parseInt(i.value,10); if(isNaN(v)) v=0; onChange(v); });
+    wrap.appendChild(l); wrap.appendChild(i);
+    return wrap;
+  }
+
+  function mbtn(label, fn, cls){
+    var b = document.createElement('button');
+    b.className = 'mbtn' + (cls ? ' '+cls : '');
+    b.textContent = label;
+    b.addEventListener('click', fn);
+    return b;
+  }
+
+  function renderLog(){
+    var el = document.getElementById('logEl'); el.innerHTML = '';
+    state.log.forEach(function(entry){
+      var d = document.createElement('div');
+      var tag = document.createElement('span'); tag.className='tag'; tag.textContent = entry.t;
+      d.appendChild(tag); d.appendChild(document.createTextNode(entry.m));
+      el.appendChild(d);
+    });
+  }
+
+  function renderRidge(){
+    var box = document.getElementById('ridgeBox');
+    box.className = 'ridge-box' + (state.ridge.on ? ' show' : '');
+    if(!state.ridge.on) return;
+    var selA = document.getElementById('ridgeA'), selB = document.getElementById('ridgeB');
+    var prevA = selA.value, prevB = selB.value;
+    selA.innerHTML=''; selB.innerHTML='';
+    fightersOf('A').forEach(function(f){ var o=document.createElement('option'); o.value=f.id; o.textContent=f.name; selA.appendChild(o); });
+    fightersOf('B').forEach(function(f){ var o=document.createElement('option'); o.value=f.id; o.textContent=f.name; selB.appendChild(o); });
+    if(prevA) selA.value = prevA; if(prevB) selB.value = prevB;
+  }
+
+  function refresh(){
+    renderHeader();
+    renderRing();
+    renderResolveBanner();
+    renderChips();
+    renderFloatbar();
+    renderLog();
+    renderRidge();
+    save();
+  }
+
+  // ---------------- actions ----------------
+
+  function pushBack(f, n){
+    if(f.zone==='pool' || f.zone==='yielded') return;
+    pushUndo();
+    var z = f.zone + n;
+    if(z>=4){ f.zone='pool'; logMsg(f.name+' is pushed back and falls into the pool.'); }
+    else { f.zone=z; logMsg(f.name+' is pushed back '+n+' zone'+(n>1?'s':'')+' (now '+zoneLabel(f.zone,f.side)+').'); }
+    refresh();
+  }
+  function advanceOne(f){
+    if(f.zone==='pool' || f.zone==='yielded') return;
+    pushUndo();
+    if(f.zone>1){ f.zone=f.zone-1; logMsg(f.name+' advances to '+zoneLabel(f.zone,f.side)+'.'); refresh(); }
+    else { logMsg(f.name+' presses forward at the centre line.'); refresh(); }
+  }
+  function foul(f){
+    if(f.zone==='pool' || f.zone==='yielded') return;
+    pushUndo();
+    f.fouls += 1;
+    if(f.fouls>=2){ f.zone='pool'; logMsg(f.name+' commits a second foul this round and is sent straight into the pool.'); }
+    else { var z=f.zone+1; f.zone = z>=4 ? 'pool' : z; logMsg(f.name+' is fouled and pushed back one zone.'); }
+    refresh();
+  }
+  function toggleYield(f){
+    pushUndo();
+    if(f.zone==='yielded'){ f.zone=1; logMsg(f.name+' is back on their feet for the round.'); }
+    else { f.zone='yielded'; logMsg(f.name+' yields and leaves the ring for the round.'); }
+    refresh();
+  }
+  function corner(f){
+    pushUndo();
+    f.hp=f.hpMax; f.mp=f.mpMax; f.zone=1; f.guarding=false;
+    logMsg('Corner: '+f.name+' is restored to full and returned to Zone 1.');
+    refresh();
+  }
+  function resolveHit(f, raw, track, beat5){
+    pushUndo();
+    var half = Math.floor(raw/2);
+    if(track==='Body') f.hp = Math.max(0, f.hp-half); else f.mp = Math.max(0, f.mp-half);
+    var pushN = beat5 ? 2 : 1;
+    var fellInPool = false;
+    if(f.zone!=='pool' && f.zone!=='yielded'){
+      var z = f.zone + pushN;
+      if(z>=4){ f.zone='pool'; fellInPool=true; } else { f.zone=z; }
+    }
+    logMsg(f.name+' takes a hit for '+half+' '+track+' HP (half of '+raw+') and is pushed back '+pushN+' zone'+(pushN>1?'s':'')+(fellInPool?', falling into the pool':'')+'.');
+    if(f.hp<=0 || f.mp<=0){
+      if(f.zone!=='pool'){ f.zone='yielded'; }
+      logMsg(f.name+' is reduced to zero and yields.');
+    }
+    refresh();
+  }
+  function nextExchange(){
+    pushUndo();
+    if(state.exchange<5){ state.exchange++; }
+    state.turn = (state.territory.A <= state.territory.B) ? 'A' : 'B';
+    logMsg('Exchange '+state.exchange+' begins. '+state.cellName[state.turn]+' acts first.');
+    refresh();
+  }
+  function prevExchange(){ if(state.exchange>1){ pushUndo(); state.exchange--; refresh(); } }
+  function advanceTerritory(side){
+    pushUndo();
+    state.territory[side] = Math.min(3, state.territory[side]+1);
+    logMsg(state.cellName[side]+' advances and claims another zone of territory.');
+    refresh();
+  }
+  function resolveRound(){
+    pushUndo();
+    var aStand = fightersOf('A').filter(standing), bStand = fightersOf('B').filter(standing);
+    var verdict = '';
+    if(aStand.length===0 && bStand.length===0){ verdict = 'draw-both-down'; }
+    else if(aStand.length===0){ verdict='A-KO'; }
+    else if(bStand.length===0){ verdict='B-KO'; }
+    else if(state.territory.A > state.territory.B){ verdict='A-territory'; }
+    else if(state.territory.B > state.territory.A){ verdict='B-territory'; }
+    else { verdict='draw'; }
+    var msg;
+    if(verdict==='A-KO'){ state.scores.A++; msg = state.cellName.A+' wins the round by knockout.'; }
+    else if(verdict==='B-KO'){ state.scores.B++; msg = state.cellName.B+' wins the round by knockout.'; }
+    else if(verdict==='A-territory'){ state.scores.A++; msg = state.cellName.A+' wins the round on territory.'; }
+    else if(verdict==='B-territory'){ state.scores.B++; msg = state.cellName.B+' wins the round on territory.'; }
+    else { msg = 'The round is scored a draw; neither cell gains from it.'; }
+    logMsg(msg);
+    showToast(msg);
+    state.fighters.forEach(function(f){ f.zone=1; f.fouls=0; f.guarding=false; });
+    state.territory = {A:0,B:0};
+    state.exchange = 1;
+    if(state.round<3) state.round++;
+    refresh();
+  }
+  function startRidge(){ pushUndo(); state.ridge.on = true; logMsg('The match is settled on the Ridge.'); refresh(); }
+  function ridgeWin(side){
+    pushUndo();
+    var selA = document.getElementById('ridgeA').value, selB = document.getElementById('ridgeB').value;
+    var winnerFighter = byId(side==='A'?selA:selB);
+    state.scores[side]++;
+    logMsg((winnerFighter?winnerFighter.name:('Side '+side))+' pushes their opponent from the plank. '+state.cellName[side]+' takes the match on the Ridge.');
+    showToast(state.cellName[side]+' wins on the Ridge!');
+    refresh();
+  }
+  function resetAll(){
+    askConfirm('Start a brand new bout? This clears the current match.', function(){
+      pushUndo();
+      try{ localStorage.removeItem('zombat_tracker_state'); }catch(e){}
+      var keepTheme = state.theme;
+      state = freshState();
+      state.theme = keepTheme;
+      resetTrackDom();
+      refresh();
+    });
+  }
+
+  function setFormat(n){
+    pushUndo();
+    ['A','B'].forEach(function(side){
+      var list = fightersOf(side);
+      if(list.length > n){
+        var dropIds = list.slice(n).map(function(f){ return f.id; });
+        state.fighters = state.fighters.filter(function(f){ return dropIds.indexOf(f.id)===-1; });
+      } else {
+        for(var i=list.length; i<n; i++) state.fighters.push(freshFighter(side));
+      }
+    });
+    if(!byId(state.selected)) state.selected = state.fighters[0] ? state.fighters[0].id : null;
+    logMsg('Match format set to '+n+' v '+n+'.');
+    document.querySelectorAll('.formatbar .cbtn.on').forEach(function(b){ b.classList.remove('on'); });
+    var btn = document.getElementById('fmt'+n); if(btn) btn.classList.add('on');
+    refresh();
+  }
+
+  // ---------------- wire up ----------------
+
+  document.getElementById('cellNameA').addEventListener('input', function(e){ state.cellName.A = e.target.value || 'Cell A'; renderTerritory(); save(); });
+  document.getElementById('cellNameB').addEventListener('input', function(e){ state.cellName.B = e.target.value || 'Cell B'; renderTerritory(); save(); });
+  document.getElementById('paradoxA').addEventListener('change', function(e){ state.paradox.A = e.target.checked; save(); });
+  document.getElementById('paradoxB').addEventListener('change', function(e){ state.paradox.B = e.target.checked; save(); });
+
+  document.getElementById('nextExchangeBtn').addEventListener('click', nextExchange);
+  document.getElementById('prevExchangeBtn').addEventListener('click', prevExchange);
+  document.getElementById('advanceTerrABtn').addEventListener('click', function(){ advanceTerritory('A'); });
+  document.getElementById('advanceTerrBBtn').addEventListener('click', function(){ advanceTerritory('B'); });
+  document.getElementById('resolveRoundBtn').addEventListener('click', resolveRound);
+  document.getElementById('startRidgeBtn').addEventListener('click', startRidge);
+  document.getElementById('resetBtn').addEventListener('click', resetAll);
+  document.getElementById('ridgeWinA').addEventListener('click', function(){ ridgeWin('A'); });
+  document.getElementById('ridgeWinB').addEventListener('click', function(){ ridgeWin('B'); });
+
+  document.getElementById('modalOk').addEventListener('click', function(){
+    document.getElementById('modalOverlay').classList.remove('show');
+    var fn = pendingConfirm; pendingConfirm = null;
+    if(fn) fn();
+  });
+  document.getElementById('modalCancel').addEventListener('click', function(){
+    document.getElementById('modalOverlay').classList.remove('show');
+    pendingConfirm = null;
+  });
+  document.getElementById('modalOverlay').addEventListener('click', function(e){
+    if(e.target.id === 'modalOverlay'){ e.currentTarget.classList.remove('show'); pendingConfirm = null; }
+  });
+
+  document.getElementById('themeBtn').addEventListener('click', cycleTheme);
+  document.getElementById('undoBtn').addEventListener('click', undo);
+  document.getElementById('fmt1').addEventListener('click', function(){ setFormat(1); });
+  document.getElementById('fmt2').addEventListener('click', function(){ setFormat(2); });
+  document.getElementById('fmt3').addEventListener('click', function(){ setFormat(3); });
+
+  // ---------------- help ("?") popovers ----------------
+  var HELP_TEXT = {
+    ring: "This is the ring. Each side has three zones plus a pool behind it. Push your rival back zone by zone; shove them past Zone 3 and they fall in the pool and sit out the round. Drag a token, or use the floating bar's push and advance buttons.",
+    turf: "Turf tracks who controls which zone. Winning territory lets your cell step into the rival's ground and paint it your color on the ring above; that colored strip shows exactly how far in each side has pushed.",
+    flow: "Walk the bout through here. Step the exchange counter forward, award territory when a side earns it, resolve the round once exchange 5 ends or one whole side is down, or send a still-tied match to the Ridge after round three.",
+    roster: "Every fighter card here is editable: rename them, change Role or Lean, and watch Body/Mind health update live. Click a card, or its token in the ring, to work on that fighter in the bar at the bottom. Use + to add a fighter, × to drop one.",
+    floatbar: "Whoever you select shows up here with every editable stat and the action buttons: push back, advance, guard, foul, yield, patch up in the corner, and a small form to resolve a hit for exact damage.",
+    ridge: "Used only when a match is tied after three rounds. Each cell sends one fighter onto the plank; they trade hits (Guard still works) until one is knocked off, and that side takes the whole match."
+  };
+  var helpOpenFor = null, helpPopEl = null;
+  function closeHelp(){ if(helpPopEl){ helpPopEl.remove(); helpPopEl = null; helpOpenFor = null; } }
+  function toggleHelp(btn, text){
+    var reopening = helpOpenFor !== btn;
+    closeHelp();
+    if(!reopening) return;
+    var pop = document.createElement('div'); pop.className = 'helppop'; pop.textContent = text;
+    document.body.appendChild(pop);
+    var r = btn.getBoundingClientRect();
+    var left = Math.min(window.innerWidth - 262, Math.max(8, r.left - 120));
+    var top = Math.min(window.innerHeight - 20, r.bottom + 6);
+    pop.style.left = left + 'px'; pop.style.top = top + 'px';
+    helpPopEl = pop; helpOpenFor = btn;
+  }
+  function helpBtn(key){
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'helpq'; b.textContent = '?';
+    b.addEventListener('click', function(e){ e.stopPropagation(); toggleHelp(b, HELP_TEXT[key]); });
+    return b;
+  }
+  document.addEventListener('click', function(e){
+    if(helpPopEl && !helpPopEl.contains(e.target) && e.target !== helpOpenFor) closeHelp();
+  });
+  document.getElementById('helpHostRing').appendChild(helpBtn('ring'));
+  document.getElementById('helpHostTurf').appendChild(helpBtn('turf'));
+  document.getElementById('helpHostRidge').appendChild(helpBtn('ridge'));
+  document.getElementById('helpHostRoster').appendChild(helpBtn('roster'));
+  document.getElementById('flowbarEl').appendChild(helpBtn('flow'));
+
+  var loaded = load();
+  state = (loaded && loaded.fighters && loaded.fighters.length) ? loaded : freshState();
+  if(state.fighterSeq===undefined) state.fighterSeq = state.fighters.length;
+  if(!state.theme || ['ink','grunge','bubblegum'].indexOf(state.theme)===-1) state.theme = 'ink';
+  if(!state.selected || !byId(state.selected)) state.selected = state.fighters[0] ? state.fighters[0].id : null;
+  var fmtBtn = document.getElementById('fmt'+Math.max(1,Math.min(3,fightersOf('A').length)));
+  if(fmtBtn){ document.querySelectorAll('.formatbar .cbtn.on').forEach(function(b){ b.classList.remove('on'); }); fmtBtn.classList.add('on'); }
+  applyTheme();
+  refresh();
+
+})();
+</script>
+</body>
+</html>
