@@ -186,6 +186,8 @@ td:first-child{text-align:left;white-space:nowrap;font-weight:700}
 .card .top{padding:14px 16px 12px 26px;border-bottom:3px solid var(--k);overflow:hidden}
 .card .namerow{position:relative;z-index:1;display:flex;align-items:center;gap:9px}
 .card h3{font-size:19px;line-height:1.1;margin-right:auto;text-shadow:2px 2px 0 var(--k)}
+.card .pips{display:inline-flex;gap:6px;flex:none;align-items:flex-start}
+.card .pip.die{background:var(--cyan)}
 .card .pip{font-family:var(--display);font-size:13px;color:#000;background:var(--yel);border:2.5px solid var(--k);padding:3px 8px 2px;white-space:nowrap;flex:none;box-shadow:2px 2px 0 var(--k)}
 .card .eng{position:relative;z-index:1;font-family:var(--display);font-size:15px;line-height:1.15;color:var(--nc);margin-top:8px;text-shadow:2px 2px 0 var(--k)}
 .card .say{position:relative;z-index:1;color:var(--dim);font-size:13px;margin-top:3px}
@@ -1518,13 +1520,19 @@ $('dock').addEventListener('click', e=>{
 
 /* ---------------- cards ---------------- */
 function mechLine(t){
-  const bp = t.ab==='C'?'Body':'Mind';
-  if(t.ty==='Break') return t.tg==='AP' ? 'Roll against '+bp+' AC. On a hit the target loses AP equal to half the die, rounded up.'
-    : 'Roll against '+bp+' AC. On a hit the target loses '+t.tg+' equal to the die + your '+bp+' Damage Bonus.';
-  if(t.ty==='Mend'){ if(t.tg==='AP') return 'Roll against 10. One ally or you regain AP equal to half the die, rounded up, once between rests.';
-    if(t.tg.indexOf('AC')>0) return 'Roll against 10. One ally or you gain +'+t.tier+' '+t.tg+' for the scene.';
-    return 'Roll against 10. One ally or you regain '+t.tg+' equal to the die + your '+bp+' Damage Bonus.'; }
-  return 'Cast as a Reaction against an incoming Break or Mend. Match or beat its roll and it is negated.';
+  const bp = t.ab==='C'?'Body':'Mind', sc = t.ab==='C'?'Chakna':'Rilru', d = '1D'+t.die;
+  const roll = '1D20 + '+sc+' modifier + technique die ('+d+')';
+  const dmg = 'your '+bp+' Damage Bonus (your '+sc+' score)';
+  const pool = what => t.su ? ' This technique spends your whole pool: add the AP spent to '+what+'.' : '';
+  if(t.ty==='Break') return t.tg==='AP'
+    ? 'To hit: '+roll+' against the target\'s '+bp+' AC. On a hit the target loses AP equal to half the '+d+' roll, rounded up.'+pool('the AP lost')
+    : 'To hit: '+roll+' against the target\'s '+bp+' AC. On a hit the target loses '+t.tg+' equal to the '+d+' roll + '+dmg+'.'+pool('the '+t.tg+' lost');
+  if(t.ty==='Mend'){
+    const head = 'To succeed: '+roll+' against 10. On a success ';
+    if(t.tg==='AP') return head+'one ally or you regain AP equal to half the '+d+' roll, rounded up, once between rests.'+pool('the AP regained');
+    if(t.tg.indexOf('AC')>0) return head+'one ally or you gain +'+t.tier+' '+t.tg+' for the scene.'+pool('the AC gained');
+    return head+'one ally or you regain '+t.tg+' equal to the '+d+' roll + '+dmg+'.'+pool('the '+t.tg+' regained'); }
+  return 'As a Reaction: '+roll+' against the roll of an incoming Break or Mend. Match or beat it and that technique is negated.'+pool('your Guard roll');
 }
 const GMARK = '<svg class="gmark" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 2 L23 15 L36 12 L25 20 L34 30 L21 25 L20 38 L19 25 L6 30 L15 20 L4 12 L17 15Z" fill="currentColor"/></svg>';
 const GRAF = {"Vanveil": "<path d=\"M12 50 Q50 18 88 50 Q50 82 12 50Z\"/><circle cx=\"50\" cy=\"50\" r=\"10\" fill=\"currentColor\"/><path d=\"M16 16 L84 84 M84 16 L16 84\"/>", "Ramkeep": "<path d=\"M50 8 L50 50 M50 50 L28 74 M50 50 L72 74 M50 50 L50 88 M28 74 L16 90 M72 74 L86 88\"/><path d=\"M50 22 L68 10 M50 32 L32 20\"/>", "Lungscript": "<rect x=\"10\" y=\"22\" width=\"80\" height=\"52\"/><circle cx=\"33\" cy=\"46\" r=\"9\"/><circle cx=\"67\" cy=\"46\" r=\"9\"/><path d=\"M24 74 L31 60 L69 60 L76 74\"/>", "Luibond": "<rect x=\"6\" y=\"38\" width=\"38\" height=\"24\"/><rect x=\"31\" y=\"38\" width=\"38\" height=\"24\"/><rect x=\"56\" y=\"38\" width=\"38\" height=\"24\"/><path d=\"M25 20 L25 32 M50 14 L50 32 M75 20 L75 32\"/>", "Tlanghaven": "<path d=\"M12 50 L50 14 L88 50 M22 42 L22 86 L78 86 L78 42\"/><path d=\"M41 86 L41 60 L59 60 L59 86\"/>", "Zalenpath": "<rect x=\"4\" y=\"40\" width=\"36\" height=\"22\"/><rect x=\"60\" y=\"40\" width=\"36\" height=\"22\"/><path d=\"M46 26 L55 40 L45 54 L55 68\"/><path d=\"M70 14 L90 14 L90 32 M90 14 L66 36\"/>", "Vanchord": "<path d=\"M58 6 L30 54 L50 54 L40 94 L74 40 L54 40 L64 6Z\" fill=\"currentColor\" stroke=\"none\"/><path d=\"M18 30 Q6 50 18 70 M82 30 Q94 50 82 70 M8 22 Q-8 50 8 78\"/>"};
@@ -1534,11 +1542,11 @@ const SRCN = {Bone:'From the bone',Land:'From the land',Leyline:'From the leylin
 function techCard(k, foot, extra){
   const t = TECH[k], c = TYPEC[t.ty];
   return '<article class="card" data-k="'+esc(t.k)+'" style="--tc:'+c+';--gc:'+AN[t.an][2]+'"><div class="top an-'+t.an+'">'+
-    '<div class="namerow">'+GMARK+'<h3>'+esc(t.k)+'</h3><span class="pip">AP '+t.ap+'</span></div>'+
+    '<div class="namerow">'+GMARK+'<h3>'+esc(t.k)+'</h3><span class="pips"><span class="pip die" title="Technique die">1D'+t.die+'</span><span class="pip" title="Minimum AP">AP '+t.ap+'</span></span></div>'+
     '<div class="eng">'+esc(t.p)+'</div><div class="say">/'+esc(t.say)+'/</div>'+
     '<div class="tags"><span class="chip" style="--c:'+c+'">'+t.ty+'</span>'+(t.tg?'<span class="chip" style="--c:'+c+'">'+t.tg+'</span>':'')+
     '<span class="chip" style="--c:'+AN[t.an][2]+'">'+esc(AN[t.an][0])+'</span>'+(extra||'')+'</div></div>'+
-    '<div class="mid"><p class="mech">'+mechLine(t)+(t.su?' This technique spends your whole pool and adds the AP spent to its effect.':'')+'</p>'+
+    '<div class="mid"><p class="mech">'+mechLine(t)+'</p>'+
     '<p class="flavor"><span class="srcstamp src-'+t.src+'">'+SRCN[t.src]+'</span>'+esc(t.v)+'</p>'+
     domFx(t)+'</div>'+
     (foot||'')+'</article>';
@@ -1598,7 +1606,7 @@ function stationPanel(k){ const s = STN[k], r = s.reg>=0 ? REG[s.reg] : null, L 
     '<h3 class="big">'+esc(s.n)+'</h3>'+(s.g?'<div class="gloss">'+esc(s.g)+'</div>':'')+lineBadges(k)+
     '<p class="note story">'+esc(s.f)+'</p>'+
     '<h4>Strongest here</h4><p class="note">'+(k==='O'?'The techniques that burn the whole pool run hottest at the source. ':s.hi?'High ground. The heavier techniques of this slope wake here. ':'The rim. The lighter techniques of this slope run close to the surface. ')+kinds.join(', ')+'.</p>'+
-    '<div class="stlist">'+L.map(t=>'<button type="button" class="strow" data-pick="'+esc(t.k)+'" style="--tc:'+TYPEC[t.ty]+';--gc:'+AN[t.an][2]+'"><b>'+esc(t.k)+'</b><span>'+t.ty+'</span><span>AP '+t.ap+'</span><i>'+esc(AN[t.an][0])+'</i></button>').join('')+'</div></div>'; }
+    '<div class="stlist">'+L.map(t=>'<button type="button" class="strow" data-pick="'+esc(t.k)+'" style="--tc:'+TYPEC[t.ty]+';--gc:'+AN[t.an][2]+'"><b>'+esc(t.k)+'</b><span>'+t.ty+'</span><span>AP '+t.ap+' · 1D'+t.die+'</span><i>'+esc(AN[t.an][0])+'</i></button>').join('')+'</div></div>'; }
 function linePanel(id){ const l = LINES.find(x=>x.id===id);
   return '<div class="box station" style="border-top:8px solid '+l.c+'"><div class="eyebrow">'+(l.an?esc(l.an)+' leyline':'Pilgrim loop')+'</div><h3 class="big" style="color:'+l.c+'">'+esc(l.n)+'</h3><p class="note story">'+esc(l.d)+'</p>'+
     '<h4>Stations</h4><div class="stlist">'+[...new Set(l.s)].map(k=>'<button type="button" class="strow" data-st="'+k+'" style="--tc:'+l.c+'"><b>'+esc(STN[k].n)+'</b><span>'+(STN[k].g||'')+'</span></button>').join('')+'</div></div>'; }
@@ -1922,7 +1930,7 @@ async function drawSheet(){
   const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
   const CW = (IW - 24)/2, PADX = 26, TW = CW - PADX - 16;
   const plan = (t, f) => { x.font = '700 '+Math.round(f*.88)+'px '+BF; const meta = cLines(x, t.ty+(t.tg?' to '+t.tg:'')+', '+AN[t.an][0]+' of '+t.an+', '+SRCN[t.src], TW);
-    x.font = f+'px '+BF; const mech = cLines(x, mechLine(t)+(t.su?' This technique spends your whole pool and adds the AP spent to its effect.':''), TW);
+    x.font = f+'px '+BF; const mech = cLines(x, mechLine(t), TW);
     const fx = cLines(x, 'With a '+AN[t.pd][0]+' technique among your Techniques: '+t.fx, TW); const lh = Math.round(f*1.36), mlh = Math.round(f*.88*1.34);
     const h = 16 + Math.round(f*1.5) + meta.length*mlh + Math.round(f*1.45) + Math.round(f*1.2) + mech.length*lh + Math.round(f*1.6) + fx.length*lh + 14;
     return {t, f, meta, mech, fx, lh, mlh, h}; };
@@ -1984,6 +1992,7 @@ async function drawSheet(){
       const cx = l + PADX; let yy = ry + 16 + Math.round(F*1.15);
       x.fillStyle = C('ink'); cFit(x, t.k.toUpperCase(), DF, TW - 70, Math.round(F*1.3), 12); x.fillText(t.k.toUpperCase(), cx, yy);
       x.font = Math.round(F*.95)+'px '+DF; const ap = 'AP '+t.ap, pw = x.measureText(ap).width + 16; x.fillStyle = C('yel'); x.fillRect(l+CW-14-pw, ry+12, pw, Math.round(F*1.6)); x.lineWidth = 3; x.strokeRect(l+CW-14-pw, ry+12, pw, Math.round(F*1.6)); x.fillStyle = '#000'; x.fillText(ap, l+CW-14-pw+8, ry+12+Math.round(F*1.2));
+      { const dt = '1D'+t.die, dw = x.measureText(dt).width + 16, dl = l+CW-14-pw-8-dw; x.fillStyle = C('cyan'); x.fillRect(dl, ry+12, dw, Math.round(F*1.6)); x.lineWidth = 3; x.strokeStyle = '#000'; x.strokeRect(dl, ry+12, dw, Math.round(F*1.6)); x.fillStyle = '#000'; x.fillText(dt, dl+8, ry+12+Math.round(F*1.2)); }
       yy += Math.round(F*.35); x.font = '700 '+Math.round(F*.88)+'px '+BF; x.fillStyle = C('dim'); p.meta.forEach(m=>{ yy += p.mlh; x.fillText(m, cx, yy); });
       yy += Math.round(F*1.45); x.font = Math.round(F*.98)+'px '+DF; x.fillStyle = cvar(TYPEC[t.ty]); x.fillText(t.p.toUpperCase(), cx, yy);
       yy += Math.round(F*1.2); x.font = Math.round(F*.72)+'px '+DF; x.fillStyle = C('ink'); x.fillText('RULE', cx, yy);
