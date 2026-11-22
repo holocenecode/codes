@@ -186,11 +186,12 @@ td:first-child{text-align:left;white-space:nowrap;font-weight:700}
 .card .top{padding:14px 16px 12px 26px;border-bottom:3px solid var(--k);overflow:hidden}
 .card .namerow{position:relative;z-index:1;display:flex;align-items:center;gap:9px}
 .card h3{font-size:19px;line-height:1.1;margin-right:auto;text-shadow:2px 2px 0 var(--k)}
-.card .pips{display:inline-flex;gap:5px;flex:none;align-self:flex-start;margin-top:2px}
-.card .namerow{flex-wrap:wrap;row-gap:6px}
-.card .namerow h3{flex:0 1 auto;min-width:0;overflow-wrap:break-word}
-.card .pips{margin-left:auto}
-.card .pips .pip,.slotgrid .card .pips .pip{font-size:11px !important;line-height:1;width:40px;padding:4px 0 3px !important;text-align:center;box-shadow:2px 2px 0 var(--k)}
+.card .tags:not(.tagx){flex-wrap:nowrap;align-items:center;container-type:inline-size;gap:clamp(3px,1.2cqi,6px)}
+.card .tags:not(.tagx) .chip,.card .tags .pip{font-size:var(--tf,clamp(8.5px,3cqi,12.5px)) !important;padding:2px var(--tp,clamp(3px,1.6cqi,9px)) !important;line-height:1.35;white-space:nowrap;flex:none}
+.card .tags .pips{display:inline-flex;gap:clamp(3px,1.2cqi,5px);flex:none;margin-left:auto}
+.card .tags .pip{box-shadow:2px 2px 0 var(--k);border-width:2px}
+.card .tagx{margin-top:6px}
+.card .tags.tight .chip.dom{flex:0 1 auto;min-width:1.6em;overflow:hidden;text-overflow:ellipsis}
 .card .pip.die{background:var(--cyan)}
 .card .pip.all{background:var(--mag);color:#fff}
 .card .pip{font-family:var(--display);font-size:13px;color:#000;background:var(--yel);border:2.5px solid var(--k);padding:3px 8px 2px;white-space:nowrap;flex:none;box-shadow:2px 2px 0 var(--k)}
@@ -1547,10 +1548,12 @@ const SRCN = {Bone:'From the bone',Land:'From the land',Leyline:'From the leylin
 function techCard(k, foot, extra){
   const t = TECH[k], c = TYPEC[t.ty];
   return '<article class="card" data-k="'+esc(t.k)+'" style="--tc:'+c+';--gc:'+AN[t.an][2]+'"><div class="top an-'+t.an+'">'+
-    '<div class="namerow">'+GMARK+'<h3>'+esc(t.k)+'</h3><span class="pips"><span class="pip die" data-info="die">1D'+t.die+'</span>'+(t.su ? '<span class="pip all" data-info="apall">AP A</span>' : '<span class="pip" data-info="ap">AP '+t.ap+'</span>')+'</span></div>'+
+    '<div class="namerow">'+GMARK+'<h3>'+esc(t.k)+'</h3></div>'+
     '<div class="eng">'+esc(t.p)+'</div><div class="say">/'+esc(t.say)+'/</div>'+
     '<div class="tags"><span class="chip" style="--c:'+c+'">'+t.ty+'</span>'+(t.tg?'<span class="chip" style="--c:'+c+'">'+t.tg+'</span>':'')+
-    '<span class="chip" style="--c:'+AN[t.an][2]+'">'+esc(AN[t.an][0])+'</span>'+(extra||'')+'</div></div>'+
+    '<span class="chip dom" style="--c:'+AN[t.an][2]+'">'+esc(AN[t.an][0])+'</span>'+
+    '<span class="pips"><span class="pip die" data-info="die">1D'+t.die+'</span>'+(t.su ? '<span class="pip all" data-info="apall">AP A</span>' : '<span class="pip" data-info="ap">AP '+t.ap+'</span>')+'</span></div>'+
+    (extra ? '<div class="tags tagx">'+extra+'</div>' : '')+'</div>'+
     '<div class="mid"><p class="mech">'+mechLine(t)+'</p>'+
     '<p class="flavor"><span class="srcstamp src-'+t.src+'">'+SRCN[t.src]+'</span>'+esc(t.v)+'</p>'+
     domFx(t)+'</div>'+
@@ -2238,6 +2241,22 @@ $('collapseAll').addEventListener('click', ()=>{ hidePop(); go(''); try{ window.
     setTimeout(() => intro.classList.add('flash'), 1480);
     setTimeout(reveal, 1860); }
   intro.addEventListener('click', start);
+})();
+</script>
+<script>
+/* Keep every technique card's tag row, die and AP on one line: shrink the row's type until it fits. */
+(function(){
+  let q = 0;
+  function fit(){ q = 0; document.querySelectorAll('.card .tags:not(.tagx)').forEach(r=>{
+    if(!r.offsetParent) return; r.classList.remove('tight'); r.style.removeProperty('--tf'); r.style.removeProperty('--tp');
+    if(r.scrollWidth <= r.clientWidth) return;
+    let f = parseFloat(getComputedStyle(r.querySelector('.chip,.pip')).fontSize) || 12;
+    while(r.scrollWidth > r.clientWidth && f > 7.5){ f -= .5; r.style.setProperty('--tf', f+'px'); r.style.setProperty('--tp', Math.max(2, Math.round(f*.4))+'px'); }
+    if(r.scrollWidth > r.clientWidth) r.classList.add('tight'); }); }
+  const later = () => { if(!q) q = requestAnimationFrame(fit); };
+  new MutationObserver(later).observe(document.body, {childList:true, subtree:true});
+  window.addEventListener('resize', later); document.addEventListener('click', ()=>setTimeout(later, 60));
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(later); later();
 })();
 </script>
 </body>
