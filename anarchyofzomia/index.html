@@ -186,8 +186,13 @@ td:first-child{text-align:left;white-space:nowrap;font-weight:700}
 .card .top{padding:14px 16px 12px 26px;border-bottom:3px solid var(--k);overflow:hidden}
 .card .namerow{position:relative;z-index:1;display:flex;align-items:center;gap:9px}
 .card h3{font-size:19px;line-height:1.1;margin-right:auto;text-shadow:2px 2px 0 var(--k)}
-.card .pips{display:inline-flex;gap:6px;flex:none;align-items:flex-start}
+.card .pips{display:inline-flex;gap:5px;flex:none;align-self:flex-start;margin-top:2px}
+.card .namerow{flex-wrap:wrap;row-gap:6px}
+.card .namerow h3{flex:0 1 auto;min-width:0;overflow-wrap:break-word}
+.card .pips{margin-left:auto}
+.card .pips .pip,.slotgrid .card .pips .pip{font-size:11px !important;line-height:1;width:40px;padding:4px 0 3px !important;text-align:center;box-shadow:2px 2px 0 var(--k)}
 .card .pip.die{background:var(--cyan)}
+.card .pip.all{background:var(--mag);color:#fff}
 .card .pip{font-family:var(--display);font-size:13px;color:#000;background:var(--yel);border:2.5px solid var(--k);padding:3px 8px 2px;white-space:nowrap;flex:none;box-shadow:2px 2px 0 var(--k)}
 .card .eng{position:relative;z-index:1;font-family:var(--display);font-size:15px;line-height:1.15;color:var(--nc);margin-top:8px;text-shadow:2px 2px 0 var(--k)}
 .card .say{position:relative;z-index:1;color:var(--dim);font-size:13px;margin-top:3px}
@@ -1523,7 +1528,7 @@ function mechLine(t){
   const bp = t.ab==='C'?'Body':'Mind', sc = t.ab==='C'?'Chakna':'Rilru', d = '1D'+t.die;
   const roll = '1D20 + '+sc+' modifier + technique die ('+d+')';
   const dmg = 'your '+bp+' Damage Bonus (your '+sc+' score)';
-  const pool = what => t.su ? ' This technique spends your whole pool: add the AP spent to '+what+'.' : '';
+  const pool = what => t.su ? ' Casting this spends all the AP you hold instead of 1. Add +1 to '+what+' for each AP spent.' : '';
   if(t.ty==='Break') return t.tg==='AP'
     ? 'To hit: '+roll+' against the target\'s '+bp+' AC. On a hit the target loses AP equal to half the '+d+' roll, rounded up.'+pool('the AP lost')
     : 'To hit: '+roll+' against the target\'s '+bp+' AC. On a hit the target loses '+t.tg+' equal to the '+d+' roll + '+dmg+'.'+pool('the '+t.tg+' lost');
@@ -1542,7 +1547,7 @@ const SRCN = {Bone:'From the bone',Land:'From the land',Leyline:'From the leylin
 function techCard(k, foot, extra){
   const t = TECH[k], c = TYPEC[t.ty];
   return '<article class="card" data-k="'+esc(t.k)+'" style="--tc:'+c+';--gc:'+AN[t.an][2]+'"><div class="top an-'+t.an+'">'+
-    '<div class="namerow">'+GMARK+'<h3>'+esc(t.k)+'</h3><span class="pips"><span class="pip die" title="Technique die">1D'+t.die+'</span><span class="pip" title="Minimum AP">AP '+t.ap+'</span></span></div>'+
+    '<div class="namerow">'+GMARK+'<h3>'+esc(t.k)+'</h3><span class="pips"><span class="pip die" data-info="die">1D'+t.die+'</span>'+(t.su ? '<span class="pip all" data-info="apall">AP A</span>' : '<span class="pip" data-info="ap">AP '+t.ap+'</span>')+'</span></div>'+
     '<div class="eng">'+esc(t.p)+'</div><div class="say">/'+esc(t.say)+'/</div>'+
     '<div class="tags"><span class="chip" style="--c:'+c+'">'+t.ty+'</span>'+(t.tg?'<span class="chip" style="--c:'+c+'">'+t.tg+'</span>':'')+
     '<span class="chip" style="--c:'+AN[t.an][2]+'">'+esc(AN[t.an][0])+'</span>'+(extra||'')+'</div></div>'+
@@ -1606,7 +1611,7 @@ function stationPanel(k){ const s = STN[k], r = s.reg>=0 ? REG[s.reg] : null, L 
     '<h3 class="big">'+esc(s.n)+'</h3>'+(s.g?'<div class="gloss">'+esc(s.g)+'</div>':'')+lineBadges(k)+
     '<p class="note story">'+esc(s.f)+'</p>'+
     '<h4>Strongest here</h4><p class="note">'+(k==='O'?'The techniques that burn the whole pool run hottest at the source. ':s.hi?'High ground. The heavier techniques of this slope wake here. ':'The rim. The lighter techniques of this slope run close to the surface. ')+kinds.join(', ')+'.</p>'+
-    '<div class="stlist">'+L.map(t=>'<button type="button" class="strow" data-pick="'+esc(t.k)+'" style="--tc:'+TYPEC[t.ty]+';--gc:'+AN[t.an][2]+'"><b>'+esc(t.k)+'</b><span>'+t.ty+'</span><span>AP '+t.ap+' · 1D'+t.die+'</span><i>'+esc(AN[t.an][0])+'</i></button>').join('')+'</div></div>'; }
+    '<div class="stlist">'+L.map(t=>'<button type="button" class="strow" data-pick="'+esc(t.k)+'" style="--tc:'+TYPEC[t.ty]+';--gc:'+AN[t.an][2]+'"><b>'+esc(t.k)+'</b><span>'+t.ty+'</span><span>'+(t.su?'AP A':'AP '+t.ap)+' · 1D'+t.die+'</span><i>'+esc(AN[t.an][0])+'</i></button>').join('')+'</div></div>'; }
 function linePanel(id){ const l = LINES.find(x=>x.id===id);
   return '<div class="box station" style="border-top:8px solid '+l.c+'"><div class="eyebrow">'+(l.an?esc(l.an)+' leyline':'Pilgrim loop')+'</div><h3 class="big" style="color:'+l.c+'">'+esc(l.n)+'</h3><p class="note story">'+esc(l.d)+'</p>'+
     '<h4>Stations</h4><div class="stlist">'+[...new Set(l.s)].map(k=>'<button type="button" class="strow" data-st="'+k+'" style="--tc:'+l.c+'"><b>'+esc(STN[k].n)+'</b><span>'+(STN[k].g||'')+'</span></button>').join('')+'</div></div>'; }
@@ -1666,6 +1671,8 @@ const INFO = {
   'AP':'This technique works on the Anarchy Point pool itself, draining an enemy or refilling an ally.',
   'Body AC':'This technique raises Body AC for the scene, so the body is harder to Break.',
   'Mind AC':'This technique raises Mind AC for the scene, so the mind is harder to Break.',
+  'die':'Technique die. Add this roll to 1D20 and your modifier when you cast, and use the same roll for the damage or healing.',
+  'apall':'All AP. Casting this spends every AP you hold instead of 1, and each AP spent adds +1 to its effect. Your pool must hold at least 1 AP.',
   'ap':'Minimum AP. Your pool must hold at least this many Anarchy Points before the technique answers. Casting spends 1 AP, unless the technique spends the whole pool.',
   'Outside your Ley Sources':'This technique belongs to a Domain that is neither your Base Anarchon nor one of your two Ley Sources. Change a Ley Source on the Anarchist Record, or choose another technique.',
   'Scores too low':'Your Chakna or Rilru is below what this technique asks. Raise the score, or level up for more ability points.',
@@ -1991,7 +1998,7 @@ async function drawSheet(){
       cBox(x, l, ry, CW, rh, C('card'), cvar(AN[t.an][2])); x.fillStyle = cvar(TYPEC[t.ty]); x.fillRect(l, ry, 12, rh); x.lineWidth = 4; x.strokeStyle = '#000'; x.strokeRect(l, ry, CW, rh);
       const cx = l + PADX; let yy = ry + 16 + Math.round(F*1.15);
       x.fillStyle = C('ink'); cFit(x, t.k.toUpperCase(), DF, TW - 70, Math.round(F*1.3), 12); x.fillText(t.k.toUpperCase(), cx, yy);
-      x.font = Math.round(F*.95)+'px '+DF; const ap = 'AP '+t.ap, pw = x.measureText(ap).width + 16; x.fillStyle = C('yel'); x.fillRect(l+CW-14-pw, ry+12, pw, Math.round(F*1.6)); x.lineWidth = 3; x.strokeRect(l+CW-14-pw, ry+12, pw, Math.round(F*1.6)); x.fillStyle = '#000'; x.fillText(ap, l+CW-14-pw+8, ry+12+Math.round(F*1.2));
+      x.font = Math.round(F*.95)+'px '+DF; const ap = t.su ? 'AP A' : 'AP '+t.ap, pw = x.measureText(ap).width + 16; x.fillStyle = t.su ? C('mag') : C('yel'); x.fillRect(l+CW-14-pw, ry+12, pw, Math.round(F*1.6)); x.lineWidth = 3; x.strokeRect(l+CW-14-pw, ry+12, pw, Math.round(F*1.6)); x.fillStyle = '#000'; x.fillText(ap, l+CW-14-pw+8, ry+12+Math.round(F*1.2));
       { const dt = '1D'+t.die, dw = x.measureText(dt).width + 16, dl = l+CW-14-pw-8-dw; x.fillStyle = C('cyan'); x.fillRect(dl, ry+12, dw, Math.round(F*1.6)); x.lineWidth = 3; x.strokeStyle = '#000'; x.strokeRect(dl, ry+12, dw, Math.round(F*1.6)); x.fillStyle = '#000'; x.fillText(dt, dl+8, ry+12+Math.round(F*1.2)); }
       yy += Math.round(F*.35); x.font = '700 '+Math.round(F*.88)+'px '+BF; x.fillStyle = C('dim'); p.meta.forEach(m=>{ yy += p.mlh; x.fillText(m, cx, yy); });
       yy += Math.round(F*1.45); x.font = Math.round(F*.98)+'px '+DF; x.fillStyle = cvar(TYPEC[t.ty]); x.fillText(t.p.toUpperCase(), cx, yy);
